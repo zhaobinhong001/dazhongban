@@ -4,6 +4,9 @@ from __future__ import unicode_literals
 from django.conf.urls import include, url
 from rest_framework.routers import DefaultRouter
 from rest_framework_swagger.views import get_swagger_view
+from .views.certufucate import CertufucateViewSet
+from .views.transfer import TransferViewSet
+from .views.consumption import ConsumptionViewSet
 
 from .views.goods import GoodsViewSet
 
@@ -32,6 +35,11 @@ router = DefaultRouter()
 
 # children_router = routers.NestedSimpleRouter(router, r'category', lookup='category')
 # children_router.register(r'children', ChildrenViewSet, base_name='category-children')
+
+router.register(r'certufucates', CertufucateViewSet, base_name='certufucate')
+router.register(r'transfer', TransferViewSet, base_name='transfer')
+router.register(r'consumption', ConsumptionViewSet, base_name='Consumption')
+
 schema_view = get_swagger_view(title='Pastebin API')
 
 urlpatterns = (

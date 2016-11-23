@@ -1,0 +1,56 @@
+
+django
+django-suit
+django-import-export
+django-model-utils
+django_extensions
+django-environ
+django-secure
+django-celery
+django-mptt
+
+django-suit-ckeditor
+django-extra-fields
+
+django-debug-toolbar
+
+
+# django rest framework
+djangorestframework-word-filter
+djangorestframework-recursive
+djangorestframework-filters
+django-rest-multiple-models
+djangorestframework-oauth
+djangorestframework
+drf-nested-routers
+drf-extensions
+
+# librares
+easy_thumbnails
+whitenoise
+
+
+django-allauth
+django-imagekit
+django-easy-select2
+django-reversion==1.10.2
+
+# short_url
+# pyqrcode
+
+# gunicorn
+# psycopg2
+# meinheld
+# gevent
+# greenlet==0.4.9
+
+# Redis support
+django-redis-cache
+django-redis
+redis
+click
+plan
+django-rest-swagger
+django-cors-headers
+jpush
+jinja2

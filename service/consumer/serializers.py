@@ -41,10 +41,13 @@ class AvatarSerializer(serializers.ModelSerializer):
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = '__all__'
+        fields = ('city', 'area', 'address', 'default')
 
 
 class ContactSerializer(serializers.ModelSerializer):
+    friends = serializers.StringRelatedField(source='friend.username')
+    avatar = serializers.StringRelatedField(source='friend.profile.avatar')
+
     class Meta:
         model = Contact
         fields = '__all__'
@@ -74,7 +77,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         read_only_fields = ("payment", "balance", "total",)
         fields = (
-        "name", "nick", "phone", "avatar", "gender", "birthday", "payment", "balance", "total",)
+            "name", "nick", "phone", "avatar", "gender", "birthday", "payment", "balance", "total",)
 
 
 class AccountDetailsSerializer(serializers.ModelSerializer):

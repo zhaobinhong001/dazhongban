@@ -10,7 +10,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from imagekit.models import ProcessedImageField
-from model_utils.models import TimeStampedModel, StatusModel
+from model_utils.models import TimeStampedModel
 from pilkit.processors import ResizeToFill
 from rest_framework.serializers import ValidationError
 
@@ -158,7 +158,7 @@ class Affairs(TimeStampedModel):
     '''
 
     '''
-    owner = models.OneToOneField(settings.AUTH_USER_MODEL, unique=True, db_index=True, related_name='affairs')
+    owner = models.OneToOneField(settings.AUTH_USER_MODEL, unique=True, db_index=True)
     default = models.BooleanField(verbose_name=_('用户通讯录'), default=False)
 
     def __unicode__(self):
@@ -178,7 +178,7 @@ class Contact(TimeStampedModel):
 
     '''
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
-    default = models.BooleanField(verbose_name=_('用户通讯录'), default=False)
+    friend = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='friend')
 
     def __unicode__(self):
         return self.name

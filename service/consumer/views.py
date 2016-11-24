@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import short_url
 from rest_framework import viewsets
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.reverse import reverse
 
 from .serializers import (
-    AddressSerializer, ProfileSerializer, AvatarSerializer, ContactSerializer, AffairsSerializer)
+    AddressSerializer, ProfileSerializer, AvatarSerializer, ContactSerializer)
 from .utils import get_user_profile
 
 
@@ -73,6 +70,9 @@ class AddressViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.request.user.address_set.all()
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 
 # class AffairsViewSet(viewsets.ModelViewSet):
 #     serializer_class = AffairsSerializer
@@ -88,3 +88,6 @@ class ContactViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.request.user.contact_set.all()
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)

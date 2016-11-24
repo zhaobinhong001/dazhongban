@@ -4,19 +4,20 @@ from __future__ import unicode_literals
 from django.db import models
 
 TRANSFER_TYPE = (
-    (0, '收款'),
-    (1, '转账'),
+    ('198', '收款'),
+    ('199', '转账'),
 )
 
 
-# 转账记录表
+# 转账表
 class Transfer(models.Model):
     parent_id = models.IntegerField(verbose_name=u'编号')
-    transfer_type = models.CharField(verbose_name=u'转账类型', choices=TRANSFER_TYPE, max_length=10, default=0)
+    transfer_type = models.CharField(verbose_name=u'转账类型', choices=TRANSFER_TYPE, max_length=100, default=199)
     transfer_money = models.DecimalField(verbose_name=u'转账金额', max_digits=10, decimal_places=2)
     receivables_bank = models.CharField(verbose_name=u'收款银行', max_length=30, )
     receivables_lastNum = models.IntegerField(verbose_name='收款尾号')
     drawee = models.CharField(verbose_name=u'付款人', max_length=100)
+    Payee = models.CharField(verbose_name=u'收款人', max_length=100, default='Null')
     drawee_bank = models.CharField(verbose_name=u'付款银行', max_length=30)
     drawee_lastNum = models.IntegerField(verbose_name=u'付款尾号')
     receivables_mark = models.TextField(verbose_name=u'转账备注', null=True)

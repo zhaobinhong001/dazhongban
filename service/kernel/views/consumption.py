@@ -7,7 +7,7 @@ from ..serializers.consumption import ConsumptionSerializer
 
 class ConsumptionViewSet(viewsets.ModelViewSet):
     '''
-    消费记录接口
+    消费接口
     '''
     queryset = Consumption.objects.all()
     serializer_class = ConsumptionSerializer

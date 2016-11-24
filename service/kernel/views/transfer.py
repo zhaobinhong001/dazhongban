@@ -7,7 +7,7 @@ from ..serializers.transfer import TransferSerializers
 
 class TransferViewSet(viewsets.ModelViewSet):
     '''
-    转账记录接口
+    转账接口
     '''
     queryset = Transfer.objects.all()
     serializer_class = TransferSerializers

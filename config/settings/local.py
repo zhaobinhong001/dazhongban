@@ -29,7 +29,7 @@ INSTALLED_APPS += (
     #     'notifications',
     #     'allauth',
     #     'oauth_provider',
-    'django_jenkins',
+    # 'django_jenkins',
 )
 
 DATABASES = {

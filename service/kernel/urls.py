@@ -7,6 +7,7 @@ from rest_framework_swagger.views import get_swagger_view
 from .views.certufucate import CertufucateViewSet
 from .views.transfer import TransferViewSet
 from .views.consumption import ConsumptionViewSet
+from service.kernel.views.enterprise import EnterproseViewSet
 
 from .views.goods import GoodsViewSet
 
@@ -39,6 +40,9 @@ router = DefaultRouter()
 router.register(r'certufucates', CertufucateViewSet, base_name='certufucate')
 router.register(r'transfer', TransferViewSet, base_name='transfer')
 router.register(r'consumption', ConsumptionViewSet, base_name='Consumption')
+
+# 企业用户
+router.register(r'enterprise', EnterproseViewSet, base_name='enterprise')
 
 schema_view = get_swagger_view(title='Pastebin API')
 

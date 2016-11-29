@@ -33,6 +33,9 @@ class EnterpriseUser(models.Model):
     platform_income = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=u'平台收入总计')
     settled_date = models.DateTimeField(auto_now=True, verbose_name=u'入驻时间')
 
+    def __unicode__(self):
+        return '%s (%d) (%d)' % (self.enterprise_name, self.yesterday_income, self.platform_income)
+
     def __str__(self):
         return self.__unicode__()
 

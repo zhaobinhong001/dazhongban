@@ -18,6 +18,7 @@ MANIFEST
 
 !.gitignore
 !.travis.yml
+!.gitlab-ci.yml
 !.isort.cfg
 assets/**
 frontend/static/frontend/lib/

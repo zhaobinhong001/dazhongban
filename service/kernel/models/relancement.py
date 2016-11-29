@@ -19,7 +19,7 @@ class Relancement(models.Model):
     title = models.CharField(verbose_name=_(u'公告标题'), max_length=50, default='')
     content = models.CharField(verbose_name=_(u'公告内容'), max_length=200, default='')
     price = models.ImageField(verbose_name=_(u'图片'), upload_to="goods", height_field='url_height',
-                              width_field='url_width', help_text=u'图片尺寸最好为75x75', blank=True, null=True,)
+                              width_field='url_width', help_text=u'图片尺寸最好为75x75', blank=True, null=True, )
     applicant = models.CharField(verbose_name=_(u'申请人'), max_length=50, default='')
     creation_time = models.DateField(verbose_name=_(u'申请时间，系统自建'), auto_now_add=True)
     approval = models.CharField(verbose_name=_(u'审批人'), max_length=50, default='')
@@ -42,4 +42,3 @@ class Relancement(models.Model):
     class Meta:
         verbose_name = _(u'创建公告')
         verbose_name_plural = _(u'创建公告')
-

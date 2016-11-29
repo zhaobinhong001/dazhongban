@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from suit_dashboard.layout import Grid, Row, Column
 from suit_dashboard.views import DashboardView
 
-from dashboard.boxes import BoxMachine
+from .boxes import BoxMachine
 
 
 class HomeView(DashboardView):

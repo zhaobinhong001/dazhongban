@@ -4,7 +4,7 @@
 from __future__ import unicode_literals
 from django.contrib.admin.sites import AdminSite
 from django.conf.urls import url
-from dashboard.views import HomeView
+from .views import HomeView
 
 
 class DashboardSite(AdminSite):

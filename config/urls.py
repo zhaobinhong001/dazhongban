@@ -5,7 +5,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 
-from dashboard.sites import DashboardSite
+from service.dashboard.sites import DashboardSite
 
 admin.site = DashboardSite()
 admin.sites.site = admin.site  # >= Django 1.9.5

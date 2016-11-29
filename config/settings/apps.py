@@ -9,6 +9,7 @@ INSTALLED_APPS += (
     'service.message',
     'service.consumer',
     'service.restauth',
+    'service.signature',
     'service.restauth.registration',
 
     'imagekit',

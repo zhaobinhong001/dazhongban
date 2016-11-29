@@ -12,6 +12,7 @@ from django.utils.six import text_type
 
 from .compat import SiteProfileNotAvailable, get_model
 from .models import Profile as Profile
+from .models import Settings as Settings
 
 md5 = lambda x: _md5(force_bytes(x, errors='replace'))
 sha1 = lambda x: _sha1(force_bytes(x, errors='replace'))
@@ -174,6 +175,25 @@ def get_profile_model():
         raise SiteProfileNotAvailable
 
     return profile_mod
+
+
+def get_user_settings(user):
+    # profile_model = get_profile_model()
+    settings_model = Settings
+
+    try:
+        settings = user.get_settings()
+    except AttributeError:
+        # related_name = profile_model._meta.get_field_by_name('owner')[0].related_query_name()
+        related_name = settings_model._meta.get_field('owner').related_query_name()
+        settings = getattr(user, related_name, None)
+    except settings_model.DoesNotExist:
+        settings = None
+
+    if settings:
+        return settings
+
+    return settings_model.objects.create(owner=user)
 
 
 # def get_user_settings(user):

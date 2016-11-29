@@ -4,9 +4,9 @@ from __future__ import unicode_literals
 from django.db import models
 
 CREDENTIALS_TYPE = (
-    ('0', '身份证'),
-    ('1', 'EID'),
-    ('2', '3')
+    ('1110', '身份证'),
+    ('1111', 'EID'),
+    ('1112', '3'),
 )
 
 CREDENTIALS_LEVEL = (
@@ -31,7 +31,8 @@ AURGENTICATION_MODE = (
 class Certufucate(models.Model):
     certufucate_num = models.IntegerField(verbose_name=u'证书号')
     certufucate_name = models.CharField(verbose_name=u'证书持有人', max_length=100)
-    credentials_type = models.IntegerField(verbose_name=u'证件类型', choices=CREDENTIALS_TYPE, default=0)  # 证件类型一共几种
+    credentials_type = models.CharField(verbose_name=u'证件类型', choices=CREDENTIALS_TYPE, default=1110,
+                                        max_length=100)  # 证件类型一共几种
     credentials_num = models.CharField(verbose_name=u'证件号', max_length=100)
     certification_authority = models.CharField(verbose_name=u'发证机构', max_length=100)
     certufucate_status = models.BooleanField(verbose_name=u'证书状态', default=True)  # True:正常；False:异常

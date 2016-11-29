@@ -189,3 +189,87 @@ class Contact(TimeStampedModel):
     class Meta:
         verbose_name = _(u'用户通讯录')
         verbose_name_plural = _(u'用户通讯录')
+
+
+class Bankcard(models.Model):
+    '''
+    银行卡信息
+
+    '''
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True)
+    name = models.CharField(verbose_name=_(u'所属银行'), blank=True, max_length=50)
+    number = models.CharField(verbose_name=_(u'银行卡卡号'), blank=True, max_length=50)
+    ctime = models.DateField(verbose_name=_(u'创建时间，系统自建'), auto_now_add=True)
+
+    def __unicode__(self):
+        return self.name
+
+    def __str__(self):
+        return self.__unicode__()
+
+    class Meta:
+        verbose_name = _(u'用户银行卡')
+        verbose_name_plural = _(u'用户银行卡')
+
+
+class Blacklist(models.Model):
+    '''
+    黑名单信息
+
+    '''
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True)
+    user_id = models.CharField(verbose_name=_(u'用户ID'), blank=True, max_length=50)
+    ctime = models.DateField(verbose_name=_(u'创建时间，系统自建'), auto_now_add=True)
+
+    def __unicode__(self):
+        return self.user_id
+
+    def __str__(self):
+        return self.__unicode__()
+
+    class Meta:
+        verbose_name = _(u'用户黑名单')
+        verbose_name_plural = _(u'用户黑名单')
+
+
+class Settings(models.Model):
+    '''
+    该接口更新接受PUT方法
+
+    电话号码绑定状态:
+    fales: 未绑定
+    true: 已绑定
+    默认: 未绑定
+    身份认证状态:
+    fales: 未认证
+    true: 已认证
+    默认: 未认证
+    证件类型字段英文对应汉字为:
+    identity:居民身份证
+    driver:驾驶证
+    officers:军官证
+    passport:护照
+    提交的数据要用英文.获取时候api也是英文, 要客户端自己做下转换.
+    '''
+    GENDER_CHOICES = (('identity', '居民身份证'), ('driver', '驾驶证'), ('officers', '军官证'), ('passport', '护照'))
+
+    owner = models.OneToOneField(settings.AUTH_USER_MODEL, unique=True, db_index=True, related_name='settings')
+    name = models.CharField(verbose_name=_(u'姓名'), blank=True, max_length=255, db_index=True)
+    nick = models.CharField(verbose_name=_(u'马甲'), blank=True, null=True, max_length=255, db_index=True)
+    phone = models.CharField(verbose_name=_(u'电话'), default='', blank=True, max_length=64)
+    type_phone = models.BooleanField(verbose_name=_(u'电话号码绑定状态'), default=False)
+    id_card = models.CharField(verbose_name=_(u'证件号码'), default='', blank=True, max_length=64)
+    document_type = models.CharField(verbose_name=_(u'证件类型'), max_length=10, choices=GENDER_CHOICES, default='identity')
+    id_identity = models.BooleanField(verbose_name=_(u'身份认证'), default=False)
+    avatar = ProcessedImageField(verbose_name=_(u'头像'), upload_to='avatar', processors=[ResizeToFill(320, 320)],
+        format='JPEG', null=True)
+
+    def __unicode__(self):
+        return self.name
+
+    def __str__(self):
+        return self.__unicode__()
+
+    class Meta:
+        verbose_name = _(u'settings')
+        verbose_name_plural = _(u'settings')

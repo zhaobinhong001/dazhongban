@@ -7,10 +7,11 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-
+from service.consumer.models import Blacklist
 from .serializers import (
-    AddressSerializer, ProfileSerializer, AvatarSerializer, ContactSerializer, AffairsSerializer)
+    AddressSerializer, ProfileSerializer, AvatarSerializer, ContactSerializer, AffairsSerializer, BankcardSerializer, BlacklistSerializer, SettingsSerializer)
 from .utils import get_user_profile
+from .utils import get_user_settings
 
 
 #
@@ -88,3 +89,40 @@ class ContactViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.request.user.contact_set.all()
+
+
+class BankcardViewSet(viewsets.ModelViewSet):
+    '''
+    银行卡信息
+    '''
+    serializer_class = BankcardSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        return self.request.user.bankcard_set.all()
+
+
+class BlacklistViewSet(viewsets.ModelViewSet):
+    '''
+    黑名单
+    '''
+    queryset = Blacklist.objects.filter(id__gt=1)
+    serializer_class = BlacklistSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = self.queryset.filter(owner=self.request.user)
+        return queryset
+
+
+class SettingsViewSet(RetrieveUpdateAPIView):
+    '''
+    用户设置
+    '''
+    serializer_class = SettingsSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        # return self.request.user.settings
+        return get_user_settings(self.request.user)
+

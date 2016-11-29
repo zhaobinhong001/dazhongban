@@ -45,7 +45,9 @@ class RegisterView(GenericAPIView):
 
     def get_response(self):
         serializer = self.response_serializer(instance=self.token)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        data = serializer.data
+        # data['token'] = get
+        return Response(data, status=status.HTTP_201_CREATED)
 
     def get_response_with_errors(self):
         return Response(self.form.errors, status=status.HTTP_400_BAD_REQUEST)

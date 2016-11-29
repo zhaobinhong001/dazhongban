@@ -54,3 +54,5 @@ django-rest-swagger
 django-cors-headers
 jpush
 jinja2
+
+git+https://github.com/rongcloud/server-sdk-python

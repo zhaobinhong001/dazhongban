@@ -49,6 +49,7 @@ schema_view = get_swagger_view(title='Pastebin API')
 urlpatterns = (
     url(r'^', include(router.urls, namespace='v1.0')),
     url(r'^me/', include('service.consumer.urls')),
+    url(r'^im/', include('service.message.urls')),
 
     url(r'^auth/', include('service.restauth.urls')),
     url(r'^user/', include('rest_framework.urls', namespace='rest_framework')),

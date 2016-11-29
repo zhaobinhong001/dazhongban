@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from rest_framework import serializers
 
-from .models import Address, Profile, Contact, Affairs
+from .models import Address, Profile, Contact, Affairs, Bankcard, Blacklist, Settings
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -102,4 +102,22 @@ class AccountDetailsSerializer(serializers.ModelSerializer):
 class AffairsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Affairs
+        fields = '__all__'
+
+
+class BankcardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bankcard
+        fields = '__all__'
+
+
+class BlacklistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Blacklist
+        fields = '__all__'
+
+
+class SettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Settings
         fields = '__all__'

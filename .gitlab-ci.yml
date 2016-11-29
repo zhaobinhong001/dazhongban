@@ -1,0 +1,10 @@
+before_script:
+  - python manage.py migrate
+
+rspec:
+  script:
+    - python manage.py runserver
+
+rubocop:
+  script:
+    - bundle exec rubocop

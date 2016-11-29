@@ -22,7 +22,7 @@ ROOT_DIR = environ.Path(__file__) - 3
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # APPS_DIR = ROOT_DIR.path('apps')
 
-environ.Env.read_env()
+# environ.Env.read_env()
 env = environ.Env()
 
 # FIXTURE_DIRS = (
@@ -44,7 +44,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 INSTALLED_APPS = (
     'django.contrib.auth',
-    'django.contrib.admin',
+    'django.contrib.admin.apps.SimpleAdminConfig',
     'django.contrib.admindocs',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -53,6 +53,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.flatpages',
     'django_extensions',
+    'suit_dashboard',
 )
 
 MIDDLEWARE_CLASSES = (

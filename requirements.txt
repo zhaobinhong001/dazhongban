@@ -56,3 +56,6 @@ jpush
 jinja2
 
 git+https://github.com/rongcloud/server-sdk-python
+
+django-suit-dashboard
+psutil

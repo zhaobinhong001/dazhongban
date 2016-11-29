@@ -11,6 +11,7 @@ INSTALLED_APPS += (
     'service.restauth',
     'service.signature',
     'service.restauth.registration',
+    'dashboard',
 
     'imagekit',
     'reversion',

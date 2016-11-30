@@ -5,9 +5,11 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 
-# import service.kernel.urls
+from service.dashboard.sites import DashboardSite
 
-# import service.frontend.views
+admin.site = DashboardSite()
+admin.sites.site = admin.site  # >= Django 1.9.5
+admin.autodiscover()
 
 urlpatterns = (
     # url(r'^', include('service.frontend.urls')),

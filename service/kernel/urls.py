@@ -35,9 +35,9 @@ router = DefaultRouter()
 # children_router = routers.NestedSimpleRouter(router, r'category', lookup='category')
 # children_router.register(r'children', ChildrenViewSet, base_name='category-children')
 # signature
-router.register(r'trade/transferred', TransferViewSet, base_name='transferred')
-router.register(r'trade/certificate', CertufucateViewSet, base_name='certificate')
-router.register(r'trade/consumption', ConsumptionViewSet, base_name='consumption')
+# router.register(r'trade/transferred', TransferViewSet, base_name='transferred')
+# router.register(r'trade/certificate', CertufucateViewSet, base_name='certificate')
+# router.register(r'trade/consumption', ConsumptionViewSet, base_name='consumption')
 
 # router.register(r'signature/history', SignatureHistoryViewSet, base_name='history')
 

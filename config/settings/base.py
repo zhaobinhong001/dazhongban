@@ -133,13 +133,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 LANGUAGE_CODE = 'zh-hans'
 ENCODING = 'zh-hans'
 
-# TIME_ZONE = 'UTC'
-TIME_ZONE = 'Asia/Shanghai'
-
 USE_I18N = True
+USE_L10N = False
 
-# USE_L10N = True
-
+DATETIME_FORMAT = 'Y-m-d H:i:s'
+DATE_FORMAT = 'Y-m-d'
 USE_TZ = False
 
 # # Static files (CSS, JavaScript, Images)
@@ -165,7 +163,7 @@ try:
     from .suit import *
 
     from .static import *
-    # from .celery import *
+    from .celery import *
 
     from .cache import *
     from .thumb import *

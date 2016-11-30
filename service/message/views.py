@@ -12,8 +12,8 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from rongcloud import RongCloud
 
-from .models import Groups, Token
-from .serializers import GroupsSerializer, TokenSerializer
+from .models import Groups
+from .serializers import GroupsSerializer
 
 
 class UserViewSet(NestedViewSetMixin, ModelViewSet):
@@ -23,24 +23,14 @@ class UserViewSet(NestedViewSetMixin, ModelViewSet):
 client = RongCloud(settings.RONGCLOUD_APPKEY, settings.RONGCLOUD_SECRET)
 
 
-class TokenViewSet(NestedViewSetMixin, ModelViewSet):
-    serializer_class = TokenSerializer
-    permission_classes = (IsAuthenticated,)
-    model = Token
-
+class TokenViewSet(GenericViewSet):
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+        nick = request.user.profile.nick if request.user.profile.nick else u'匿名'
+        avatar = request.user.profile.avatar if request.user.profile.avatar else u'匿名'
+        user = client.User.getToken(userId=request.user.pk, name=nick, portraitUri=avatar)
+        data = user.result.get('token')
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def get_queryset(self):
-        return self.request.user.im_token.all()
+        return Response({'key': data}, status=status.HTTP_200_OK)
 
 
 class GroupViewSet(NestedViewSetMixin, mixins.CreateModelMixin,

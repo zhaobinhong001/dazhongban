@@ -2,15 +2,13 @@
 from __future__ import unicode_literals
 
 from django.conf.urls import url, include
-from rest_framework_extensions.routers import ExtendedDefaultRouter
+from rest_framework.routers import DefaultRouter
 
 from .views import GroupViewSet, TokenViewSet
 
-router = ExtendedDefaultRouter()
-(
-    router.register(r'groups', GroupViewSet, base_name='im-groups'),
-    router.register(r'token', TokenViewSet, base_name='im-token'),
-)
+router = DefaultRouter()
+router.register(r'group', GroupViewSet, base_name='im-groups')
+router.register(r'token', TokenViewSet, base_name='im-token')
 
 urlpatterns = (
     url(r'', include(router.urls)),

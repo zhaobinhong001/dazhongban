@@ -6,8 +6,10 @@ from .base import INSTALLED_APPS, DEBUG
 INSTALLED_APPS += (
     'service.frontend',
     'service.kernel',
+    'service.message',
     'service.consumer',
     'service.restauth',
+    'service.signature',
     'service.restauth.registration',
 
     'imagekit',
@@ -15,3 +17,7 @@ INSTALLED_APPS += (
     'easy_select2',
     'import_export',
 )
+
+
+RONGCLOUD_APPKEY = 'ik1qhw09ifflp'
+RONGCLOUD_SECRET = 'kfx3v7mffJeaJt'

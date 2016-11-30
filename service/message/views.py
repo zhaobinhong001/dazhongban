@@ -3,11 +3,12 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from rest_framework import mixins
 from rest_framework import status
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from rongcloud import RongCloud
 
@@ -22,7 +23,37 @@ class UserViewSet(NestedViewSetMixin, ModelViewSet):
 client = RongCloud(settings.RONGCLOUD_APPKEY, settings.RONGCLOUD_SECRET)
 
 
-class GroupViewSet(NestedViewSetMixin, ModelViewSet):
+class TokenViewSet(NestedViewSetMixin, ModelViewSet):
+    pass
+
+
+class GroupViewSet(NestedViewSetMixin, mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet):
+    '''
+    融云群聊接口
+    ===========
+    链接：
+    ----
+    - 加入群组: [/api/im/groups/&#60;pk&#62;join/](/api/im/groups/<pk>/join/)
+
+    输入:
+    ----
+    -  name, 必须, 组名
+    -  id, 必须, 组id
+
+    输出:
+    ----
+    -  name, 必须, 组名
+    -  id, 必须, 组id
+
+
+    异常:
+    ----
+    `状态码非20x`
+    '''
     serializer_class = GroupsSerializer
     permission_classes = (IsAuthenticated,)
     model = Groups
@@ -69,6 +100,10 @@ class GroupViewSet(NestedViewSetMixin, ModelViewSet):
 
     @list_route(methods=['get'])
     def users(self, request, pk=None):
+        '''
+        融云群聊接口 - 群组用户
+        ===========
+        '''
         result = client.Group.queryUser(groupId=pk)
         if not result:
             raise Exception

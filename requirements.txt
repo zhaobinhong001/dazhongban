@@ -55,10 +55,12 @@ django-cors-headers
 jpush
 jinja2
 
-git+https://github.com/rongcloud/server-sdk-python
-
 django-suit-dashboard
+short_url
 psutil
 
-#django-daterange-filter
-git+https://github.com/f213/django-suit-daterange-filter
+django-daterange-filter
+django_celery_results
+django_celery_beat
+
+git+https://github.com/rongcloud/server-sdk-python

@@ -6,7 +6,9 @@ from ..models.relancement import Relancement
 
 
 class RelancementAdmin(admin.ModelAdmin):
-
+    '''
+    公告管理
+    '''
     list_display = ('applicant', 'content', 'approval_status', 'creation_time')
     list_filter = ('creation_time', 'approval_status')
     ordering = ('-creation_time',)

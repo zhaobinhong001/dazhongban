@@ -48,7 +48,7 @@ class Relancement(models.Model):
     title = models.CharField(verbose_name=_(u'公告标题'), max_length=50, default='')
     content = models.CharField(verbose_name=_(u'公告内容'), max_length=200, default='')
     price = models.ImageField(verbose_name=_(u'图片'), upload_to="goods", height_field='url_height',
-                              width_field='url_width', help_text=u'图片尺寸最好为75x75', blank=True, null=True, )
+        width_field='url_width', help_text=u'图片尺寸最好为75x75', blank=True, null=True, )
     applicant = models.CharField(verbose_name=_(u'申请人'), max_length=50, default='')
     creation_time = models.DateField(verbose_name=_(u'申请时间'), auto_now_add=True)
     approval = models.CharField(verbose_name=_(u'审批人'), max_length=50, default='')
@@ -62,7 +62,7 @@ class Relancement(models.Model):
     order = models.IntegerField(_(u'排序'), default='1')
 
     def __unicode__(self):
-        return '%s ' % (self.title)
+        return self.title
 
     def __str__(self):
         return self.__unicode__()

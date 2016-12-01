@@ -15,11 +15,25 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
-class UserSerializer(serializers.ModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer):
+    # qrcode = serializers.URLField(read_only=True)
+    # jpush_registration_id = serializers.CharField(source='owner.jpush_registration_id', read_only=True)
+    #
     class Meta:
-        depth = 1
+        model = Profile
+        read_only_fields = ("payment", "balance", "total",)
+        fields = (
+            "name", "nick", "phone", "avatar", "gender", "birthday", "payment", "balance", "total",)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='profile.name')
+    nick = serializers.CharField(source='profile.nick')
+    avatar = serializers.CharField(source='profile.avatar')
+
+    class Meta:
         model = get_user_model()
-        # fields = ('id', 'username', 'name', 'email', 'phone', 'groups', 'is_active')
+        fields = ('id', 'name', 'nick', 'avatar')
 
 
 class AvatarSerializer(serializers.ModelSerializer):
@@ -42,17 +56,6 @@ class ContactSerializer(serializers.ModelSerializer):
         # depth = 1
         model = Contact
         exclude = ('owner',)
-
-
-class ProfileSerializer(serializers.ModelSerializer):
-    # qrcode = serializers.URLField(read_only=True)
-    # jpush_registration_id = serializers.CharField(source='owner.jpush_registration_id', read_only=True)
-    #
-    class Meta:
-        model = Profile
-        read_only_fields = ("payment", "balance", "total",)
-        fields = (
-            "name", "nick", "phone", "avatar", "gender", "birthday", "payment", "balance", "total",)
 
 
 class AccountDetailsSerializer(serializers.ModelSerializer):

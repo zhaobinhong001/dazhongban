@@ -7,6 +7,7 @@ from django.db import models
 
 class Groups(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='im_groups')
+    users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='users')
     name = models.CharField(verbose_name=u'群组名称', max_length=100, blank=False)
 
 

@@ -7,7 +7,7 @@ from ..serializers.relancement import RelancementSerializer
 
 class RelancementViewSet(viewsets.ModelViewSet):
     '''
-    创建公告
+    公告管理
     '''
     queryset = Relancement.objects.all()
     serializer_class = RelancementSerializer

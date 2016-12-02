@@ -21,12 +21,14 @@ GENDER_CHOICES = (
     ('2', '男性用户'),
     ('3', '女性用户')
 )
+
 AGE_CHOICES = (
     ('1', '全部年龄层'),
     ('2', '20~40岁用户'),
     ('3', '40~60岁用户'),
     ('4', '60岁以上用户')
 )
+
 AUTHENTICATION_CHOICES = (
     ('1', '全部认证方式'),
     ('2', 'A 类认证'),
@@ -34,6 +36,7 @@ AUTHENTICATION_CHOICES = (
     ('4', 'C 类认证'),
     ('5', 'D 类认证')
 )
+
 CERTIFICATES_CHOICES = (
     ('1', '全部认证类型'),
     ('2', '身份证'),
@@ -44,6 +47,9 @@ CERTIFICATES_CHOICES = (
 
 
 class Relancement(models.Model):
+    '''
+    公告管理
+    '''
     UNITS_CHOICES = ()
     title = models.CharField(verbose_name=_(u'公告标题'), max_length=50, default='')
     content = models.CharField(verbose_name=_(u'公告内容'), max_length=200, default='')
@@ -69,4 +75,4 @@ class Relancement(models.Model):
 
     class Meta:
         verbose_name = _(u'创建公告')
-        verbose_name_plural = _(u'创建公告')
+        verbose_name_plural = _(u'公告管理')

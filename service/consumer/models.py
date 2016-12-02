@@ -10,7 +10,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from imagekit.models import ProcessedImageField
-from model_utils.models import TimeStampedModel, StatusModel
+from model_utils.models import TimeStampedModel
 from pilkit.processors import ResizeToFill
 from rest_framework.serializers import ValidationError
 
@@ -151,37 +151,16 @@ class Address(TimeStampedModel):
         verbose_name_plural = _(u'用户地址')
 
 
-'''class Contact()'''
-
-
-class Affairs(TimeStampedModel):
-    '''
-
-    '''
-    owner = models.OneToOneField(settings.AUTH_USER_MODEL, unique=True, db_index=True, related_name='affairs')
-    default = models.BooleanField(verbose_name=_('用户通讯录'), default=False)
-
-    def __unicode__(self):
-        return self.name
-
-    def __str__(self):
-        return self.__unicode__()
-
-    class Meta:
-        verbose_name = _(u'用户通讯录')
-        verbose_name_plural = _(u'用户通讯录')
-
-
 class Contact(TimeStampedModel):
     '''
     用户通讯录
 
     '''
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
-    default = models.BooleanField(verbose_name=_('用户通讯录'), default=False)
+    friend = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('好友'), default='', related_name='friends')
 
     def __unicode__(self):
-        return self.name
+        return self.friend
 
     def __str__(self):
         return self.__unicode__()
@@ -191,18 +170,23 @@ class Contact(TimeStampedModel):
         verbose_name_plural = _(u'用户通讯录')
 
 
-class Bankcard(models.Model):
+class Bankcard(TimeStampedModel):
     '''
     银行卡信息
 
     '''
+    TYPE_CHOICES = (('储蓄卡', '储蓄卡'),)
+    FLAG_CHOICES = (('收', '收'),)
+
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True)
-    name = models.CharField(verbose_name=_(u'所属银行'), blank=True, max_length=50)
-    number = models.CharField(verbose_name=_(u'银行卡卡号'), blank=True, max_length=50)
-    ctime = models.DateField(verbose_name=_(u'创建时间，系统自建'), auto_now_add=True)
+    bank = models.CharField(verbose_name=_(u'所属银行'), blank=True, max_length=50, default='')
+    card = models.CharField(verbose_name=_(u'银行卡号'), blank=True, max_length=50, default='')
+    suffix = models.CharField(verbose_name=_(u'卡号后缀'), max_length=10, default='')
+    type = models.CharField(verbose_name=_('卡片类型'), max_length=10, choices=TYPE_CHOICES, default='')
+    flag = models.CharField(verbose_name=_('卡片用途'), max_length=10, choices=FLAG_CHOICES, default='')
 
     def __unicode__(self):
-        return self.name
+        return '%s - %s' % (self.bank, self.card)
 
     def __str__(self):
         return self.__unicode__()
@@ -212,17 +196,16 @@ class Bankcard(models.Model):
         verbose_name_plural = _(u'用户银行卡')
 
 
-class Blacklist(models.Model):
+class Blacklist(TimeStampedModel):
     '''
     黑名单信息
 
     '''
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True)
-    user_id = models.CharField(verbose_name=_(u'用户ID'), blank=True, max_length=50)
-    ctime = models.DateField(verbose_name=_(u'创建时间，系统自建'), auto_now_add=True)
+    black = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'黑名单用户'), related_name='black', default='')
 
     def __unicode__(self):
-        return self.user_id
+        return self.black
 
     def __str__(self):
         return self.__unicode__()

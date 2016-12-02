@@ -21,12 +21,14 @@ GENDER_CHOICES = (
     ('2', '男性用户'),
     ('3', '女性用户')
 )
+
 AGE_CHOICES = (
     ('1', '全部年龄层'),
     ('2', '20~40岁用户'),
     ('3', '40~60岁用户'),
     ('4', '60岁以上用户')
 )
+
 AUTHENTICATION_CHOICES = (
     ('1', '全部认证方式'),
     ('2', 'A 类认证'),
@@ -34,6 +36,7 @@ AUTHENTICATION_CHOICES = (
     ('4', 'C 类认证'),
     ('5', 'D 类认证')
 )
+
 CERTIFICATES_CHOICES = (
     ('1', '全部认证类型'),
     ('2', '身份证'),
@@ -44,11 +47,14 @@ CERTIFICATES_CHOICES = (
 
 
 class Relancement(models.Model):
+    '''
+    公告管理
+    '''
     UNITS_CHOICES = ()
     title = models.CharField(verbose_name=_(u'公告标题'), max_length=50, default='')
     content = models.CharField(verbose_name=_(u'公告内容'), max_length=200, default='')
     price = models.ImageField(verbose_name=_(u'图片'), upload_to="goods", height_field='url_height',
-                              width_field='url_width', help_text=u'图片尺寸最好为75x75', blank=True, null=True, )
+        width_field='url_width', help_text=u'图片尺寸最好为75x75', blank=True, null=True, )
     applicant = models.CharField(verbose_name=_(u'申请人'), max_length=50, default='')
     creation_time = models.DateField(verbose_name=_(u'申请时间'), auto_now_add=True)
     approval = models.CharField(verbose_name=_(u'审批人'), max_length=50, default='')
@@ -62,11 +68,11 @@ class Relancement(models.Model):
     order = models.IntegerField(_(u'排序'), default='1')
 
     def __unicode__(self):
-        return '%s ' % (self.title)
+        return self.title
 
     def __str__(self):
         return self.__unicode__()
 
     class Meta:
         verbose_name = _(u'创建公告')
-        verbose_name_plural = _(u'创建公告')
+        verbose_name_plural = _(u'公告管理')

@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from rest_framework import serializers
 
-from .models import Address, Profile, Contact, Affairs, Bankcard, Blacklist, Settings
+from .models import Address, Profile, Contact, Bankcard, Blacklist, Settings
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -15,21 +15,25 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
+class ProfileSerializer(serializers.ModelSerializer):
+    # qrcode = serializers.URLField(read_only=True)
+    # jpush_registration_id = serializers.CharField(source='owner.jpush_registration_id', read_only=True)
+    #
+    class Meta:
+        model = Profile
+        read_only_fields = ("payment", "balance", "total",)
+        fields = (
+            "name", "nick", "phone", "avatar", "gender", "birthday", "payment", "balance", "total",)
+
+
 class UserSerializer(serializers.ModelSerializer):
-    # groups = GroupSerializer(many=True)
-    # phone = serializers.CharField(source='profile.phone', read_only=True)
-    # name = serializers.CharField(source='profile.name', read_only=True)
-
-    # menus = serializers.SerializerMethodField()
-    # is_active = serializers.BooleanField(source='profile.is_cms_active')
-
-    # def get_menus(self, user):
-    #     return get_menus(user)
+    name = serializers.CharField(source='profile.name')
+    nick = serializers.CharField(source='profile.nick')
+    avatar = serializers.CharField(source='profile.avatar')
 
     class Meta:
-        depth = 1
         model = get_user_model()
-        # fields = ('id', 'username', 'name', 'email', 'phone', 'groups', 'is_active')
+        fields = ('id', 'name', 'nick', 'avatar')
 
 
 class AvatarSerializer(serializers.ModelSerializer):
@@ -41,40 +45,17 @@ class AvatarSerializer(serializers.ModelSerializer):
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = '__all__'
+        exclude = ('owner',)
 
 
 class ContactSerializer(serializers.ModelSerializer):
+    name = serializers.StringRelatedField(source='friend.profile.name')
+    nick = serializers.StringRelatedField(source='friend.profile.nick')
+
     class Meta:
+        # depth = 1
         model = Contact
-        fields = '__all__'
-
-
-# class BestsProfileSerializer(serializers.ModelSerializer):
-#     avatar = AvatarRelatedField(many=False, read_only=True, source='profile.avatar')
-#     nick = serializers.StringRelatedField(many=False, read_only=True, source='profile.nick')
-#     name = serializers.StringRelatedField(many=False, read_only=True, source='profile.name')
-#
-#     class Meta:
-#         depth = 1
-#         model = get_user_model()
-#         fields = ("id", "avatar", "nick", "name", "avatar")
-
-# class BestsProfileSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = UserProfile
-#         fields = ("name", "nick", "avatar", 'owner')
-
-
-class ProfileSerializer(serializers.ModelSerializer):
-    # qrcode = serializers.URLField(read_only=True)
-    # jpush_registration_id = serializers.CharField(source='owner.jpush_registration_id', read_only=True)
-    #
-    class Meta:
-        model = Profile
-        read_only_fields = ("payment", "balance", "total",)
-        fields = (
-        "name", "nick", "phone", "avatar", "gender", "birthday", "payment", "balance", "total",)
+        exclude = ('owner',)
 
 
 class AccountDetailsSerializer(serializers.ModelSerializer):
@@ -99,25 +80,19 @@ class AccountDetailsSerializer(serializers.ModelSerializer):
         }
 
 
-class AffairsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Affairs
-        fields = '__all__'
-
-
 class BankcardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bankcard
-        fields = '__all__'
+        exclude = ('owner',)
 
 
 class BlacklistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blacklist
-        fields = '__all__'
+        exclude = ('owner',)
 
 
 class SettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Settings
-        fields = '__all__'
+        exclude = ('owner',)

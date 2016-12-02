@@ -4,12 +4,10 @@ from __future__ import unicode_literals
 from django.conf.urls import include, url
 from rest_framework.routers import DefaultRouter
 from rest_framework_swagger.views import get_swagger_view
-from .views.certufucate import CertufucateViewSet
-from .views.transfer import TransferViewSet
-from .views.consumption import ConsumptionViewSet
-from service.kernel.views.enterprise import EnterproseViewSet
 
-from .views.goods import GoodsViewSet
+from .views.certufucate import CertufucateViewSet
+from .views.consumption import ConsumptionViewSet
+from .views.transfer import TransferViewSet
 
 router = DefaultRouter()
 
@@ -36,19 +34,23 @@ router = DefaultRouter()
 
 # children_router = routers.NestedSimpleRouter(router, r'category', lookup='category')
 # children_router.register(r'children', ChildrenViewSet, base_name='category-children')
+# signature
+# router.register(r'trade/transferred', TransferViewSet, base_name='transferred')
+# router.register(r'trade/certificate', CertufucateViewSet, base_name='certificate')
+# router.register(r'trade/consumption', ConsumptionViewSet, base_name='consumption')
 
-router.register(r'certufucates', CertufucateViewSet, base_name='certufucate')
-router.register(r'transfer', TransferViewSet, base_name='transfer')
-router.register(r'consumption', ConsumptionViewSet, base_name='Consumption')
+# router.register(r'signature/history', SignatureHistoryViewSet, base_name='history')
 
 # 企业用户
-router.register(r'enterprise', EnterproseViewSet, base_name='enterprise')
+# router.register(r'enterprise', EnterproseViewSet, base_name='enterprise')
 
 schema_view = get_swagger_view(title='Pastebin API')
 
 urlpatterns = (
     url(r'^', include(router.urls, namespace='v1.0')),
     url(r'^me/', include('service.consumer.urls')),
+    url(r'^im/', include('service.message.urls')),
+    url(r'^sign/', include('service.signature.urls')),
 
     url(r'^auth/', include('service.restauth.urls')),
     url(r'^user/', include('rest_framework.urls', namespace='rest_framework')),

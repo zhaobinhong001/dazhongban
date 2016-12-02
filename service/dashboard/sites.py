@@ -4,16 +4,19 @@
 from __future__ import unicode_literals
 from django.contrib.admin.sites import AdminSite
 from django.conf.urls import url
-from .views import HomeView
+from .views import HomeView, LineView
+from views import link
 
 
 class DashboardSite(AdminSite):
-  """A Django AdminSite to allow registering custom dashboard views."""
-  def get_urls(self):
-    urls = super(DashboardSite, self).get_urls()
-    custom_urls = [
-        url(r'^$', self.admin_view(HomeView.as_view()), name='index')
-    ]
+    """A Django AdminSite to allow registering custom dashboard views."""
 
-    del urls[0]
-    return custom_urls + urls
+    def get_urls(self):
+        urls = super(DashboardSite, self).get_urls()
+        custom_urls = [
+            url(r'^$', self.admin_view(HomeView.as_view()), name='index'),
+            url(r'^data/$', self.admin_view(LineView.as_view()), name='data'),
+        ]
+
+        del urls[0]
+        return custom_urls + urls

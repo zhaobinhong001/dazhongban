@@ -39,7 +39,7 @@ class Certufucate(models.Model):
     certufucate_level = models.CharField(verbose_name=u'证书等级', max_length=10, default=0, choices=CREDENTIALS_LEVEL)
     authentication_mode = models.CharField(verbose_name=u'认证方式', default=0, max_length=10, choices=AURGENTICATION_MODE)
     credit_level = models.CharField(verbose_name=u'信用等级', choices=CREDIT_LEVEL, max_length=100)
-    termOfValidity = models.DateTimeField(verbose_name=u'有效期', max_length=11)
+    termOfValidity = models.DateField(verbose_name=u'有效期', max_length=11)
 
     # aaa=models.CharField(max_length=100,verbose_name=111,choices=CHANNEL_CHOICES,default=1001)
 

@@ -22,7 +22,7 @@ ROOT_DIR = environ.Path(__file__) - 3
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # APPS_DIR = ROOT_DIR.path('apps')
 
-environ.Env.read_env()
+# environ.Env.read_env()
 env = environ.Env()
 
 # FIXTURE_DIRS = (
@@ -44,7 +44,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 INSTALLED_APPS = (
     'django.contrib.auth',
-    'django.contrib.admin',
+    'django.contrib.admin.apps.SimpleAdminConfig',
     'django.contrib.admindocs',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -53,6 +53,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.flatpages',
     'django_extensions',
+    'suit_dashboard',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -132,13 +133,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 LANGUAGE_CODE = 'zh-hans'
 ENCODING = 'zh-hans'
 
-# TIME_ZONE = 'UTC'
-TIME_ZONE = 'Asia/Shanghai'
-
 USE_I18N = True
+USE_L10N = False
 
-# USE_L10N = True
-
+DATETIME_FORMAT = 'Y-m-d H:i:s'
+DATE_FORMAT = 'Y-m-d'
 USE_TZ = False
 
 # # Static files (CSS, JavaScript, Images)
@@ -164,7 +163,7 @@ try:
     from .suit import *
 
     from .static import *
-    # from .celery import *
+    from .celery import *
 
     from .cache import *
     from .thumb import *

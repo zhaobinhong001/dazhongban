@@ -16,5 +16,5 @@ class ClientAdmin(VersionAdmin):
     pass
 
 
-admin.site.register(Address, AddressAdmin)
-admin.site.register(Client, ClientAdmin)
+# admin.site.register(Address, AddressAdmin)
+# admin.site.register(Client, ClientAdmin)

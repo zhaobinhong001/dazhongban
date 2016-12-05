@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from rest_framework import serializers
 
-from .models import Address, Profile, Contact, Bankcard, Blacklist, Settings
+from .models import Address, Profile, Contact, Bankcard, Settings
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -23,7 +23,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         read_only_fields = ("payment", "balance", "total",)
         fields = (
-            "name", "nick", "phone", "avatar", "gender", "birthday", "payment", "balance", "total",)
+            "name", "nick", "phone", "avatar", "gender", "birthday", "payment", "balance", "total", "qr")
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -40,6 +40,10 @@ class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ("avatar",)
+
+
+class AddFriendSerializer(serializers.Serializer):
+    userid = serializers.IntegerField(label='用户id')
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -86,10 +90,10 @@ class BankcardSerializer(serializers.ModelSerializer):
         exclude = ('owner',)
 
 
-class BlacklistSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Blacklist
-        exclude = ('owner',)
+# class BlacklistSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Blacklist
+#         exclude = ('owner',)
 
 
 class SettingsSerializer(serializers.ModelSerializer):

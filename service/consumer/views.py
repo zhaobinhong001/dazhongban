@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.db.models import QuerySet
+from rest_framework import status
 from rest_framework import viewsets
+from rest_framework.decorators import detail_route
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-from service.consumer.models import Blacklist
+from service.consumer.models import Contact
 from .serializers import (
-    AddressSerializer, ProfileSerializer, AvatarSerializer, ContactSerializer, BankcardSerializer, BlacklistSerializer,
-    SettingsSerializer)
+    AddressSerializer, ProfileSerializer, AvatarSerializer, ContactSerializer, BankcardSerializer,
+    SettingsSerializer, AddFriendSerializer)
 from .utils import get_user_profile
 from .utils import get_user_settings
 
@@ -56,12 +60,25 @@ class AddressViewSet(viewsets.ModelViewSet):
 class ContactViewSet(viewsets.ModelViewSet):
     serializer_class = ContactSerializer
     permission_classes = (IsAuthenticated,)
+    queryset = Contact.objects.all()
 
     def get_queryset(self):
-        return self.request.user.contact_set.all()
+        queryset = self.queryset.filter(owner=self.request.user).filter(black=False)
+
+        if isinstance(queryset, QuerySet):
+            queryset = queryset.all()
+
+        return queryset
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)
+
+    @detail_route(methods=['get'])
+    def addfriend(self, request, pk=None):
+        instance, status_ = Contact.objects.get_or_create(friend_id=pk, owner=request.user)
+
+        detail = '成功添加好友' if status_ else '该用户已经是您的好友了'
+        return Response({'detail': detail}, status=status.HTTP_200_OK)
 
 
 class BankcardViewSet(viewsets.ModelViewSet):
@@ -82,12 +99,16 @@ class BlacklistViewSet(viewsets.ModelViewSet):
     '''
     黑名单
     '''
-    queryset = Blacklist.objects.filter(id__gt=1)
-    serializer_class = BlacklistSerializer
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        queryset = self.queryset.filter(owner=self.request.user)
+        queryset = self.queryset.filter(owner=self.request.user).filter(black=True)
+
+        if isinstance(queryset, QuerySet):
+            queryset = queryset.all()
+
         return queryset
 
     def perform_create(self, serializer):
@@ -99,6 +120,20 @@ class SettingsViewSet(RetrieveUpdateAPIView):
     用户设置
     '''
     serializer_class = SettingsSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        return get_user_settings(self.request.user)
+
+    def perform_create(self, serializer):
+        return serializer.save(owner=self.request.user)
+
+
+class AddFriendViewSet(viewsets.GenericViewSet):
+    '''
+    用户设置
+    '''
+    serializer_class = AddFriendSerializer
     permission_classes = (IsAuthenticated,)
 
     def get_object(self):

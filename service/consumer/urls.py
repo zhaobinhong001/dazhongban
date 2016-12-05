@@ -4,11 +4,13 @@ from __future__ import unicode_literals
 from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 
-from .views import ProfileViewSet, AvatarViewSet, AddressViewSet, ContactViewSet, BankcardViewSet, BlacklistViewSet, SettingsViewSet
+from .views import ProfileViewSet, AvatarViewSet, AddressViewSet, ContactViewSet, BankcardViewSet, BlacklistViewSet, SettingsViewSet, \
+    AddFriendViewSet
 
 router = DefaultRouter()
 router.register(r'address', AddressViewSet, 'me-address')
 router.register(r'contact', ContactViewSet, 'me-contact')
+router.register(r'addfriend', AddFriendViewSet, 'me-addfriend')
 router.register(r'bankcard', BankcardViewSet, 'me-bankcard')
 router.register(r'blacklist', BlacklistViewSet, 'me-blacklist')
 # router.register(r'signatures', SignatureViewSet, 'me-signatures')

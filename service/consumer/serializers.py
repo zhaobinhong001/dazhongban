@@ -33,7 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('id', 'name', 'nick', 'avatar')
+        fields = ('id', 'name', 'nick', 'avatar', 'mobile')
 
 
 class AvatarSerializer(serializers.ModelSerializer):
@@ -70,7 +70,6 @@ class AccountDetailsSerializer(serializers.ModelSerializer):
     name = serializers.ReadOnlyField(source='profile.name')
     gender = serializers.ReadOnlyField(source='profile.gender')
 
-    # chinese_zodiac = serializers.ReadOnlyField(source='profile.chinese_zodiac')
 
     class Meta:
         # depth = 1

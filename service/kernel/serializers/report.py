@@ -10,5 +10,3 @@ class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
         fields = ('defendant', 'revelator', 'content')
-        # defendant
-        # revelator

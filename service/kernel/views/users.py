@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth import get_user_model
-from django_filters import NumberFilter
 from rest_framework import filters
 from rest_framework import status
 from rest_framework import viewsets
@@ -29,8 +28,11 @@ class SearchFilter(FilterSet):
 class UsersViewSet(viewsets.ModelViewSet):
     '''
     用户接口
+    =======
 
-    搜索条件为， 搜索昵称，姓名，以及手机号
+    - 搜索条件为， 搜索昵称，姓名，以及手机号
+    - users/<pk>/report/ 为举报接口
+
     '''
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer

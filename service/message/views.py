@@ -81,10 +81,10 @@ class GroupViewSet(NestedViewSetMixin, mixins.CreateModelMixin,
             raise Exception
         serializer.save()
 
-    @detail_route(methods=['GET', 'POST'])
+    @detail_route(methods=['POST'])
     def join(self, request, pk=None):
         instance = self.get_object()
-        result = client.Group.join(userId=request.user.pk, groupId=pk, groupName=instance.name)
+        result = client.Group.join(userId=request.POST['userid'], groupId=pk, groupName=instance.name)
 
         if not result:
             raise Exception

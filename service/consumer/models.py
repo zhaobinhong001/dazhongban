@@ -72,15 +72,6 @@ class CustomUser(AbstractUser):
     mobile = models.CharField(_(u'手机号码'), max_length=25, db_index=True, blank=True)
     verify = models.CharField(_(u'短信码'), max_length=5, blank=True)
     device = models.CharField(_(u'设备号'), max_length=100, blank=False, null=False)
-    # slug = models.UUIDField(_(u'slug'), null=True, blank=True, auto_created=True)
-    # jpush_registration_id = models.CharField(_(u'jpush_registration_id'), max_length=200, blank=True, null=True)
-
-    # birthday = models.DateField(_(u'生日'), blank=True, null=True)
-    # zodiac_zh = models.CharField(_(u'生肖'), max_length=25, blank=True)
-    # avatar = models.ImageField(_(u'头像'), max_length=200, blank=True)
-    # zodiac = models.CharField(_(u'星座'), max_length=25, blank=True)
-    # gender = models.CharField(_(u'性别'), max_length=25, default='male', choices=GENDER_CHOICES)
-    # score_total = models.IntegerField(_(u'积分'), default=0)
 
     objects = CustomUserManager()
 
@@ -104,19 +95,17 @@ class Profile(models.Model):
     nick = models.CharField(verbose_name=_(u'昵称'), blank=True, null=True, max_length=255, db_index=True)
     phone = models.CharField(verbose_name=_(u'电话'), default='', blank=True, max_length=64)
     gender = models.CharField(verbose_name=_(u'性别'), max_length=10, choices=GENDER_CHOICES, default=u'male')
-    # zodiac = models.CharField(_(u'星座'), max_length=25, blank=True)
     birthday = models.DateField(_(u'生日'), blank=True, null=True)
     alipay = models.CharField(verbose_name=_(u'支付宝'), max_length=100, blank=True)
-    # qq = models.CharField(verbose_name=_(u'QQ'), max_length=100, blank=True)
-    # chinese_zodiac = models.CharField(_(u'生肖'), max_length=25, blank=True)
-
     payment = models.DecimalField(verbose_name=_(u'已经提现'), default=0.00, max_digits=10, decimal_places=2)
     balance = models.DecimalField(verbose_name=_(u'帐户余额'), default=0.00, max_digits=10, decimal_places=2)
     total = models.DecimalField(verbose_name=_(u'帐户总额'), default=0.00, max_digits=10, decimal_places=2)
-
-    # qrcode = models.ImageField(verbose_name=_(u'二维码'), upload_to='qrcode')
     avatar = ProcessedImageField(verbose_name=_(u'头像'), upload_to='avatar', processors=[ResizeToFill(320, 320)],
         format='JPEG', null=True)
+
+    @property
+    def qr(self):
+        return ''
 
     def __unicode__(self):
         return self.name
@@ -158,6 +147,7 @@ class Contact(TimeStampedModel):
     '''
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     friend = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('好友'), default='', related_name='friends')
+    black = models.BooleanField(_('是否黑名单'), default=False)
 
     def __unicode__(self):
         return self.friend
@@ -194,25 +184,6 @@ class Bankcard(TimeStampedModel):
     class Meta:
         verbose_name = _(u'用户银行卡')
         verbose_name_plural = _(u'用户银行卡')
-
-
-class Blacklist(TimeStampedModel):
-    '''
-    黑名单信息
-
-    '''
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True)
-    black = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_(u'黑名单用户'), related_name='black', default='')
-
-    def __unicode__(self):
-        return self.black
-
-    def __str__(self):
-        return self.__unicode__()
-
-    class Meta:
-        verbose_name = _(u'用户黑名单')
-        verbose_name_plural = _(u'用户黑名单')
 
 
 class Settings(models.Model):

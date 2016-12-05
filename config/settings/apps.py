@@ -5,6 +5,7 @@ from .base import INSTALLED_APPS
 
 INSTALLED_APPS += (
     'service.frontend',
+    'service.trade',
     'service.kernel',
     'service.message',
     'service.consumer',

@@ -2,10 +2,11 @@
 # dashboard/sites.py
 
 from __future__ import unicode_literals
-from django.contrib.admin.sites import AdminSite
+
 from django.conf.urls import url
+from django.contrib.admin.sites import AdminSite
+
 from .views import HomeView, LineView
-from views import link
 
 
 class DashboardSite(AdminSite):

@@ -1,8 +1,6 @@
-/runtime/*
-/assets/media/*
-/assets/static/
-/.idea
-
+/runtime/**/**
+/assets/**/**
+/.idea/
 *.sql
 *.pyc
 *.pyo
@@ -10,6 +8,7 @@
 *~
 .*
 db.sqlite3
+__pycache__
 /htmlcov/
 /coverage/
 /build/
@@ -20,9 +19,3 @@ MANIFEST
 !.travis.yml
 !.gitlab-ci.yml
 !.isort.cfg
-assets/**
-frontend/static/frontend/lib/
-restful/contrib/restauth/tests/__pycache__/
-runtime/**
-tests/__pycache__/
-db.sqlite3

@@ -22,6 +22,21 @@ class Signature(TimeStampedModel):
         verbose_name_plural = u'签名证书'
 
 
+class Validate(TimeStampedModel):
+    key = models.CharField(max_length=200, default='')
+    dn = models.CharField(max_length=200, default='')
+
+    def __unicode__(self):
+        return self.signs
+
+    def __str__(self):
+        return self.__unicode__()
+
+    class Meta:
+        verbose_name = u'身份验证'
+        verbose_name_plural = u'身份验证'
+
+
 class Identity(TimeStampedModel):
     owner = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='identity')
     signs = models.TextField(verbose_name=u'证书密文', default='')

@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from rest_framework import serializers
 
-from .models import Address, Profile, Contact, Bankcard, Blacklist, Settings
+from .models import Address, Profile, Contact, Bankcard, Settings
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -23,7 +23,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         read_only_fields = ("payment", "balance", "total",)
         fields = (
-            "name", "nick", "phone", "avatar", "gender", "birthday", "payment", "balance", "total",)
+            "name", "nick", "phone", "avatar", "gender", "birthday", "payment", "balance", "total", "qr")
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -33,13 +33,17 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('id', 'name', 'nick', 'avatar')
+        fields = ('id', 'name', 'nick', 'avatar', 'mobile')
 
 
 class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ("avatar",)
+
+
+class AddFriendSerializer(serializers.Serializer):
+    userid = serializers.IntegerField(label='用户id')
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -66,7 +70,6 @@ class AccountDetailsSerializer(serializers.ModelSerializer):
     name = serializers.ReadOnlyField(source='profile.name')
     gender = serializers.ReadOnlyField(source='profile.gender')
 
-    # chinese_zodiac = serializers.ReadOnlyField(source='profile.chinese_zodiac')
 
     class Meta:
         # depth = 1
@@ -86,10 +89,10 @@ class BankcardSerializer(serializers.ModelSerializer):
         exclude = ('owner',)
 
 
-class BlacklistSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Blacklist
-        exclude = ('owner',)
+# class BlacklistSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Blacklist
+#         exclude = ('owner',)
 
 
 class SettingsSerializer(serializers.ModelSerializer):

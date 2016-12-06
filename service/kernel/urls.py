@@ -5,13 +5,11 @@ from django.conf.urls import include, url
 from rest_framework.routers import DefaultRouter
 from rest_framework_swagger.views import get_swagger_view
 
-from .views.certufucate import CertufucateViewSet
-from .views.consumption import ConsumptionViewSet
-from .views.transfer import TransferViewSet
+from service.kernel.views.users import UsersViewSet
 
 router = DefaultRouter()
 
-# router.register(r'goods', GoodsViewSet, base_name='goods')
+router.register(r'users', UsersViewSet, base_name='users')
 # router.register(r'aaa', GoodsViewSet, base_name='aa')
 # router.register(r'first', FirstViewSet, base_name='first')
 # router.register(r'trade', TradeViewSet, base_name='trade')
@@ -51,6 +49,7 @@ urlpatterns = (
     url(r'^me/', include('service.consumer.urls')),
     url(r'^im/', include('service.message.urls')),
     url(r'^sign/', include('service.signature.urls')),
+    url(r'^trade/', include('service.trade.urls')),
 
     url(r'^auth/', include('service.restauth.urls')),
     url(r'^user/', include('rest_framework.urls', namespace='rest_framework')),

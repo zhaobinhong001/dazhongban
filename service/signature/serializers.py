@@ -28,10 +28,4 @@ class SignatureSerializer(serializers.ModelSerializer):
 class ValidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Validate
-        fields = ('key',)
-
-
-class CallbackSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Validate
         fields = ('key', 'dn')

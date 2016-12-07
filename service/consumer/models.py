@@ -107,9 +107,9 @@ class Profile(models.Model):
     mobile_verify = models.BooleanField(verbose_name=_(u'是否允许手机号查找'), default=False)
     name_public = models.BooleanField(verbose_name=_(u'是否公开姓名'), default=False)
 
-    # @property
-    # def qr(self):
-    #     return ''
+    @property
+    def qr(self):
+        return ''
 
     def __unicode__(self):
         return self.name
@@ -144,6 +144,24 @@ class Address(TimeStampedModel):
         verbose_name_plural = _(u'用户地址')
 
 
+class Contains(TimeStampedModel):
+    '''
+    用户通讯录
+
+    '''
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL)
+    contains = models.TextField(_(u'手机通讯录数据'), default='')
+
+    def __unicode__(self):
+        return self.owner
+
+    def __str__(self):
+        return self.__unicode__()
+
+    class Meta:
+        verbose_name = _(u'手机通讯录')
+        verbose_name_plural = _(u'手机通讯录')
+
 class Contact(TimeStampedModel):
     '''
     用户通讯录
@@ -152,6 +170,7 @@ class Contact(TimeStampedModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     friend = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('好友'), default='', related_name='friends')
     black = models.BooleanField(_('是否黑名单'), default=False)
+    alias = models.CharField(_(u'备注别名'), max_length=100, default='')
 
     def __unicode__(self):
         return self.friend

@@ -17,7 +17,7 @@ class HomeView(DashboardView):
         {'url': 'admin:index', 'name': _('Home')},
     )
     grid = Grid(Row(Column(User(), width=4), Column(Authentication(), width=4), Column(SettledEnterprise(), width=4),
-                    Column(Signatures(), width=4), Column(Evidences(), width=4)))
+        Column(Signatures(), width=4), Column(Evidences(), width=4)))
 
 
 class LineView(DashboardView):

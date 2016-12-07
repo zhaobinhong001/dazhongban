@@ -9,12 +9,11 @@ from whitenoise import django
 from service.dashboard.sites import DashboardSite
 
 admin.site = DashboardSite()
-admin.sites.site = admin.site  # >= Django 1.9.5
+admin.sites.site = admin.site
 admin.autodiscover()
 
 urlpatterns = (
-    # url(r'^', include('service.frontend.urls')),
-
+    url(r'^', include('service.frontend.urls')),
     url(r'^api/', include('service.kernel.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

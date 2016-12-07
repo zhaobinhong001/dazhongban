@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import short_url
 from django.db.models import QuerySet
 from rest_framework import status
 from rest_framework import viewsets
@@ -8,11 +9,12 @@ from rest_framework.decorators import detail_route
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
 from service.consumer.models import Contact
 from .serializers import (
     AddressSerializer, ProfileSerializer, AvatarSerializer, ContactSerializer, BankcardSerializer,
-    SettingsSerializer, AddFriendSerializer)
+    SettingsSerializer, AddFriendSerializer, NickSerializer)
 from .utils import get_user_profile
 from .utils import get_user_settings
 
@@ -22,6 +24,29 @@ class ProfileViewSet(RetrieveUpdateAPIView):
     用户信息
     '''
     serializer_class = ProfileSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        data['qr'] = reverse('q', args=[short_url.encode_url(instance.pk)], request=request)
+
+        return Response(data)
+
+    def get_object(self):
+        return get_user_profile(self.request.user)
+
+    def perform_create(self, serializer):
+        return serializer.save(owner=self.request.user)
+
+
+class NickViewSet(RetrieveUpdateAPIView):
+    '''
+    昵称修改接口.
+
+    '''
+    serializer_class = NickSerializer
     permission_classes = (IsAuthenticated,)
 
     def get_object(self):

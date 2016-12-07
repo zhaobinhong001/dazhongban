@@ -7,4 +7,4 @@ default_app_config = 'service.customer.CustomerConfig'
 
 class CustomerConfig(AppConfig):
     name = 'service.customer'
-    verbose_name = _(u'django模板')
+    verbose_name = _(u'客服中心')

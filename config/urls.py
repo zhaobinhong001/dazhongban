@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
+from whitenoise import django
 
 from service.dashboard.sites import DashboardSite
 
@@ -23,6 +24,7 @@ urlpatterns = (
 if settings.DEBUG:
     # url(r'^media/(?P<path>.*)$', django.views.static.serve, {'document_root': settings.MEDIA_ROOT}),
     # url(r'^static/(?P<path>.*)$', django.views.static.serve, {'document_root': settings.STATIC_ROOT}),
+    # url( r'^static/(?P<path>.*)$', 'django.views.static.serve',{ 'document_root': settings.STATIC_ROOT }),
 
     if ('debug_toolbar' in settings.INSTALLED_APPS):
         import debug_toolbar

@@ -1,5 +1,5 @@
-# # -*- coding: utf-8 -*-
-# # customer/urls.py
+# -*- coding: utf-8 -*-
+# customer/urls.py
 #
 # from __future__ import unicode_literals
 # from django.contrib.admin.sites import AdminSite
@@ -19,12 +19,14 @@
 #
 #         del urls[0]
 #         return custom_urls + urls
-# #
+#
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from service.customer.views import abc
+
 from django.conf.urls import include, url
-from .views import HomeView
+# from .views import HomeView
 # from .views import (
 #     LoginView, LogoutView, PasswordChangeView, PasswordResetConfirmView,
 #     PasswordResetView, SocialView
@@ -33,7 +35,8 @@ from .views import HomeView
 urlpatterns = (
     # url(r'^password/reset/$', PasswordResetView.as_view(), name='rest_password_reset'),
     # url(r'^password/change/$', PasswordChangeView.as_view(), name='rest_password_change'),
-    url(r'^$',HomeView.as_view(), name='test'),
+    # url(r'^$',HomeView.as_view(), name='test'),
+    url(r'^$',abc, name='test'),
     # url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
     # url(r'^password/reset/confirm/$', PasswordResetConfirmView.as_view(), name='rest_password_reset_confirm'),
     # url(r'^login/$', LoginView.as_view(), name='rest_login'),

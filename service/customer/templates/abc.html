@@ -1,26 +1,75 @@
 {% extends "suit_dashboard/base.html" %}
+{% load admin_static %}
 {% block dashboard_css %}
-    <link href="css.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/bootstrap.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/style.css">
 {% endblock %}
  {% block content %}
 <html>
-<body style="background: #79A7D8">
-<div >
-<h1>相关技能</h1>
-            <ul>
-                <li >熟练掌握语义化的 HTML 和具有兼容性的 CSS 模式，熟练手写符合 W3C 标准的结构和代码。</li>
-                <li >对 可用性、可访问性、前端性能优化、最优实践 等有一定的了解和实践。</li>
-                <li >对 HTML5 和 CSS3 有一定了解。</li>
-                <li >熟练掌握 ST2 、Emmet、Sass 等等前端开发和团队协作工具。</li>
-                <li >熟练掌握 jQuery，实现日常需要的交互效果。</li>
-                <li >熟悉EXTJS，Nodejs，MySQl，有一定 PHP 后端相关知识。</li>
-                <li >了解 Ajax 工作原理和实现方法。</li>
-                <li >对前端canvas，svg有一定了解。</li>
-                <li >了解手机前端开发jquerymobile，zeptojs及angularjs等。</li>
-                <li >服务器使用阿里云ECS，对 Linux 有一定了解。</li>
-                <li >喜欢接触新事物，有一定的自学能力。</li>
-            </ul>
-</div>
+<body>
+<div class="team-main">
+
+			  	<div class="col-md-6 team-gris">
+			  		<div class="team-member">
+				  		<div class="team-img">
+				  			<img src="{{ STATIC_URL }}images/t1.jpg" alt="" class="img-responsive">
+                            <ul class="team-mem">
+				  				<li><a href="#" class="fa"><span class="team-icon"> 旁听</span> </a></li>
+				  				<li><a href="#" class="tw"><span class="team-icon"> 接入</span> </a></li>
+				  			</ul>
+				  		</div>
+				  		<div class="team-text">
+				  			<h3>证件号码:  23080219902180000</h3>
+				  			<h4>用户姓名:  隔壁老王</h4>
+				  		    <h5>接待客服:  KFC002</h5>
+				  		</div>
+				  	  <div class="clearfix"> </div>
+			  	   </div>
+			  	</div>
+
+    {% for post in post %}
+			  	<div class="col-md-6 team-gris">
+			  	   <div class="team-member">
+				  		<div class="team-img">
+				  			<img src="{{ STATIC_URL }}images/t1.jpg" alt="" class="img-responsive">
+				  			<ul class="team-mem">
+				  				<li><a href="#" class="fa"><span class="team-icon"> 旁听</span> </a></li>
+				  				<li><a href="#" class="tw"><span class="team-icon"> 接入</span> </a></li>
+				  			</ul>
+				  		</div>
+				  		<div class="team-text">
+                            <h3>证件号码: {{ post.phone }}</h3>
+				  			<h4>用户姓名: {{ post.name }}</h4>
+				  		    <h5>接待客服: {{ post.nick }}</h5>
+				  		</div>
+				  	  <div class="clearfix"> </div>
+			  	   </div>
+			  </div>
+
+
+      {% endfor %}
+		  	<div class="col-md-6 team-gris">
+			  	   <div class="team-member">
+				  		<div class="team-img">
+				  			<img src="{{ STATIC_URL }}images/t1.jpg" alt="" class="img-responsive">
+				  			<ul class="team-mem">
+				  				<li><a href="#" class="fa"><span class="team-icon"> 旁听</span> </a></li>
+				  				<li><a href="#" class="tw"><span class="team-icon"> 接入</span> </a></li>
+				  			</ul>
+				  		</div>
+				  		<div class="team-text">
+                            <h3>证件号码: {{ post.phone }}</h3>
+				  			<h4>用户姓名: {{ post.name }}</h4>
+				  		    <h5>接待客服: {{ post.nick }}</h5>
+				  		</div>
+				  	  <div class="clearfix"> </div>
+			  	   </div>
+			  </div>
+
+			  	<div class="clearfix"> </div>
+			 </div>
+
+
 </html>
 {%endblock%}
 

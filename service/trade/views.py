@@ -9,6 +9,10 @@ from .serializers import ConsumptionSerializer, ContractSerializer
 
 
 class ContractViewSet(viewsets.ModelViewSet):
+    '''
+    合约接口
+    ----
+    '''
     queryset = Contract.objects.all()
     serializer_class = ContractSerializer
     allowed_methods = ('POST', 'OPTION', 'HEAD')
@@ -23,6 +27,10 @@ class ContractViewSet(viewsets.ModelViewSet):
 
 
 class ConsumptionViewSet(viewsets.ModelViewSet):
+    '''
+    消费记录接口
+    ----
+    '''
     queryset = Consumption.objects.all()
     serializer_class = ConsumptionSerializer
     allowed_methods = ('POST', 'OPTION', 'HEAD')

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from rest_framework import ISO_8601
-
 from .base import INSTALLED_APPS
 
 INSTALLED_APPS += (
@@ -30,6 +28,9 @@ REST_FRAMEWORK = {
         # 'rest_framework_xml.renderers.XMLRenderer',
         # 'rest_framework_yaml.renderers.YAMLRenderer',
     ),
+    'DEFAULT_FILTER_BACKENDS': [
+        'url_filter.integrations.drf.DjangoFilterBackend',
+    ],
     # 'DEFAULT_PARSER_CLASSES': (
     #     'rest_framework.parsers.JSONParser',
     #     'rest_framework_xml.parsers.XMLParser',

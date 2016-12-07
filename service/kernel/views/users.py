@@ -13,7 +13,7 @@ from service.consumer.serializers import UserSerializer
 from ..serializers.report import ReportSerializer, InviteSerializer
 
 
-class UsersViewSet(viewsets.ModelViewSet):
+class UsersViewSet(viewsets.ReadOnlyModelViewSet):
     '''
     用户接口
     =======

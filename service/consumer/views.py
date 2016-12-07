@@ -179,9 +179,6 @@ class SettingsViewSet(RetrieveUpdateAPIView):
     def get_object(self):
         return get_user_settings(self.request.user)
 
-    def perform_create(self, serializer):
-        return serializer.save(owner=self.request.user)
-
 
 class AddFriendViewSet(viewsets.GenericViewSet):
     '''

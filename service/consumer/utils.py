@@ -178,7 +178,7 @@ def get_profile_model():
 
 
 def get_user_settings(user):
-    settings_model = Settings
+    settings_model = Profile
 
     try:
         settings = user.get_settings()

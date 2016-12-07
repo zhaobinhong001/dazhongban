@@ -29,11 +29,17 @@ class ProfileSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='profile.name', label=u'姓名')
     nick = serializers.CharField(source='profile.nick', label=u'昵称')
-    avatar = serializers.CharField(source='profile.avatar', label=u'头像')
+    avatar = serializers.ImageField(source='profile.avatar', label=u'头像')
 
     class Meta:
         model = get_user_model()
         fields = ('id', 'name', 'nick', 'avatar', 'mobile')
+
+
+class NickSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ("nick",)
 
 
 class AvatarSerializer(serializers.ModelSerializer):

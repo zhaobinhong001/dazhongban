@@ -21,9 +21,9 @@ from service.consumer.utils import get_user_settings
 #     #        % (post.title, post.category, post.date_time, post.content))
 #     template_name = "abc.html"
 
-def abc(request):
+def customer(request):
         post = Profile.objects.all()
-        return render(request, 'abc.html', {'post': post})
+        return render(request, 'customer.html', {'post': post})
 
 
 #     grid = Grid(Row(Column(User(), width=4), Column(Authentication(), width=4), Column(SettledEnterprise(), width=4),

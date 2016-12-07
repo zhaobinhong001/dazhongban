@@ -23,7 +23,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from service.customer.views import abc
+from service.customer.views import customer
 
 from django.conf.urls import include, url
 # from .views import HomeView
@@ -36,7 +36,7 @@ urlpatterns = (
     # url(r'^password/reset/$', PasswordResetView.as_view(), name='rest_password_reset'),
     # url(r'^password/change/$', PasswordChangeView.as_view(), name='rest_password_change'),
     # url(r'^$',HomeView.as_view(), name='test'),
-    url(r'^$',abc, name='test'),
+    url(r'^$',customer, name='test'),
     # url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
     # url(r'^password/reset/confirm/$', PasswordResetConfirmView.as_view(), name='rest_password_reset_confirm'),
     # url(r'^login/$', LoginView.as_view(), name='rest_login'),

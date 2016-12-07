@@ -3,18 +3,20 @@ from __future__ import unicode_literals
 
 import short_url
 from django.db.models import QuerySet
+from rest_framework import mixins
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import list_route
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from rest_framework.viewsets import GenericViewSet
 
 from service.consumer.models import Contact
 from .serializers import (
     AddressSerializer, ProfileSerializer, AvatarSerializer, ContactSerializer, BankcardSerializer,
-    SettingsSerializer, AddFriendSerializer, NickSerializer)
+    SettingsSerializer, AddFriendSerializer, NickSerializer, ContactDetailSerializer, ContainsSerializer)
 from .utils import get_user_profile
 from .utils import get_user_settings
 
@@ -82,7 +84,17 @@ class AddressViewSet(viewsets.ModelViewSet):
         return serializer.save(owner=self.request.user)
 
 
-class ContactViewSet(viewsets.ModelViewSet):
+class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin,
+    mixins.ListModelMixin, GenericViewSet):
+    '''
+    联系人接口
+    --------
+
+    - 上传通讯录 POST /api/me/contains/
+    - 设置黑名单 POST /api/me/contact/{pk}/
+
+
+    '''
     serializer_class = ContactSerializer
     permission_classes = (IsAuthenticated,)
     queryset = Contact.objects.all()
@@ -98,11 +110,16 @@ class ContactViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)
 
-    @detail_route(methods=['get'])
-    def addfriend(self, request, pk=None):
-        instance, status_ = Contact.objects.get_or_create(friend_id=pk, owner=request.user)
+    def retrieve(self, request, *args, **kwargs):
+        self.serializer_class = ContactDetailSerializer
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
-        detail = '成功添加好友' if status_ else '该用户已经是您的好友了'
+    @list_route(methods=['GET', 'POST'])
+    def contains(self, request, *args, **kwargs):
+        self.serializer_class = ContainsSerializer
+        detail = '成功'
         return Response({'detail': detail}, status=status.HTTP_200_OK)
 
 
@@ -123,6 +140,12 @@ class BankcardViewSet(viewsets.ModelViewSet):
 class BlacklistViewSet(viewsets.ModelViewSet):
     '''
     黑名单
+    -----
+
+    - 取消黑名单 POST /api/me/blacklist/{pk}
+    - POST参数: black = false
+
+
     '''
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
@@ -138,6 +161,12 @@ class BlacklistViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)
+
+    def retrieve(self, request, *args, **kwargs):
+        self.serializer_class = ContactDetailSerializer
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
 
 class SettingsViewSet(RetrieveUpdateAPIView):

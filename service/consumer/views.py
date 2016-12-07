@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import short_url
 from django.db.models import QuerySet
 from rest_framework import status
 from rest_framework import viewsets
@@ -8,6 +9,7 @@ from rest_framework.decorators import detail_route
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
 from service.consumer.models import Contact
 from .serializers import (
@@ -23,6 +25,14 @@ class ProfileViewSet(RetrieveUpdateAPIView):
     '''
     serializer_class = ProfileSerializer
     permission_classes = (IsAuthenticated,)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        data['qr'] = reverse('q', args=[short_url.encode_url(instance.pk)], request=request)
+
+        return Response(data)
 
     def get_object(self):
         return get_user_profile(self.request.user)

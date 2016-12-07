@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from .models import Signature
+from .models import Signature, Validate
 
 
 class IdentitySerializer(serializers.Serializer):
@@ -23,3 +23,9 @@ class SignatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Signature
         exclude = ('owner',)
+
+
+class ValidateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Validate
+        fields = ('key', 'dn')

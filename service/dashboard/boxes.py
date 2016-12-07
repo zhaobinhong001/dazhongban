@@ -2,10 +2,7 @@
 # dashboard/boxes.py
 
 from __future__ import unicode_literals
-import platform
-from datetime import timedelta
 
-import psutil
 from django.utils.translation import ugettext as _
 from suit_dashboard.box import Box, Item
 
@@ -195,7 +192,7 @@ class Authentication(Box):
                 }
             },
             'colors': ['#058DC7', '#50B432', '#ED561B', '#DDDF  00',
-                       '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
+                '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
             'series': [
                 {
                     "name": "Brands",
@@ -273,7 +270,7 @@ class SettledEnterprise(Box):
                 }
             },
             'colors': ['#058DC7', '#50B432', '#ED561B', '#DDDF  00',
-                       '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
+                '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
             'series': [
                 {
                     "name": "Brands",
@@ -351,7 +348,7 @@ class Signatures(Box):
                 }
             },
             'colors': ['#058DC7', '#50B432', '#ED561B', '#DDDF  00',
-                       '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
+                '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
             'series': [
                 {
                     "name": "Brands",
@@ -429,7 +426,7 @@ class Evidences(Box):
                 }
             },
             'colors': ['#058DC7', '#50B432', '#ED561B', '#DDDF  00',
-                       '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
+                '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
             'series': [
                 {
                     "name": "Brands",

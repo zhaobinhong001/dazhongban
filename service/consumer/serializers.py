@@ -18,7 +18,7 @@ class GroupSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     # qrcode = serializers.URLField(read_only=True)
     # jpush_registration_id = serializers.CharField(source='owner.jpush_registration_id', read_only=True)
-    #
+
     class Meta:
         model = Profile
         read_only_fields = ("payment", "balance", "total",)
@@ -27,9 +27,9 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='profile.name')
-    nick = serializers.CharField(source='profile.nick')
-    avatar = serializers.CharField(source='profile.avatar')
+    name = serializers.CharField(source='profile.name', label=u'姓名')
+    nick = serializers.CharField(source='profile.nick', label=u'昵称')
+    avatar = serializers.CharField(source='profile.avatar', label=u'头像')
 
     class Meta:
         model = get_user_model()
@@ -64,12 +64,10 @@ class ContactSerializer(serializers.ModelSerializer):
 
 class AccountDetailsSerializer(serializers.ModelSerializer):
     avatar = serializers.ReadOnlyField(source='profile.avatar')
-    # zodiac = serializers.ReadOnlyField(source='profile.zodiac')
     birthday = serializers.ReadOnlyField(source='profile.birthday')
     nick = serializers.ReadOnlyField(source='profile.nick')
     name = serializers.ReadOnlyField(source='profile.name')
     gender = serializers.ReadOnlyField(source='profile.gender')
-
 
     class Meta:
         # depth = 1
@@ -87,12 +85,6 @@ class BankcardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bankcard
         exclude = ('owner',)
-
-
-# class BlacklistSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Blacklist
-#         exclude = ('owner',)
 
 
 class SettingsSerializer(serializers.ModelSerializer):

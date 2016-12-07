@@ -49,7 +49,7 @@ class GroupViewSet(NestedViewSetMixin, mixins.CreateModelMixin,
     `pk 为 group 的主键(id)`
 
     - 创建群组: POST [/api/im/group/](/api/im/group/)
-    - 加入群组: GET [/api/im/group/&#60;pk&#62;join/](/api/im/group/<pk>/join/)
+    - 加入群组: GET/POST [/api/im/group/&#60;pk&#62;join/](/api/im/group/<pk>/join/) (GET 请求加自己到群里)
     - 退出群组: GET [/api/im/group/&#60;pk&#62;quit/](/api/im/group/<pk>/quit/)
     - 用户列表: GET [/api/im/group/&#60;pk&#62;users/](/api/im/group/<pk>/users/)
     - 解散群组: GET [/api/im/group/&#60;pk&#62;dismiss/](/api/im/group/<pk>/dismiss/)
@@ -82,7 +82,7 @@ class GroupViewSet(NestedViewSetMixin, mixins.CreateModelMixin,
         serializer.save()
 
     @detail_route(methods=['POST'])
-    def join(self, request, pk=None):
+    def join(self, request, pk=None, *args, **kwargs):
         instance = self.get_object()
         result = client.Group.join(userId=request.POST['userid'], groupId=pk, groupName=instance.name)
 
@@ -92,7 +92,7 @@ class GroupViewSet(NestedViewSetMixin, mixins.CreateModelMixin,
         return Response({'detail': '您成功加入该群组'}, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'])
-    def dismiss(self, request, pk=None):
+    def dismiss(self, request, pk=None, *args, **kwargs):
         result = client.Group.dismiss(userId=request.user.pk, groupId=pk)
 
         if not result:
@@ -104,7 +104,7 @@ class GroupViewSet(NestedViewSetMixin, mixins.CreateModelMixin,
         return Response({'detail': '您成功删除该群组'}, status=status.HTTP_204_NO_CONTENT)
 
     @detail_route(methods=['get'])
-    def quit(self, request, pk=None):
+    def quit(self, request, pk=None, *args, **kwargs):
         result = client.Group.quit(userId=request.user.pk, groupId=pk)
 
         if not result:
@@ -113,7 +113,7 @@ class GroupViewSet(NestedViewSetMixin, mixins.CreateModelMixin,
         return Response({'detail': '您成功退出该群组'}, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'])
-    def users(self, request, pk=None):
+    def users(self, request, pk=None, *args, **kwargs):
         '''
         融云群聊接口 - 群组用户
         ===========

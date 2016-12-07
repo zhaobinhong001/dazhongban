@@ -96,16 +96,20 @@ class Profile(models.Model):
     phone = models.CharField(verbose_name=_(u'电话'), default='', blank=True, max_length=64)
     gender = models.CharField(verbose_name=_(u'性别'), max_length=10, choices=GENDER_CHOICES, default=u'male')
     birthday = models.DateField(_(u'生日'), blank=True, null=True)
-    alipay = models.CharField(verbose_name=_(u'支付宝'), max_length=100, blank=True)
-    payment = models.DecimalField(verbose_name=_(u'已经提现'), default=0.00, max_digits=10, decimal_places=2)
-    balance = models.DecimalField(verbose_name=_(u'帐户余额'), default=0.00, max_digits=10, decimal_places=2)
-    total = models.DecimalField(verbose_name=_(u'帐户总额'), default=0.00, max_digits=10, decimal_places=2)
+    # alipay = models.CharField(verbose_name=_(u'支付宝'), max_length=100, blank=True)
+    # payment = models.DecimalField(verbose_name=_(u'已经提现'), default=0.00, max_digits=10, decimal_places=2)
+    # balance = models.DecimalField(verbose_name=_(u'帐户余额'), default=0.00, max_digits=10, decimal_places=2)
+    # total = models.DecimalField(verbose_name=_(u'帐户总额'), default=0.00, max_digits=10, decimal_places=2)
     avatar = ProcessedImageField(verbose_name=_(u'头像'), upload_to='avatar', processors=[ResizeToFill(320, 320)],
         format='JPEG', null=True)
 
-    @property
-    def qr(self):
-        return ''
+    friend_verify = models.BooleanField(verbose_name=_(u'加好友时是否验证'), default=False)
+    mobile_verify = models.BooleanField(verbose_name=_(u'是否允许手机号查找'), default=False)
+    name_public = models.BooleanField(verbose_name=_(u'是否公开姓名'), default=False)
+
+    # @property
+    # def qr(self):
+    #     return ''
 
     def __unicode__(self):
         return self.name

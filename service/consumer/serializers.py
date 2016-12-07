@@ -55,7 +55,8 @@ class AddFriendSerializer(serializers.Serializer):
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        exclude = ('owner',)
+        fields = ('id', 'city', 'area', 'address')
+        # exclude = ('owner',)
 
 
 class ContactSerializer(serializers.ModelSerializer):
@@ -95,5 +96,5 @@ class BankcardSerializer(serializers.ModelSerializer):
 
 class SettingsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Settings
-        exclude = ('owner',)
+        model = Profile
+        fields = ('friend_verify', 'mobile_verify', 'name_public')

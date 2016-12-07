@@ -96,12 +96,16 @@ class Profile(models.Model):
     phone = models.CharField(verbose_name=_(u'电话'), default='', blank=True, max_length=64)
     gender = models.CharField(verbose_name=_(u'性别'), max_length=10, choices=GENDER_CHOICES, default=u'male')
     birthday = models.DateField(_(u'生日'), blank=True, null=True)
-    alipay = models.CharField(verbose_name=_(u'支付宝'), max_length=100, blank=True)
-    payment = models.DecimalField(verbose_name=_(u'已经提现'), default=0.00, max_digits=10, decimal_places=2)
-    balance = models.DecimalField(verbose_name=_(u'帐户余额'), default=0.00, max_digits=10, decimal_places=2)
-    total = models.DecimalField(verbose_name=_(u'帐户总额'), default=0.00, max_digits=10, decimal_places=2)
+    # alipay = models.CharField(verbose_name=_(u'支付宝'), max_length=100, blank=True)
+    # payment = models.DecimalField(verbose_name=_(u'已经提现'), default=0.00, max_digits=10, decimal_places=2)
+    # balance = models.DecimalField(verbose_name=_(u'帐户余额'), default=0.00, max_digits=10, decimal_places=2)
+    # total = models.DecimalField(verbose_name=_(u'帐户总额'), default=0.00, max_digits=10, decimal_places=2)
     avatar = ProcessedImageField(verbose_name=_(u'头像'), upload_to='avatar', processors=[ResizeToFill(320, 320)],
         format='JPEG', null=True)
+
+    friend_verify = models.BooleanField(verbose_name=_(u'加好友时是否验证'), default=False)
+    mobile_verify = models.BooleanField(verbose_name=_(u'是否允许手机号查找'), default=False)
+    name_public = models.BooleanField(verbose_name=_(u'是否公开姓名'), default=False)
 
     @property
     def qr(self):
@@ -140,6 +144,24 @@ class Address(TimeStampedModel):
         verbose_name_plural = _(u'用户地址')
 
 
+class Contains(TimeStampedModel):
+    '''
+    用户通讯录
+
+    '''
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL)
+    contains = models.TextField(_(u'手机通讯录数据'), default='')
+
+    def __unicode__(self):
+        return self.owner
+
+    def __str__(self):
+        return self.__unicode__()
+
+    class Meta:
+        verbose_name = _(u'手机通讯录')
+        verbose_name_plural = _(u'手机通讯录')
+
 class Contact(TimeStampedModel):
     '''
     用户通讯录
@@ -148,6 +170,7 @@ class Contact(TimeStampedModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     friend = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('好友'), default='', related_name='friends')
     black = models.BooleanField(_('是否黑名单'), default=False)
+    alias = models.CharField(_(u'备注别名'), max_length=100, default='')
 
     def __unicode__(self):
         return self.friend

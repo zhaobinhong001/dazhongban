@@ -65,3 +65,4 @@ django_celery_beat
 qrcode
 
 https://github.com/rongcloud/server-sdk-python/archive/master.zip
+drf-url-filters

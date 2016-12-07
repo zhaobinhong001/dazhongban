@@ -65,7 +65,7 @@ class ContactSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Contact
-        fields = ('id', 'nick', 'name', 'alias', 'black', 'avatar',)
+        fields = ('id', 'nick', 'name', 'alias', 'black', 'avatar', 'hide')
 
 
 class ContainsSerializer(serializers.ModelSerializer):
@@ -77,7 +77,7 @@ class ContainsSerializer(serializers.ModelSerializer):
 class ContactDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
-        fields = ('black', 'alias',)
+        fields = ('black', 'alias', 'hide')
 
 
 class AccountDetailsSerializer(serializers.ModelSerializer):

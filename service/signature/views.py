@@ -1,10 +1,13 @@
 # Create your views here.
-from rest_framework import mixins
-from rest_framework import status
+from idlelib.IdleHistory import History
+
+from filters.mixins import FiltersMixin
+from rest_framework import filters, mixins, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, ModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
+from url_filter.integrations.drf import DjangoFilterBackend
 
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer
@@ -34,7 +37,22 @@ class CertificateViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
         return serializer.save(owner=self.request.user)
 
 
-class HistoryViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
+from url_filter.filtersets import ModelFilterSet
+
+
+class HistoryFilterSet(ModelFilterSet):
+    class Meta(object):
+        model = History
+        fields = ['username', 'email', 'joined', 'profile']
+
+
+class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
+    filter_backends = (DjangoFilterBackend, filters.OrderingFilter,)
+    filter_fields = ['created']
+
+    ordering_fields = ('created',)
+    ordering = ('id',)
+
     serializer_class = SignatureSerializer
     permission_classes = (IsAuthenticated,)
     model = Signature

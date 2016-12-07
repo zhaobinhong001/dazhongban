@@ -15,4 +15,4 @@ class InviteSerializer(serializers.ModelSerializer):
 class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
-        fields = ('defendant', 'revelator', 'content')
+        fields = ('content',)

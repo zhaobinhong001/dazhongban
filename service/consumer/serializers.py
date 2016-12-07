@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from rest_framework import serializers
 
-from .models import Address, Profile, Contact, Bankcard, Settings
+from .models import Address, Profile, Contact, Bankcard, Contains
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -21,9 +21,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        read_only_fields = ("payment", "balance", "total",)
-        fields = (
-            "name", "nick", "phone", "avatar", "gender", "birthday", "payment", "balance", "total", "qr")
+        # read_only_fields = ("payment", "balance", "total",)
+        fields = ("name", "nick", "phone", "avatar", "gender", "birthday", "qr")
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -55,17 +54,30 @@ class AddFriendSerializer(serializers.Serializer):
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        exclude = ('owner',)
+        fields = ('id', 'city', 'area', 'address')
+        # exclude = ('owner',)
 
 
 class ContactSerializer(serializers.ModelSerializer):
     name = serializers.StringRelatedField(source='friend.profile.name')
     nick = serializers.StringRelatedField(source='friend.profile.nick')
+    avatar = serializers.ImageField(source='friend.profile.avatar', read_only=True)
 
     class Meta:
-        # depth = 1
         model = Contact
-        exclude = ('owner',)
+        fields = ('id', 'nick', 'name', 'alias', 'black', 'avatar',)
+
+
+class ContainsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contains
+        fields = ('contains',)
+
+
+class ContactDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ('black', 'alias',)
 
 
 class AccountDetailsSerializer(serializers.ModelSerializer):
@@ -95,5 +107,5 @@ class BankcardSerializer(serializers.ModelSerializer):
 
 class SettingsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Settings
-        exclude = ('owner',)
+        model = Profile
+        fields = ('friend_verify', 'mobile_verify', 'name_public')

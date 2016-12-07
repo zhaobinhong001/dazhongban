@@ -62,5 +62,6 @@ psutil
 django-daterange-filter
 django_celery_results
 django_celery_beat
+qrcode
 
-git+https://github.com/rongcloud/server-sdk-python
+https://github.com/rongcloud/server-sdk-python/archive/master.zip

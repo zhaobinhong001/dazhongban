@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from service.consumer.serializers import UserSerializer
-from ..serializers.report import ReportSerializer
+from ..serializers.report import ReportSerializer, InviteSerializer
 
 
 class UsersViewSet(viewsets.ModelViewSet):

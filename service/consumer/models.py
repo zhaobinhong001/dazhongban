@@ -162,6 +162,7 @@ class Contains(TimeStampedModel):
         verbose_name = _(u'手机通讯录')
         verbose_name_plural = _(u'手机通讯录')
 
+
 class Contact(TimeStampedModel):
     '''
     用户通讯录
@@ -171,6 +172,7 @@ class Contact(TimeStampedModel):
     friend = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('好友'), default='', related_name='friends')
     black = models.BooleanField(_('是否黑名单'), default=False)
     alias = models.CharField(_(u'备注别名'), max_length=100, default='')
+    hide = models.BooleanField(_('别人不可见真名'), default=False)
 
     def __unicode__(self):
         return self.friend

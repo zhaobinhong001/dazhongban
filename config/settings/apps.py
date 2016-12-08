@@ -14,6 +14,7 @@ INSTALLED_APPS += (
     'service.restauth.registration',
     'service.dashboard',
     'service.customer',
+    'filters',
     'imagekit',
     'reversion',
     'easy_select2',

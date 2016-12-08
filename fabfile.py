@@ -97,6 +97,18 @@ def rsync(static=None):
 
 
 @task
+def pull():
+    with prefix('workon bankeys'), cd(env.remote_dir):
+        run('git pull')
+        run('pip install -r requirements.txt')
+
+    migrate()
+
+    run('/usr/bin/supervisorctl stop bankeys')
+    run('/usr/bin/supervisorctl start bankeys')
+
+
+@task
 def push(static=None):
     rsync(static)
 
@@ -335,3 +347,16 @@ def check():
 def init():
     setup()
     loaddata()
+
+
+@task
+def start(name):
+    local('git flow feature start %s' % name)
+
+@task
+def publish(name):
+    local('git flow feature publish %s' % name)
+
+@task
+def finish(name):
+    local('git flow feature finish %s' % name)

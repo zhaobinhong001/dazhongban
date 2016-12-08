@@ -5,15 +5,14 @@ import re
 import unicodedata
 
 from django import forms
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
+from service.consumer.models import Profile
 from .adapter import get_adapter
 from .utils import user_email, user_field, user_username
-from .. import app_settings
 
 
 class PasswordField(forms.CharField):
@@ -35,6 +34,7 @@ class SetPasswordField(PasswordField):
 class SignupForm(forms.Form):
     mobile = forms.CharField(label=_(u"手机号"), max_length=20, required=True)
     verify = forms.CharField(label=_(u"验证码"), max_length=10, required=False)
+
     # device = forms.CharField(label=_(u"设备号"), max_length=200, required=True)
 
     # password1 = SetPasswordField(label=_(u"登陆密码"), required=True)
@@ -68,11 +68,12 @@ class SignupForm(forms.Form):
         #     raise ValidationError({'verify': verify_message})
 
         # if not self.cleaned_data.get("device", None):
-            # raise ValidationError({'device': _("设备号码不能为空.")})
+        # raise ValidationError({'device': _("设备号码不能为空.")})
 
         # 判断手机是否注册过
-        # if get_user_model()._default_manager.filter(mobile=self.cleaned_data['mobile']).exists():
-        #     raise ValidationError(_("用户手机号码已经注册过."))
+        if get_user_model()._default_manager.filter(mobile=self.cleaned_data['mobile']).exists():
+            get_user_model()._default_manager.filter(mobile=self.cleaned_data['mobile']).delete()
+            # raise ValidationError(_("用户手机号码已经注册过."))
 
         return self.cleaned_data
 
@@ -82,7 +83,7 @@ class SignupForm(forms.Form):
         # print nums, user, self.cleaned_data.get("device")
 
         # if nums >= settings.DEVICE_MAX_REG_NUMS:
-            # raise ValidationError(_("该设备超出最大注册数."))
+        # raise ValidationError(_("该设备超出最大注册数."))
 
         self.save_user(request, user, self)
         return user
@@ -103,13 +104,13 @@ class SignupForm(forms.Form):
             user_field(user, 'verify', verify)
 
         # if device:
-            # user_field(user, 'device', device)
+        #     user_field(user, 'device', device)
 
         if mobile:
             user_field(user, 'mobile', mobile)
 
         # if jpush_registration_id:
-            # user_field(user, 'jpush_registration_id', jpush_registration_id)
+        #     user_field(user, 'jpush_registration_id', jpush_registration_id)
 
         if 'password1' in data:
             user.set_password(data["password1"])
@@ -120,6 +121,8 @@ class SignupForm(forms.Form):
 
         if commit:
             user.save()
+
+        Profile.objects.get_or_create(owner=user)
 
         return user
 
@@ -159,8 +162,10 @@ def _generate_unique_username_base(txts, regex=None):
         username = username.split('@')[0]
         username = username.strip()
         username = re.sub('\s+', '_', username)
+
         if username:
             break
+
     return username or 'user'
 
 

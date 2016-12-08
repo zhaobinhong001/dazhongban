@@ -1,5 +1,4 @@
 # Create your views here.
-from idlelib.IdleHistory import History
 
 from filters.mixins import FiltersMixin
 from rest_framework import filters, mixins, status
@@ -23,27 +22,6 @@ class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)
-
-
-class CertificateViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
-    serializer_class = SignatureSerializer
-    permission_classes = (IsAuthenticated,)
-    model = Signature
-
-    def get_queryset(self):
-        return self.request.user.signatures.all()
-
-    def perform_create(self, serializer):
-        return serializer.save(owner=self.request.user)
-
-
-from url_filter.filtersets import ModelFilterSet
-
-
-class HistoryFilterSet(ModelFilterSet):
-    class Meta(object):
-        model = History
-        fields = ['username', 'email', 'joined', 'profile']
 
 
 class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):

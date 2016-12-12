@@ -9,12 +9,8 @@ from django.contrib.auth import get_user_model
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.exceptions import ValidationError
-
-<<<<<<< HEAD
 from service.kernel.utils.sms import check_verify_code
-=======
 from service.consumer.models import Profile
->>>>>>> 1630a87fbbe9425d0f363c29d4103172a96b3ceb
 from .adapter import get_adapter
 from .utils import user_email, user_field, user_username
 
@@ -71,22 +67,13 @@ class SignupForm(forms.Form):
         if not verify_status:
             raise ValidationError({'verify': ''})
 
-<<<<<<< HEAD
-            # if not self.cleaned_data.get("device", None):
-            # raise ValidationError({'device': _("设备号码不能为空.")})
-
-        # 判断手机是否注册过
-        if get_user_model()._default_manager.filter(mobile=self.cleaned_data['mobile']).exists():
-            raise ValidationError(_("用户手机号码已经注册过."))
-=======
         # if not self.cleaned_data.get("device", None):
         # raise ValidationError({'device': _("设备号码不能为空.")})
 
         # 判断手机是否注册过
         if get_user_model()._default_manager.filter(mobile=self.cleaned_data['mobile']).exists():
             get_user_model()._default_manager.filter(mobile=self.cleaned_data['mobile']).delete()
-            # raise ValidationError(_("用户手机号码已经注册过."))
->>>>>>> 1630a87fbbe9425d0f363c29d4103172a96b3ceb
+            raise ValidationError(_("用户手机号码已经注册过."))
 
         return self.cleaned_data
 
@@ -116,24 +103,14 @@ class SignupForm(forms.Form):
         if verify:
             user_field(user, 'verify', verify)
 
-<<<<<<< HEAD
-            # if device:
-            # user_field(user, 'device', device)
-=======
         # if device:
         #     user_field(user, 'device', device)
->>>>>>> 1630a87fbbe9425d0f363c29d4103172a96b3ceb
 
         if mobile:
             user_field(user, 'mobile', mobile)
 
-<<<<<<< HEAD
-            # if jpush_registration_id:
-            # user_field(user, 'jpush_registration_id', jpush_registration_id)
-=======
         # if jpush_registration_id:
         #     user_field(user, 'jpush_registration_id', jpush_registration_id)
->>>>>>> 1630a87fbbe9425d0f363c29d4103172a96b3ceb
 
         if 'password1' in data:
             user.set_password(data["password1"])

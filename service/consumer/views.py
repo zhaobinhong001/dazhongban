@@ -118,6 +118,25 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
 
     @list_route(methods=['GET', 'POST'])
     def contains(self, request, *args, **kwargs):
+        '''
+        [
+            {
+                "name": "BellKate",
+                "phoneNum": [
+                    "(555) 564-8583",
+                    "(415) 555-3695"
+                ]
+            },
+            {
+                "name": "BellKate",
+                "phoneNum": [
+                    "(555) 564-8583",
+                    "(415) 555-3695"
+                ]
+            },
+        ]
+
+        '''
         self.serializer_class = ContainsSerializer
         detail = '成功'
         return Response({'detail': detail}, status=status.HTTP_200_OK)

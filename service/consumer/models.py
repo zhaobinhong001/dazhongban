@@ -10,7 +10,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from imagekit.models import ProcessedImageField
-from model_utils.models import TimeStampedModel
+from model_utils import Choices
+from model_utils.models import TimeStampedModel, StatusModel
 from pilkit.processors import ResizeToFill
 from rest_framework.serializers import ValidationError
 
@@ -72,6 +73,7 @@ class CustomUser(AbstractUser):
     mobile = models.CharField(_(u'手机号码'), max_length=25, db_index=True, blank=True)
     verify = models.CharField(_(u'短信码'), max_length=5, blank=True)
     device = models.CharField(_(u'设备号'), max_length=100, blank=False, null=False)
+    level = models.CharField(_(u'用户等级'), max_length=100, blank=False, null=False)
 
     objects = CustomUserManager()
 
@@ -163,11 +165,12 @@ class Contains(TimeStampedModel):
         verbose_name_plural = _(u'手机通讯录')
 
 
-class Contact(TimeStampedModel):
+class Contact(TimeStampedModel, StatusModel):
     '''
     用户通讯录
 
     '''
+    STATUS = Choices(('invite', '邀请'), ('confirm', '确认'))
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     friend = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('好友'), default='', related_name='friends')
     black = models.BooleanField(_('是否黑名单'), default=False)
@@ -175,7 +178,7 @@ class Contact(TimeStampedModel):
     hide = models.BooleanField(_('别人不可见真名'), default=False)
 
     def __unicode__(self):
-        return self.friend
+        return self.owner.username + '-' + self.friend.username
 
     def __str__(self):
         return self.__unicode__()

@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
+from service.consumer.models import Contact
 from service.consumer.serializers import UserSerializer
 from ..serializers.report import ReportSerializer
 
@@ -55,8 +56,22 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
 
     @detail_route(methods=['POST', 'GET'])
     def invite(self, request, pk, *args, **kwargs):
+        owner = request.user
+        friend = get_user_model().objects.get(id=pk)
+        ret, _ = Contact.objects.get_or_create(owner_id=owner.pk, friend_id=friend.pk)
+        print owner.pk, friend.pk
+
         return Response({'detail': '操作成功'}, status=status.HTTP_201_CREATED)
 
     @detail_route(methods=['POST', 'GET'])
     def confirm(self, request, pk, *args, **kwargs):
-        return Response({'detail': '操作成功'}, status=status.HTTP_201_CREATED)
+        owner = request.user
+        friend = get_user_model().objects.get(id=pk)
+        ret = Contact.objects.filter(owner_id=owner.pk, friend_id=friend.pk)
+
+        if ret:
+            ret.status = 'confirm'
+            ret.save()
+            return Response({'detail': '操作成功'}, status=status.HTTP_201_CREATED)
+
+        return Response({'detail': '操作失败'}, status=status.HTTP_400_BAD_REQUEST)

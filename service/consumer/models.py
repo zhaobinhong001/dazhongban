@@ -245,6 +245,11 @@ class Settings(models.Model):
     id_identity = models.BooleanField(verbose_name=_(u'身份认证'), default=False)
     avatar = ProcessedImageField(verbose_name=_(u'头像'), upload_to='avatar', processors=[ResizeToFill(320, 320)],
         format='JPEG', null=True)
+    friend_verify = models.BooleanField(verbose_name=_(u'加好友时是否验证'), default=False)
+    mobile_verify = models.BooleanField(verbose_name=_(u'是否允许手机号查找'), default=False)
+    public_name = models.BooleanField(verbose_name=_(u'是否公开姓名'), default=False)
+
+
 
     def __unicode__(self):
         return self.name

@@ -10,7 +10,7 @@ from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from service.kernel.helpers import send_verify_code
+# from service.kernel.helpers import send_verify_code
 
 from .settings import (
     LoginSerializer, PasswordChangeSerializer, PasswordResetConfirmSerializer,

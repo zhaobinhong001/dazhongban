@@ -28,7 +28,7 @@ class VerifyCode(TimeStampedModel):
     手机验证码
     '''
     STATUS = Choices(('ready', _('已读')), ('unread', _('未读')))
-    mobile = models.CharField(verbose_name=_(u'手机号'), max_length=64)
+    mobile = models.CharField(verbose_name=_(u'手机号'), max_length=64, unique=True)
     code = models.CharField(verbose_name=_(u'验证码'), max_length=10, default='0')
     status = models.CharField(verbose_name=_(u'状态'), max_length=10, choices=STATUS)
 

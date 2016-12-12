@@ -3,7 +3,9 @@ from __future__ import unicode_literals
 
 import base64
 import json
+import random
 import re
+import string
 import unicodedata
 from urlparse import urlsplit
 
@@ -14,8 +16,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import validate_email, ValidationError
 from django.db.models import FieldDoesNotExist
 from django.db.models.fields import (DateTimeField, DateField,
-    EmailField, TimeField,
-    BinaryField)
+                                     EmailField, TimeField,
+                                     BinaryField)
 from django.utils import six, dateparse
 
 try:
@@ -230,7 +232,7 @@ def set_form_field_order(form, fields_order):
         from collections import OrderedDict
         assert isinstance(form.fields, OrderedDict)
         form.fields = OrderedDict((f, form.fields[f])
-            for f in fields_order)
+                                  for f in fields_order)
 
 
 def build_absolute_uri(request, location, protocol=None):
@@ -311,3 +313,14 @@ def _setting(self, name, dflt):
     from django.conf import settings
     getter = getattr(settings, 'ALLAUTH_SETTING_GETTER', lambda name, dflt: getattr(settings, name, dflt))
     return getter(self.prefix + name, dflt)
+
+
+def GenPassword(length):
+    numOfNum = random.randint(1, length - 1)
+    numOfLetter = length - numOfNum
+    slcNum = [random.choice(string.digits) for i in range(numOfNum)]
+    slcLetter = [random.choice(string.ascii_letters) for i in range(numOfLetter)]
+    slcChar = slcNum + slcLetter
+    random.shuffle(slcChar)
+    genPwd = ''.join([i for i in slcChar])
+    return genPwd

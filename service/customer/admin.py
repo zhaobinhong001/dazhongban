@@ -8,7 +8,7 @@ from django.forms import TextInput, ModelForm, Textarea, Select
 # from reversion import VersionAdmin
 from import_export.admin import ImportExportModelAdmin
 from suit_ckeditor.widgets import CKEditorWidget
-from suit_redactor.widgets import RedactorWidget
+# from suit_redactor.widgets import RedactorWidget
 from .models import Country, Continent, KitchenSink, Category, City, \
     Microwave, Fridge, WysiwygEditor, ReversionedItem, ImportExportItem
 from suit.admin import SortableTabularInline, SortableModelAdmin, \

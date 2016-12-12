@@ -10,7 +10,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import ValidationError
 
 from .forms import PasswordResetForm
-from service.kernel.helpers import check_verify_code
+from service.kernel.utils.sms import check_verify_code
 
 
 class VerifyMobileSerializer(serializers.Serializer):

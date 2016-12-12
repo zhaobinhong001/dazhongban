@@ -5,23 +5,22 @@ import re
 import unicodedata
 
 from django import forms
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
+from service.kernel.utils.sms import check_verify_code
 from .adapter import get_adapter
 from .utils import user_email, user_field, user_username
-from .. import app_settings
 
 
 class PasswordField(forms.CharField):
     def __init__(self, *args, **kwargs):
         render_value = kwargs.pop('render_value', False)
         kwargs['widget'] = forms.PasswordInput(render_value=render_value,
-            attrs={'placeholder':
-                _(kwargs.get("label"))})
+                                               attrs={'placeholder':
+                                                          _(kwargs.get("label"))})
         super(PasswordField, self).__init__(*args, **kwargs)
 
 
@@ -35,6 +34,7 @@ class SetPasswordField(PasswordField):
 class SignupForm(forms.Form):
     mobile = forms.CharField(label=_(u"手机号"), max_length=20, required=True)
     verify = forms.CharField(label=_(u"验证码"), max_length=10, required=False)
+
     # device = forms.CharField(label=_(u"设备号"), max_length=200, required=True)
 
     # password1 = SetPasswordField(label=_(u"登陆密码"), required=True)
@@ -62,17 +62,17 @@ class SignupForm(forms.Form):
         #     raise ValidationError({'verify': _("验证码不能为空.")})
 
         # 判断验证码
-        # verify_status, verify_message = check_verify_code(self.cleaned_data["mobile"], self.cleaned_data["verify"])
-        #
-        # if not verify_status:
-        #     raise ValidationError({'verify': verify_message})
+        verify_status = check_verify_code(self.cleaned_data["mobile"], self.cleaned_data["verify"])
 
-        # if not self.cleaned_data.get("device", None):
+        if not verify_status:
+            raise ValidationError({'verify': ''})
+
+            # if not self.cleaned_data.get("device", None):
             # raise ValidationError({'device': _("设备号码不能为空.")})
 
         # 判断手机是否注册过
-        # if get_user_model()._default_manager.filter(mobile=self.cleaned_data['mobile']).exists():
-        #     raise ValidationError(_("用户手机号码已经注册过."))
+        if get_user_model()._default_manager.filter(mobile=self.cleaned_data['mobile']).exists():
+            raise ValidationError(_("用户手机号码已经注册过."))
 
         return self.cleaned_data
 
@@ -82,7 +82,7 @@ class SignupForm(forms.Form):
         # print nums, user, self.cleaned_data.get("device")
 
         # if nums >= settings.DEVICE_MAX_REG_NUMS:
-            # raise ValidationError(_("该设备超出最大注册数."))
+        # raise ValidationError(_("该设备超出最大注册数."))
 
         self.save_user(request, user, self)
         return user
@@ -102,13 +102,13 @@ class SignupForm(forms.Form):
         if verify:
             user_field(user, 'verify', verify)
 
-        # if device:
+            # if device:
             # user_field(user, 'device', device)
 
         if mobile:
             user_field(user, 'mobile', mobile)
 
-        # if jpush_registration_id:
+            # if jpush_registration_id:
             # user_field(user, 'jpush_registration_id', jpush_registration_id)
 
         if 'password1' in data:

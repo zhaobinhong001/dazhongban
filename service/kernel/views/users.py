@@ -59,7 +59,6 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
         owner = request.user
         friend = get_user_model().objects.get(id=pk)
         ret, _ = Contact.objects.get_or_create(owner_id=owner.pk, friend_id=friend.pk)
-        print owner.pk, friend.pk
 
         return Response({'detail': '操作成功'}, status=status.HTTP_201_CREATED)
 

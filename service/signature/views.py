@@ -1,15 +1,18 @@
-# Create your views here.
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 from filters.mixins import FiltersMixin
-from rest_framework import filters, mixins, status
+from rest_framework import filters, mixins, status, viewsets
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, ModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from url_filter.integrations.drf import DjangoFilterBackend
 
+from service.signature.utils import iddentity_verify
 from .models import Signature, Identity, Validate
-from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer
+from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer
 
 
 class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
@@ -22,6 +25,20 @@ class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)
+
+
+class BankcardViewSet(viewsets.ViewSet):
+    serializer_class = BankcardSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def list(self, request, *args, **kwargs):
+        return Response(['serializer.data'], status=status.HTTP_200_OK)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
@@ -42,12 +59,16 @@ class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
         return serializer.save(owner=self.request.user)
 
 
-class IdentityViewSet(ModelViewSet):
+class IdentityViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = IdentitySerializer
     queryset = Identity.objects.all()
 
     def create(self, request, *args, **kwargs):
+        code = iddentity_verify(request.data)
+
+        if not code:
+            raise ValidationError(u"身份认证失败.")
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import base64
 import json
 
 import requests as req
@@ -25,15 +26,31 @@ data = {
     "signKey": "8b347d22257c6092821798f811bce0a1"
 }
 
+IDDENTITY_APPKEY = 'l53sevsz8bt4om3hqe6rbe29'
 
-def iddentity_verify(data=None):
-    if data is None:
+fields = data['data'].keys()
+
+
+def iddentity_verify(param=None):
+    url = 'https://121.42.154.8:3002/api/register'
+
+    if param is None:
         return False
 
-    url = 'https://121.42.154.8:3002/api/register'
-    data['signKey'] = md5('%s%s%s' % (data['data']['certId'], data['data']['phone'], 'l53sevsz8bt4om3hqe6rbe29'))
+    data = {'data': {"certType": "1", "originType": "1"}}
+
+    for k, v in param.items():
+        if k in fields:
+            if k in ['backPhoto', 'frontPhoto']:
+                if hasattr(v, 'file'):
+                    data['data'][k] = base64.b64encode(v.file.getvalue())
+            else:
+                data['data'][k] = v
+
+    data['signKey'] = md5('%s%s%s' % (data['data']['certId'], data['data']['phone'], IDDENTITY_APPKEY))
     data['signKey'] = data['signKey'].hexdigest()
     data = json.dumps(data)
+
     ret = req.post(url=url, data=data, headers={'content-type': 'application/json; charset=utf-8'}, verify=False)
 
     if ret.status_code == 200:

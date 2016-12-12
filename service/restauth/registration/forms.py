@@ -58,8 +58,8 @@ class SignupForm(forms.Form):
         #     if self.cleaned_data["password1"] != self.cleaned_data["password2"]:
         #         raise ValidationError({'password': _("两次密码不一致.")})
 
-        # if not self.cleaned_data.get("verify", None):
-        #     raise ValidationError({'verify': _("验证码不能为空.")})
+        if not self.cleaned_data.get("verify", None):
+            raise ValidationError({'verify': _("验证码不能为空.")})
 
         # 判断验证码
         verify_status = check_verify_code(self.cleaned_data["mobile"], self.cleaned_data["verify"])

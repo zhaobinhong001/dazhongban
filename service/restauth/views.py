@@ -148,13 +148,13 @@ class PasswordResetView(GenericAPIView):
 
         user = get_user_model().objects.filter(mobile=mobile)
 
-        if not user:
-            return Response({'errors': {'msgs': u'手机号码不存在', 'code': 400}}, status=status.HTTP_400_BAD_REQUEST)
+        # if not user:
+        #     return Response({'errors': {'msgs': u'手机号码不存在', 'code': 400}}, status=status.HTTP_400_BAD_REQUEST)
 
-        verify = send_verify_code(mobile)
+        # verify = send_verify_code(mobile)
 
-        if not verify[0]:
-            return Response({'errors': {'msgs': verify[1], 'code': 400}}, status=status.HTTP_400_BAD_REQUEST)
+        # if not verify[0]:
+        #     return Response({'errors': {'msgs': verify[1], 'code': 400}}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'detail': u'验证码已经成功发送'}, status=status.HTTP_200_OK)
 

@@ -2,6 +2,7 @@
 # from __future__ import unicode_literals
 import re
 
+from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import ValidationError
@@ -31,6 +32,7 @@ class RegisterView(GenericAPIView):
     serializer_class = RegisterSerializer
     permission_classes = (AllowAny,)
     response_serializer = TokenSerializer
+    queryset = get_user_model().objects.all()
     allowed_methods = ('POST', 'OPTIONS', 'HEAD')
 
     def form_valid(self, form):
@@ -49,9 +51,7 @@ class RegisterView(GenericAPIView):
 
     def get_response(self):
         serializer = self.response_serializer(instance=self.token)
-        data = serializer.data
-        # data['token'] = get
-        return Response(data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def get_response_with_errors(self):
         return Response(self.form.errors, status=status.HTTP_400_BAD_REQUEST)

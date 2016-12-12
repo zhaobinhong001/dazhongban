@@ -1,5 +1,4 @@
 # Create your views here.
-from idlelib.IdleHistory import History
 
 from filters.mixins import FiltersMixin
 from rest_framework import filters, mixins, status
@@ -25,27 +24,6 @@ class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
         return serializer.save(owner=self.request.user)
 
 
-class CertificateViewSet(NestedViewSetMixin, ReadOnlyModelViewSet):
-    serializer_class = SignatureSerializer
-    permission_classes = (IsAuthenticated,)
-    model = Signature
-
-    def get_queryset(self):
-        return self.request.user.signatures.all()
-
-    def perform_create(self, serializer):
-        return serializer.save(owner=self.request.user)
-
-
-from url_filter.filtersets import ModelFilterSet
-
-
-class HistoryFilterSet(ModelFilterSet):
-    class Meta(object):
-        model = History
-        fields = ['username', 'email', 'joined', 'profile']
-
-
 class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter,)
     filter_fields = ['created']
@@ -64,15 +42,18 @@ class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
         return serializer.save(owner=self.request.user)
 
 
-class IdentityViewSet(GenericViewSet):
+class IdentityViewSet(ModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = IdentitySerializer
     queryset = Identity.objects.all()
 
     def create(self, request, *args, **kwargs):
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)

@@ -25,16 +25,12 @@ class SignatureSerializer(serializers.ModelSerializer):
         exclude = ('owner',)
 
 
-IDDENTITY_APPKEY = settings.IDDENTITY_APPKEY
-IDDENTITY_GATEWAY = settings.IDDENTITY_GATEWAY
-
-
 class ValidateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
-        if not attrs['key'] == md5('%s%s%s' % (attrs['nu'], attrs['dn'], IDDENTITY_APPKEY)).hexdigest:
-            raise serializers.ValidationError('key error.')
+        if attrs['key'] == md5('%s%s%s' % (attrs['nu'], attrs['dn'], settings.IDDENTITY_APPKEY)).hexdigest:
+            return True
 
-        return True
+        raise serializers.ValidationError('key error.')
 
     class Meta:
         model = Validate

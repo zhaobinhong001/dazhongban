@@ -60,8 +60,8 @@ class SignupForm(forms.Form):
             raise ValidationError(_(u'验证码错误'))
 
         # 判断手机是否注册过
-        if get_user_model()._default_manager.filter(mobile=self.cleaned_data['mobile']).exists():
-            raise ValidationError(_("用户手机号码已经注册过."))
+        # if get_user_model()._default_manager.filter(mobile=self.cleaned_data['mobile']).exists():
+        #     raise ValidationError(_("用户手机号码已经注册过."))
 
         return self.cleaned_data
 

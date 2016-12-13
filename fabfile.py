@@ -18,7 +18,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
 # PRODUCTION_HOSTS = env('PRODUCTION_HOSTS', None)
 # django.settings_module('config.settings.local')
 
-env.hosts = ['root@10.7.7.88']
+env.hosts = ['root@10.7.7.22']
 
 env.excludes = (
     "*.pyc", "*.db", ".DS_Store", ".coverage", ".git", ".hg", ".tox", ".idea/",

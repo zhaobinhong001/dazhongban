@@ -16,13 +16,13 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    # qrcode = serializers.URLField(read_only=True)
-    # jpush_registration_id = serializers.CharField(source='owner.jpush_registration_id', read_only=True)
+    level = serializers.StringRelatedField(source='owner.level')
+    phone = serializers.StringRelatedField(source='owner.mobile')
 
     class Meta:
         model = Profile
-        # read_only_fields = ("payment", "balance", "total",)
-        fields = ("name", "nick", "phone", "avatar", "gender", "birthday", "qr")
+        # read_only_fields = ("name", "phone", "qr", "level",)
+        fields = ("name", "nick", "phone", "avatar", "gender", "birthday", "qr", 'level')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -32,7 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('id', 'name', 'nick', 'avatar', 'mobile')
+        fields = ('id', 'name', 'nick', 'avatar', 'mobile', 'level')
 
 
 class NickSerializer(serializers.ModelSerializer):
@@ -61,11 +61,12 @@ class AddressSerializer(serializers.ModelSerializer):
 class ContactSerializer(serializers.ModelSerializer):
     name = serializers.StringRelatedField(source='friend.profile.name')
     nick = serializers.StringRelatedField(source='friend.profile.nick')
+    level = serializers.StringRelatedField(source='friend.level')
     avatar = serializers.ImageField(source='friend.profile.avatar', read_only=True)
 
     class Meta:
         model = Contact
-        fields = ('id', 'nick', 'name', 'alias', 'black', 'avatar', 'hide')
+        fields = ('id', 'nick', 'name', 'alias', 'black', 'avatar', 'hide', 'status', 'level')
 
 
 class ContainsSerializer(serializers.ModelSerializer):

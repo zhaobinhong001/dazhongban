@@ -33,18 +33,14 @@ class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
         return serializer.save(owner=self.request.user)
 
 
-class BankcardViewSet(viewsets.ViewSet):
+class BankcardViewSet(viewsets.GenericViewSet):
     serializer_class = BankcardSerializer
     permission_classes = (IsAuthenticated,)
-
-    def list(self, request, *args, **kwargs):
-        return Response(['serializer.data'], status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):

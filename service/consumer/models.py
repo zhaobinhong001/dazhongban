@@ -93,15 +93,13 @@ class Profile(models.Model):
     GENDER_CHOICES = (('male', '男'), ('female', '女'))
 
     owner = models.OneToOneField(settings.AUTH_USER_MODEL, unique=True, db_index=True, related_name='profile')
-    name = models.CharField(verbose_name=_(u'姓名'), blank=True, max_length=255, db_index=True)
-    nick = models.CharField(verbose_name=_(u'昵称'), blank=True, null=True, max_length=255, db_index=True)
-    phone = models.CharField(verbose_name=_(u'电话'), default='', blank=True, max_length=64)
+    name = models.CharField(verbose_name=_(u'姓名'), blank=True, max_length=100, db_index=True)
+    nick = models.CharField(verbose_name=_(u'昵称'), blank=True, null=True, max_length=100, db_index=True)
+    phone = models.CharField(verbose_name=_(u'银行预留电话'), default='', blank=True, max_length=64)
     gender = models.CharField(verbose_name=_(u'性别'), max_length=10, choices=GENDER_CHOICES, default=u'male')
+    idcard = models.CharField(verbose_name=_(u'身份证'), max_length=100, default='')
+    bankcard = models.CharField(verbose_name=_(u'银行卡号'), max_length=100, default='')
     birthday = models.DateField(_(u'生日'), blank=True, null=True)
-    # alipay = models.CharField(verbose_name=_(u'支付宝'), max_length=100, blank=True)
-    # payment = models.DecimalField(verbose_name=_(u'已经提现'), default=0.00, max_digits=10, decimal_places=2)
-    # balance = models.DecimalField(verbose_name=_(u'帐户余额'), default=0.00, max_digits=10, decimal_places=2)
-    # total = models.DecimalField(verbose_name=_(u'帐户总额'), default=0.00, max_digits=10, decimal_places=2)
     avatar = ProcessedImageField(verbose_name=_(u'头像'), upload_to='avatar', processors=[ResizeToFill(320, 320)],
         format='JPEG', null=True)
 
@@ -248,8 +246,6 @@ class Settings(models.Model):
     friend_verify = models.BooleanField(verbose_name=_(u'加好友时是否验证'), default=False)
     mobile_verify = models.BooleanField(verbose_name=_(u'是否允许手机号查找'), default=False)
     public_name = models.BooleanField(verbose_name=_(u'是否公开姓名'), default=False)
-
-
 
     def __unicode__(self):
         return self.name

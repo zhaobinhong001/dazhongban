@@ -11,7 +11,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from service.restauth.models import VerifyCode
-from service.restauth.registration.utils import GenPassword
+from service.restauth.registration.utils import generate_verification_code
 from .forms import SignupForm
 from .tasks import send_verify_code
 from ..serializers import RegisterSerializer, VerifyMobileSerializer
@@ -81,7 +81,7 @@ class VerifyMobileView(GenericAPIView):
             raise ValidationError({'mobile': "手机号码格式不匹配."})
 
         # 生成验证码
-        code = GenPassword(4)
+        code = generate_verification_code(6)
 
         # 保存数据库
         obj, _ = VerifyCode.objects.get_or_create(mobile=mobile)

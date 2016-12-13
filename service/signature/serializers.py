@@ -27,7 +27,7 @@ class SignatureSerializer(serializers.ModelSerializer):
 
 class ValidateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
-        if attrs['key'] == md5('%s%s%s' % (attrs['nu'], attrs['dn'], settings.IDDENTITY_APPKEY)).hexdigest:
+        if attrs['key'] == md5('%s%s%s' % (attrs['nu'], attrs['dn'], settings.IDDENTITY_APPKEY)).hexdigest():
             return True
 
         raise serializers.ValidationError('key error.')

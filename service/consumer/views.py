@@ -94,6 +94,10 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
 
     - 上传通讯录 POST /api/me/contains/
     - 设置黑名单 POST /api/me/contact/{pk}/
+    - 批量隐藏我名字 POST /api/me/contact/hide/
+    - 批量黑名单 POST /api/me/contact/black/
+
+    `hide 和 black 接口 psot 参数 userid 为多个 id 用 "," 隔开`
 
 
     '''

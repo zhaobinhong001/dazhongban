@@ -97,7 +97,6 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
 
 class ValidateViewSet(ModelViewSet):
-    permission_classes = (IsAuthenticated,)
     serializer_class = ValidateSerializer
     queryset = Validate.objects.all()
     lookup_field = 'key'

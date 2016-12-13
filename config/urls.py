@@ -17,7 +17,6 @@ urlpatterns = (
     url(r'^api/', include('service.kernel.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    url(r'^admin/test/', include('service.customer.urls')),
 )
 
 if settings.DEBUG:

@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.contrib.auth import get_user_model
+from django.db.models import QuerySet
 from rest_framework import filters
 from rest_framework import status
 from rest_framework import viewsets
@@ -41,6 +42,14 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
             return {'Location': data[api_settings.URL_FIELD_NAME]}
         except (TypeError, KeyError):
             return {}
+
+    def get_queryset(self):
+        queryset = self.queryset
+
+        if isinstance(queryset, QuerySet):
+            queryset = queryset.exclude(id=self.request.user.pk)
+
+        return queryset
 
     @detail_route(methods=['POST', 'GET'])
     def report(self, request, pk, *args, **kwargs):

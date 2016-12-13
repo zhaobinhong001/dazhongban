@@ -31,6 +31,7 @@ class ProfileViewSet(RetrieveUpdateAPIView):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
+
         data = serializer.data
         data['qr'] = reverse('q', args=[short_url.encode_url(instance.pk)], request=request)
 

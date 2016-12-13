@@ -58,7 +58,7 @@ DATABASES = {
 if DEBUG:
     INSTALLED_APPS += (
         'debug_toolbar',
-        'django_seed',
+        # 'django_seed',
     )
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     DEBUG_TOOLBAR_CONFIG = {'JQUERY_URL': '//cdn.bootcss.com/jquery/2.1.4/jquery.min.js'}

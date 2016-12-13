@@ -13,28 +13,37 @@ data = {
         "certType": "1",
         "name": "刘春雷",
         "phone": "18637638958",
-        "originType": "1",
+        "originType": "12",
         "address": "",
         "frontPhoto": "",
         "backPhoto": "",
         "cvn2": "",
         "cardNo": "6217000010077471293",
-        "bankID": "CCB",
+        "bankID": "105",
         "exp_Date": ""
     },
-    "signKey": "8b347d22257c6092821798f811bce0a1"
+    "signKey": "4199bdf5ed7fc0fdc436b2a7480b4092"
 }
 
+IDDENTITY_APPKEY = '69tx91g3kpzlqkndszzofj38fr'
+IDDENTITY_GATEWAY = 'https://10.7.7.71:3002/api/register'
 
-def iddentity_verify(data=None):
-    if data is None:
+fields = data['data'].keys()
+
+
+def iddentity_verify(param=None):
+    if param is None:
         return False
 
-    url = 'https://121.42.154.8:3002/api/register'
-    data['signKey'] = md5('%s%s%s' % (data['data']['certId'], data['data']['phone'], 'l53sevsz8bt4om3hqe6rbe29'))
+    data = {'data': {"certType": "1", "originType": "12"}}
+
+    data['data'].update(param)
+    data['signKey'] = md5('%s%s%s' % (data['data']['certId'], data['data']['phone'], IDDENTITY_APPKEY))
     data['signKey'] = data['signKey'].hexdigest()
+
     data = json.dumps(data)
-    ret = req.post(url=url, data=data, headers={'content-type': 'application/json; charset=utf-8'}, verify=False)
+    ret = req.post(url=IDDENTITY_GATEWAY, data=data, headers={'content-type': 'application/json; charset=utf-8'},
+        verify=False)
 
     if ret.status_code == 200:
         return ret.json()

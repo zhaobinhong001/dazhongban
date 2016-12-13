@@ -6,6 +6,21 @@ from django.db import models
 from model_utils.models import TimeStampedModel
 
 
+class Bankcard(TimeStampedModel):
+    card = models.CharField(verbose_name=u'银行卡号', max_length=200, default='')
+    name = models.CharField(verbose_name=u'银行名称', max_length=200, default='')
+
+    def __unicode__(self):
+        return self.name
+
+    def __str__(self):
+        return self.__unicode__()
+
+    class Meta:
+        verbose_name = u'银行卡片'
+        verbose_name_plural = u'银行卡片'
+
+
 class Signature(TimeStampedModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='signatures')
     signs = models.TextField(verbose_name=u'证书密文', default='')
@@ -95,7 +110,7 @@ class Identity(TimeStampedModel):
     frontPhoto = models.ImageField(verbose_name=u'证件照正面')
     backPhoto = models.ImageField(verbose_name=u'证件照反面')
     cardNo = models.CharField(verbose_name=u'银行卡号', max_length=100, default='')
-    bankID = models.CharField(verbose_name=u'银行ID', max_length=100, default='542', choices=BANKID)
+    bankID = models.CharField(verbose_name=u'银行ID', max_length=100, default='', choices=BANKID)
     cvn2 = models.CharField(verbose_name=u'信用卡背面的末3位数字', max_length=10, default='', null=True, blank=True)
     expired = models.DateField(verbose_name=u'有效期', max_length=100, default='', null=True, blank=True)
 

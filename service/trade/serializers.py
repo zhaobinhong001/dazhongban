@@ -3,16 +3,16 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from .models import Consumption, Contract
+from .models import Contract, Transfer
 
 
 class ContractSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contract
-        fields = '__all__'
+        exclude = ('sender',)
 
 
-class ConsumptionSerializer(serializers.ModelSerializer):
+class TransferSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Consumption
-        fields = '__all__'
+        model = Transfer
+        exclude = ('sender',)

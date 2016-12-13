@@ -25,6 +25,12 @@ class SignatureSerializer(serializers.ModelSerializer):
         exclude = ('owner',)
 
 
+class CallbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Validate
+        fields = ('key', 'nu', 'dn')
+
+
 class ValidateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if attrs['key'] == md5('%s%s%s' % (attrs['nu'], attrs['dn'], settings.IDDENTITY_APPKEY)).hexdigest():

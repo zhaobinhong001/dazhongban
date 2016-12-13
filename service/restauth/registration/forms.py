@@ -66,7 +66,7 @@ class SignupForm(forms.Form):
         return self.cleaned_data
 
     def save(self, request):
-        user = get_user_model()()
+        user, _ = get_user_model().objects.get_or_create(mobile=self.cleaned_data.get('mobile'))
         self.save_user(request, user, self)
 
         return user
@@ -92,7 +92,9 @@ class SignupForm(forms.Form):
         if commit:
             user.save()
 
-        Profile.objects.get_or_create(owner=user)
+        profile, _ = Profile.objects.get_or_create(owner=user)
+        profile.nick = user.mobile.replace(user.mobile[3:7], '****')
+        profile.save()
 
         return user
 

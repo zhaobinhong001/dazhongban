@@ -28,4 +28,6 @@ def send_sms(mobile, message, *args, **kwargs):
 
 
 def check_verify_code(mobile, verify):
-    return VerifyCode.objects.filter(mobile=mobile, code=verify).exists()
+    result = VerifyCode.objects.filter(mobile=mobile, code=verify).exists()
+    VerifyCode.objects.filter(mobile=mobile, code=verify).delete() if result else None
+    return True if result else False

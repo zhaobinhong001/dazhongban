@@ -72,29 +72,24 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
 
-        data = request.data
+        item = {}
 
-        for k, v in data.items():
+        for k, v in request.data.items():
             if k in fields:
                 if k in ['backPhoto', 'frontPhoto']:
                     if hasattr(v, 'file'):
-                        data[k] = base64.b64encode(v.file.getvalue())
+                        item[k] = base64.b64encode(v.file.getvalue())
+                    else:
+                        item[k] = ''
                 else:
-                    data[k] = v
+                    item[k] = v
 
-        data = iddentity_verify(request.data)
+        data = iddentity_verify(item)
 
         if not data:
             raise ValidationError(u"身份认证失败.")
 
         return Response(data, status=status.HTTP_201_CREATED)
-
-        # serializer = self.get_serializer(data=data)
-        # serializer.is_valid(raise_exception=True)
-        # self.perform_create(serializer)
-        # headers = self.get_success_headers(serializer.data)
-        #
-        # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)
@@ -126,7 +121,7 @@ class ValidateViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericV
     lookup_field = 'nu'
 
     def list(self, request, *args, **kwargs):
-        return Response({'detail':'不支持该方法'})
+        return Response({'detail': '不支持该方法'})
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()

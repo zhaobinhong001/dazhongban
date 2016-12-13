@@ -12,7 +12,7 @@ from rest_framework.response import Response
 # from service.kernel.helpers import send_verify_code
 from service.restauth.models import VerifyCode
 from service.restauth.registration.utils import GenPassword
-from .tasks import send_verify_code
+from .tasks import send_verify_code, send_verify_push
 from .forms import SignupForm
 from ..serializers import RegisterSerializer, VerifyMobileSerializer
 from ..settings import TokenSerializer

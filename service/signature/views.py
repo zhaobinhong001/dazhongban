@@ -78,16 +78,19 @@ class IdentityViewSet(viewsets.ModelViewSet):
                 else:
                     data[k] = v
 
-        code = iddentity_verify(request.data)
+        data = iddentity_verify(request.data)
 
-        if not code:
+        if not data:
             raise ValidationError(u"身份认证失败.")
 
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(data, status=status.HTTP_201_CREATED)
+
+        # serializer = self.get_serializer(data=data)
+        # serializer.is_valid(raise_exception=True)
+        # self.perform_create(serializer)
+        # headers = self.get_success_headers(serializer.data)
+        #
+        # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)

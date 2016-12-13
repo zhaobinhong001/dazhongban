@@ -12,10 +12,6 @@ from rest_framework.response import Response
 
 from service.restauth.models import VerifyCode
 from service.restauth.registration.utils import GenPassword
-<<<<<<< HEAD
-from .tasks import send_verify_code, send_verify_push
-=======
->>>>>>> 7e682d5925ba88aa575a1cf01c6b464dd7215b02
 from .forms import SignupForm
 from .tasks import send_verify_code
 from ..serializers import RegisterSerializer, VerifyMobileSerializer

@@ -16,7 +16,8 @@ from rest_framework.viewsets import GenericViewSet
 from service.consumer.models import Contact
 from .serializers import (
     AddressSerializer, ProfileSerializer, AvatarSerializer, ContactSerializer, BankcardSerializer,
-    SettingsSerializer, AddFriendSerializer, NickSerializer, ContactDetailSerializer, ContainsSerializer)
+    SettingsSerializer, AddFriendSerializer, NickSerializer, ContactDetailSerializer, ContainsSerializer,
+    ContactHideSerializer)
 from .utils import get_user_profile
 from .utils import get_user_settings
 
@@ -116,6 +117,26 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+    @list_route(methods=['GET', 'POST'])
+    def hide(self, request, *args, **kwargs):
+        self.serializer_class = ContactHideSerializer
+        if request.method == 'POST':
+            userid = request.data['userid']
+            Contact.objects.filter(owner_id__in=userid.split(',')).update(hide=True)
+            return Response({'detail': '成功'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'detail': '不支持该方法'}, status=status.HTTP_400_BAD_REQUEST)
+
+    @list_route(methods=['GET', 'POST'])
+    def black(self, request, *args, **kwargs):
+        self.serializer_class = ContactHideSerializer
+        if request.method == 'POST':
+            userid = request.data['userid']
+            Contact.objects.filter(owner_id__in=userid.split(',')).update(black=True)
+            return Response({'detail': '成功'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'detail': '不支持该方法'}, status=status.HTTP_400_BAD_REQUEST)
 
     @list_route(methods=['GET', 'POST'])
     def contains(self, request, *args, **kwargs):

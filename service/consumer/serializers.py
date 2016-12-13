@@ -78,7 +78,21 @@ class ContainsSerializer(serializers.ModelSerializer):
 class ContactDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
-        fields = ('black', 'alias', 'hide')
+        fields = ('hide', 'black', 'alias')
+
+
+class ContactHideSerializer(serializers.Serializer):
+    userid = serializers.CharField(label='用户ID')
+
+    class Meta:
+        fields = ('userid',)
+
+
+class ContactBlackSerializer(serializers.ModelSerializer):
+    userid = serializers.CharField(label='用户ID')
+
+    class Meta:
+        fields = ('userid',)
 
 
 class AccountDetailsSerializer(serializers.ModelSerializer):

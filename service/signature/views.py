@@ -8,7 +8,7 @@ from rest_framework import filters, mixins, status, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, ModelViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from url_filter.integrations.drf import DjangoFilterBackend
 
@@ -96,7 +96,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
         return serializer.save(owner=self.request.user)
 
 
-class ValidateViewSet(ModelViewSet):
+class ValidateViewSet(viewsets.ModelViewSet):
     serializer_class = ValidateSerializer
     queryset = Validate.objects.all()
-    lookup_field = 'key'
+    lookup_field = 'nu'

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import base64
+
 from filters.mixins import FiltersMixin
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.exceptions import ValidationError
@@ -10,7 +12,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, ModelV
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from url_filter.integrations.drf import DjangoFilterBackend
 
-from service.signature.utils import iddentity_verify
+from service.signature.utils import iddentity_verify, fields
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer
 
@@ -65,6 +67,17 @@ class IdentityViewSet(viewsets.ModelViewSet):
     queryset = Identity.objects.all()
 
     def create(self, request, *args, **kwargs):
+
+        data = request.data
+
+        for k, v in data.items():
+            if k in fields:
+                if k in ['backPhoto', 'frontPhoto']:
+                    if hasattr(v, 'file'):
+                        data[k] = base64.b64encode(v.file.getvalue())
+                else:
+                    data[k] = v
+
         code = iddentity_verify(request.data)
 
         if not code:

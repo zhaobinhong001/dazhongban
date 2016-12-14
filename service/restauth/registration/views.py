@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-# from __future__ import unicode_literals
+from __future__ import unicode_literals
+
 import re
 
 from django.contrib.auth import get_user_model
@@ -64,8 +65,8 @@ class VerifyMobileView(GenericAPIView):
     请使用下面的正则表达式验证手机号码正确性，在提交服务器前客户端提交一次
     手机号码验证正则表达式：^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$
     '''
-    response_serializer = TokenSerializer
     permission_classes = (AllowAny,)
+    response_serializer = TokenSerializer
     serializer_class = VerifyMobileSerializer
     allowed_methods = ('POST', 'OPTIONS', 'HEAD')
 

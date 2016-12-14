@@ -4,10 +4,10 @@ from __future__ import unicode_literals
 from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 
-from .views import ConsumptionViewSet, ContractViewSet
+from .views import ContractViewSet, TransferViewSet
 
 router = DefaultRouter()
-router.register(r'purchase', ConsumptionViewSet, base_name='purchase')
+router.register(r'transfer', TransferViewSet, base_name='transfer')
 router.register(r'contract', ContractViewSet, base_name='contract')
 
 urlpatterns = (

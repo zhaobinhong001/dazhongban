@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import json
 
 import requests as req
+from django.conf import settings
 
 from service.consumer.utils import md5
 
@@ -25,8 +26,8 @@ data = {
     "signKey": "4199bdf5ed7fc0fdc436b2a7480b4092"
 }
 
-IDDENTITY_APPKEY = '69tx91g3kpzlqkndszzofj38fr'
-IDDENTITY_GATEWAY = 'https://10.7.7.71:3002/api/register'
+IDDENTITY_APPKEY = settings.IDDENTITY_APPKEY
+IDDENTITY_GATEWAY = settings.IDDENTITY_GATEWAY
 
 fields = data['data'].keys()
 
@@ -42,8 +43,8 @@ def iddentity_verify(param=None):
     data['signKey'] = data['signKey'].hexdigest()
 
     data = json.dumps(data)
-    ret = req.post(url=IDDENTITY_GATEWAY, data=data, headers={'content-type': 'application/json; charset=utf-8'},
-        verify=False)
+    headers = {'content-type': 'application/json; charset=utf-8'}
+    ret = req.post(url=IDDENTITY_GATEWAY, data=data, headers=headers, verify=False)
 
     if ret.status_code == 200:
         return ret.json()

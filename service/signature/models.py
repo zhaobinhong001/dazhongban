@@ -39,6 +39,7 @@ class Signature(TimeStampedModel):
 
 class Validate(TimeStampedModel):
     key = models.CharField(max_length=200, default='', unique=True)
+    nu = models.CharField(max_length=200, default='', unique=True)
     dn = models.CharField(max_length=200, default='')
 
     def __unicode__(self):

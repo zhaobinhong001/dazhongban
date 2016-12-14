@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import requests
+from django.conf import settings
 
 from service.restauth.models import VerifyCode
 
@@ -28,4 +29,9 @@ def send_sms(mobile, message, *args, **kwargs):
 
 
 def check_verify_code(mobile, verify):
-    return VerifyCode.objects.filter(mobile=mobile, code=verify).exists()
+    result = VerifyCode.objects.filter(mobile=mobile, code=verify).exists()
+
+    if not settings.DEBUG:
+        VerifyCode.objects.filter(mobile=mobile, code=verify).delete() if result else None
+
+    return True if result else False

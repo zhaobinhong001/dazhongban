@@ -69,8 +69,10 @@ class IdentityViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
 
         item = {}
+        items = request.data.items()
 
-        for k, v in request.data.items():
+
+        for k, v in items:
             if k in fields:
                 if k in ['backPhoto', 'frontPhoto']:
                     if hasattr(v, 'file'):

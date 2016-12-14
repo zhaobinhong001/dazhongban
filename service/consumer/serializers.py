@@ -63,10 +63,11 @@ class ContactSerializer(serializers.ModelSerializer):
     nick = serializers.StringRelatedField(source='friend.profile.nick')
     level = serializers.StringRelatedField(source='friend.level')
     avatar = serializers.ImageField(source='friend.profile.avatar', read_only=True)
+    userid = serializers.IntegerField(source='friend_id', read_only=True)
 
     class Meta:
         model = Contact
-        fields = ('id', 'nick', 'name', 'alias', 'black', 'avatar', 'hide', 'status', 'level')
+        fields = ('userid', 'nick', 'name', 'alias', 'black', 'avatar', 'hide', 'status', 'level')
 
 
 class ContainsSerializer(serializers.ModelSerializer):

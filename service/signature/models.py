@@ -102,10 +102,10 @@ BANKID = (
 
 class Identity(TimeStampedModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
-    certId = models.CharField(verbose_name=u'证件号', max_length=100, default='')
+    certId = models.CharField(verbose_name=u'证件号 *', max_length=100, default='')
     certType = models.IntegerField(verbose_name=u'证件类型', default='1')
-    name = models.CharField(verbose_name=u'姓名', max_length=50, default='')
-    phone = models.CharField(verbose_name=u'电话', max_length=100, default='')
+    name = models.CharField(verbose_name=u'姓名 *', max_length=50, default='')
+    phone = models.CharField(verbose_name=u'电话 *', max_length=100, default='')
     originType = models.IntegerField(verbose_name=u'渠道类型 ', default='1')
     address = models.CharField(verbose_name=u'地址', max_length=200, default='', null=True, blank=True)
     frontPhoto = models.ImageField(verbose_name=u'证件照正面')

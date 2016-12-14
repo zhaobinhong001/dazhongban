@@ -47,6 +47,8 @@ def iddentity_verify(param=None):
     ret = req.post(url=IDDENTITY_GATEWAY, data=data, headers=headers, verify=False)
 
     if ret.status_code == 200:
-        return ret.json()
+        item = ret.json()
+        item['cardNo'] = param['cardNo']
+        return item
 
     return False

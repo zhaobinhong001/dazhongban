@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 import pandas as pd
-import numpy as np
 
 from service.signature.models import BANKID
 
@@ -25,7 +24,6 @@ def impotrbank():
     for index, x in df.iterrows():
         # 截取多余的字符
         x['name'] = x['name'][:-11]
-        # 过滤空信息
         # 过滤不需要银行
         if x['name'] not in alist:
             df = df.drop(index, axis=0)
@@ -33,5 +31,5 @@ def impotrbank():
     for index, x in df.iterrows():
         # 截取多余的字符
         x['name'] = x['name'][:-11]
-    # # 导出高性能文件格式 hdf5
+    # 导出高性能文件格式 hdf5
     df.to_hdf('./resources/bankcard.h5', 'df')

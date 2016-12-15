@@ -4,15 +4,14 @@ import jpush as jpush
 from jpush import common
 from django.conf import settings
 
-'''
-别名推送
-* @param  推送消息
-* @param  推送别名
-
-'''
-
 
 def jpush_push(message, alias, *args, **kwargs):
+    '''
+    别名推送
+    * @param  推送消息
+    * @param  推送别名
+
+    '''
     appkey = settings.JPUSH_APPKEY
     secret = settings.JPUSH_SECRET
     _jpush = jpush.JPush(appkey, secret)
@@ -28,7 +27,7 @@ def jpush_push(message, alias, *args, **kwargs):
     push.platform = jpush.all_
 
     try:
-        response = push.send()
+        return push.send()
     except common.Unauthorized:
         raise common.Unauthorized("Unauthorized")
     except common.APIConnectionException:
@@ -38,17 +37,13 @@ def jpush_push(message, alias, *args, **kwargs):
     except:
         print ("Exception")
 
-    return True
-
-
-'''
-全体推送
-* @param  推送消息
-
-'''
-
 
 def jpush_all(message):
+    '''
+    全体推送
+    * @param  推送消息
+
+    '''
     appkey = settings.JPUSH_APPKEY
     secret = settings.JPUSH_SECRET
     _jpush = jpush.JPush(appkey, secret)
@@ -60,8 +55,9 @@ def jpush_all(message):
     push.audience = jpush.all_
     push.notification = jpush.notification(alert=message)
     push.platform = jpush.all_
+
     try:
-        response = push.send()
+        return push.send()
     except common.Unauthorized:
         raise common.Unauthorized("Unauthorized")
     except common.APIConnectionException:
@@ -71,4 +67,3 @@ def jpush_all(message):
     except:
         print ("Exception")
 
-    return True

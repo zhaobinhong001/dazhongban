@@ -23,7 +23,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         read_only_fields = ("name", "phone", "qr", "level", 'bankcard', 'idcard')
         fields = (
-        "name", "nick", "phone", "mobile", "gender", "birthday", "qr", 'level', 'idcard', 'bankcard', 'avatar')
+            "name", "nick", "phone", "mobile", "gender", "birthday", "qr", 'level', 'idcard', 'bankcard', 'avatar')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -33,7 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('id', 'name', 'nick', 'avatar', 'mobile', 'level')
+        fields = ('id', 'name', 'nick', 'avatar', 'mobile', 'level', 'avatar')
 
 
 class NickSerializer(serializers.ModelSerializer):

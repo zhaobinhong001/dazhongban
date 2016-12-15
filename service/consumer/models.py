@@ -101,7 +101,7 @@ class Profile(models.Model):
     bankcard = models.CharField(verbose_name=_(u'银行卡号'), max_length=100, default='')
     birthday = models.DateField(_(u'生日'), blank=True, null=True)
     avatar = ProcessedImageField(verbose_name=_(u'头像'), upload_to='avatar', processors=[ResizeToFill(320, 320)],
-        format='JPEG', null=True)
+        format='JPEG', null=True, default='assets/media/avatar/default.jpg')
 
     friend_verify = models.BooleanField(verbose_name=_(u'加好友时是否验证'), default=False)
     mobile_verify = models.BooleanField(verbose_name=_(u'是否允许手机号查找'), default=False)

@@ -113,7 +113,7 @@ class Identity(TimeStampedModel):
     cardNo = models.CharField(verbose_name=u'银行卡号', max_length=100, default='')
     bankID = models.CharField(verbose_name=u'银行ID', max_length=100, default='', choices=BANKID)
     cvn2 = models.CharField(verbose_name=u'信用卡背面的末3位数字', max_length=10, default='', null=True, blank=True)
-    expired = models.DateField(verbose_name=u'有效期', max_length=100, default='', null=True, blank=True)
+    expired = models.CharField(verbose_name=u'有效期', max_length=100, default='', null=True, blank=True)
 
     def __unicode__(self):
         return self.name

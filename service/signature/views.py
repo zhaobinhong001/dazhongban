@@ -118,6 +118,12 @@ class IdentityViewSet(viewsets.ModelViewSet):
                     if v.strip():
                         item[k] = v
 
+        expired = request.data.get('expired')
+        expired = expired.strip() if expired.strip() else None
+        expired = expired.split('/')
+        expired = expired[1] + expired[0]
+
+        item['exp_Date'] = expired
         data, status_ = iddentity_verify(item)
 
         if not status_:

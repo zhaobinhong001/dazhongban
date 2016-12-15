@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import base64
+import re
 
 from django.conf import settings
 from filters.mixins import FiltersMixin
@@ -19,7 +20,6 @@ from service.signature.utils import iddentity_verify, fields
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
     CallbackSerializer
-import re
 
 
 class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
@@ -102,10 +102,10 @@ class IdentityViewSet(viewsets.ModelViewSet):
                 else:
                     item[k] = v
 
-        data = iddentity_verify(item)
+        data, status_ = iddentity_verify(item)
 
-        if not data:
-            raise ValidationError(u"身份认证失败.")
+        if not status_:
+            raise ValidationError(data)
 
         return Response(data, status=status.HTTP_201_CREATED)
 

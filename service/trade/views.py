@@ -19,6 +19,9 @@ class ContractViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     allowed_methods = ('POST', 'OPTION', 'HEAD')
 
+    def perform_create(self, serializer):
+        serializer.save(sender=self.request.user)
+
     def get_queryset(self):
         queryset = self.queryset.filter(sender=self.request.user)
 
@@ -37,6 +40,9 @@ class TransferViewSet(viewsets.ModelViewSet):
     serializer_class = TransferSerializer
     permission_classes = (IsAuthenticated,)
     allowed_methods = ('POST', 'OPTION', 'HEAD')
+
+    def perform_create(self, serializer):
+        serializer.save(sender=self.request.user)
 
     def get_queryset(self):
         queryset = self.queryset.filter(sender=self.request.user)

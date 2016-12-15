@@ -155,4 +155,5 @@ class ValidateViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericV
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
+
         return Response(serializer.data)

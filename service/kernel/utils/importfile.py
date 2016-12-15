@@ -29,12 +29,9 @@ def impotrbank():
         # 过滤不需要银行
         if x['name'] not in alist:
             df = df.drop(index, axis=0)
-        # for xx in alist:
-        #     if xx in x['name']:
-        #         # 加个标记
-        #         df['sign'] = x['name']
-        #         # 加正常名
-        #         df['realbank'] = xx
 
+    for index, x in df.iterrows():
+        # 截取多余的字符
+        x['name'] = x['name'][:-11]
     # # 导出高性能文件格式 hdf5
     df.to_hdf('./resources/bankcard.h5', 'df')

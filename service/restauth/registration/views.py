@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-# from __future__ import unicode_literals
+from __future__ import unicode_literals
+
 import re
 
 from django.contrib.auth import get_user_model
@@ -11,11 +12,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from service.restauth.models import VerifyCode
-from service.restauth.registration.utils import GenPassword
-<<<<<<< HEAD
-from .tasks import send_verify_code, send_verify_push
-=======
->>>>>>> 7e682d5925ba88aa575a1cf01c6b464dd7215b02
+from service.restauth.registration.utils import generate_verification_code
 from .forms import SignupForm
 from .tasks import send_verify_code
 from ..serializers import RegisterSerializer, VerifyMobileSerializer
@@ -68,8 +65,8 @@ class VerifyMobileView(GenericAPIView):
     请使用下面的正则表达式验证手机号码正确性，在提交服务器前客户端提交一次
     手机号码验证正则表达式：^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$
     '''
-    response_serializer = TokenSerializer
     permission_classes = (AllowAny,)
+    response_serializer = TokenSerializer
     serializer_class = VerifyMobileSerializer
     allowed_methods = ('POST', 'OPTIONS', 'HEAD')
 
@@ -85,7 +82,7 @@ class VerifyMobileView(GenericAPIView):
             raise ValidationError({'mobile': "手机号码格式不匹配."})
 
         # 生成验证码
-        code = GenPassword(4)
+        code = generate_verification_code(6)
 
         # 保存数据库
         obj, _ = VerifyCode.objects.get_or_create(mobile=mobile)

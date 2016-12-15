@@ -17,12 +17,13 @@ class GroupSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     level = serializers.StringRelatedField(source='owner.level')
-    phone = serializers.StringRelatedField(source='owner.mobile')
+    mobile = serializers.StringRelatedField(source='owner.mobile')
 
     class Meta:
         model = Profile
-        # read_only_fields = ("name", "phone", "qr", "level",)
-        fields = ("name", "nick", "phone", "avatar", "gender", "birthday", "qr", 'level')
+        read_only_fields = ("name", "phone", "qr", "level", 'bankcard', 'idcard')
+        fields = (
+            "name", "nick", "phone", "mobile", "gender", "birthday", "qr", 'level', 'idcard', 'bankcard', 'avatar')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -32,7 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('id', 'name', 'nick', 'avatar', 'mobile', 'level')
+        fields = ('id', 'name', 'nick', 'avatar', 'mobile', 'level', 'avatar')
 
 
 class NickSerializer(serializers.ModelSerializer):
@@ -63,10 +64,11 @@ class ContactSerializer(serializers.ModelSerializer):
     nick = serializers.StringRelatedField(source='friend.profile.nick')
     level = serializers.StringRelatedField(source='friend.level')
     avatar = serializers.ImageField(source='friend.profile.avatar', read_only=True)
+    userid = serializers.IntegerField(source='friend_id', read_only=True)
 
     class Meta:
         model = Contact
-        fields = ('id', 'nick', 'name', 'alias', 'black', 'avatar', 'hide', 'status', 'level')
+        fields = ('userid', 'nick', 'name', 'alias', 'black', 'avatar', 'hide', 'status', 'level')
 
 
 class ContainsSerializer(serializers.ModelSerializer):
@@ -78,7 +80,21 @@ class ContainsSerializer(serializers.ModelSerializer):
 class ContactDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
-        fields = ('black', 'alias', 'hide')
+        fields = ('hide', 'black', 'alias')
+
+
+class ContactHideSerializer(serializers.Serializer):
+    userid = serializers.CharField(label='用户ID')
+
+    class Meta:
+        fields = ('userid',)
+
+
+class ContactBlackSerializer(serializers.ModelSerializer):
+    userid = serializers.CharField(label='用户ID')
+
+    class Meta:
+        fields = ('userid',)
 
 
 class AccountDetailsSerializer(serializers.ModelSerializer):

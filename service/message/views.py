@@ -29,7 +29,9 @@ class TokenViewSet(GenericViewSet):
 
     def list(self, request, *args, **kwargs):
         nick = request.user.profile.nick if request.user.profile.nick else u'匿名'
-        avatar = request.user.profile.avatar if request.user.profile.avatar else u'匿名'
+        avatar = request.user.profile.avatar.url if request.user.profile.avatar else u''
+        avatar = request.build_absolute_uri(avatar) if avatar else ''
+
         user = client.User.getToken(userId=request.user.pk, name=nick, portraitUri=avatar)
         data = user.result.get('token')
 
@@ -85,8 +87,10 @@ class GroupViewSet(NestedViewSetMixin, mixins.CreateModelMixin,
 
     def perform_update(self, serializer):
         result = client.Group.refresh(groupId=self.request.user.pk, groupName=self.request.data.get('name'))
+
         if not result:
             raise Exception
+
         serializer.save()
 
     @detail_route(methods=['POST'])
@@ -109,7 +113,7 @@ class GroupViewSet(NestedViewSetMixin, mixins.CreateModelMixin,
         instance = self.get_object()
         self.perform_destroy(instance)
 
-        return Response({'detail': '您成功删除该群组'}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'detail': '您成功删除该群组'}, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'])
     def quit(self, request, pk=None, *args, **kwargs):

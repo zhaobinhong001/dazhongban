@@ -19,3 +19,4 @@ MANIFEST
 !.travis.yml
 !.gitlab-ci.yml
 !.isort.cfg
+!/assets/media/avatar/default.jpg

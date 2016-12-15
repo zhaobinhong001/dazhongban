@@ -315,12 +315,5 @@ def _setting(self, name, dflt):
     return getter(self.prefix + name, dflt)
 
 
-def GenPassword(length):
-    numOfNum = random.randint(1, length - 1)
-    numOfLetter = length - numOfNum
-    slcNum = [random.choice(string.digits) for i in range(numOfNum)]
-    slcLetter = [random.choice(string.ascii_letters) for i in range(numOfLetter)]
-    slcChar = slcNum + slcLetter
-    random.shuffle(slcChar)
-    genPwd = ''.join([i for i in slcChar])
-    return genPwd
+def generate_verification_code(length):
+    return str(random.randint(0, 999999)).zfill(length)

@@ -60,13 +60,13 @@ class SignupForm(forms.Form):
             raise ValidationError(_(u'验证码错误'))
 
         # 判断手机是否注册过
-        if get_user_model()._default_manager.filter(mobile=self.cleaned_data['mobile']).exists():
-            raise ValidationError(_("用户手机号码已经注册过."))
+        # if get_user_model()._default_manager.filter(mobile=self.cleaned_data['mobile']).exists():
+        #     raise ValidationError(_("用户手机号码已经注册过."))
 
         return self.cleaned_data
 
     def save(self, request):
-        user = get_user_model()()
+        user, _ = get_user_model().objects.get_or_create(mobile=self.cleaned_data.get('mobile'))
         self.save_user(request, user, self)
 
         return user
@@ -92,7 +92,10 @@ class SignupForm(forms.Form):
         if commit:
             user.save()
 
-        Profile.objects.get_or_create(owner=user)
+        profile, _ = Profile.objects.get_or_create(owner=user)
+        profile.nick = user.mobile.replace(user.mobile[3:7], '****')
+        # profile.avatar = 'avatar/default.jpg'
+        profile.save()
 
         return user
 

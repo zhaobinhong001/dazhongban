@@ -70,3 +70,4 @@ drf-url-filters
 django-url-filter
 
 flower
+pandas

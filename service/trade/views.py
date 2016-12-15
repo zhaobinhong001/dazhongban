@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 from django.db.models import QuerySet
 from rest_framework import viewsets
 
-from .models import Consumption, Contract
-from .serializers import ConsumptionSerializer, ContractSerializer
+from .models import Contract, Transfer
+from .serializers import ContractSerializer, TransferSerializer
 
 
 class ContractViewSet(viewsets.ModelViewSet):
@@ -18,7 +18,7 @@ class ContractViewSet(viewsets.ModelViewSet):
     allowed_methods = ('POST', 'OPTION', 'HEAD')
 
     def get_queryset(self):
-        queryset = self.queryset.filter(owner=self.request.user)
+        queryset = self.queryset.filter(sender=self.request.user)
 
         if isinstance(queryset, QuerySet):
             queryset = queryset.all()
@@ -26,17 +26,17 @@ class ContractViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class ConsumptionViewSet(viewsets.ModelViewSet):
+class TransferViewSet(viewsets.ModelViewSet):
     '''
     消费记录接口
     ----
     '''
-    queryset = Consumption.objects.all()
-    serializer_class = ConsumptionSerializer
+    queryset = Transfer.objects.all()
+    serializer_class = TransferSerializer
     allowed_methods = ('POST', 'OPTION', 'HEAD')
 
     def get_queryset(self):
-        queryset = self.queryset.filter(owner=self.request.user)
+        queryset = self.queryset.filter(sender=self.request.user)
 
         if isinstance(queryset, QuerySet):
             queryset = queryset.all()

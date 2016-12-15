@@ -24,10 +24,6 @@ class BankcardSerializer(serializers.Serializer):
         if not df:
             raise serializers.ValidationError('未找到该类型卡信息,请确认卡号书写正确.')
 
-        attrs['bank'] = u'工商银行'
-        attrs['type'] = u'借记卡'
-        attrs['name'] = u'一卡通'
-
         attrs.update(df)
 
         return attrs

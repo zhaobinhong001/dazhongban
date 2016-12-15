@@ -29,7 +29,9 @@ class TokenViewSet(GenericViewSet):
 
     def list(self, request, *args, **kwargs):
         nick = request.user.profile.nick if request.user.profile.nick else u'匿名'
-        avatar = request.user.profile.avatar if request.user.profile.avatar else u'匿名'
+        avatar = request.user.profile.avatar.url if request.user.profile.avatar else u''
+        avatar = request.build_absolute_uri(avatar) if avatar else ''
+
         user = client.User.getToken(userId=request.user.pk, name=nick, portraitUri=avatar)
         data = user.result.get('token')
 

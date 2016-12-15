@@ -43,10 +43,14 @@ def iddentity_verify(param=None):
     data['signKey'] = data['signKey'].hexdigest()
 
     data = json.dumps(data)
-    headers = {'content-type': 'application/json; charset=utf-8'}
+    headers = {'content-type': 'application/json; charset=utf-8', 'accept': 'application/json'}
     ret = req.post(url=IDDENTITY_GATEWAY, data=data, headers=headers, verify=False)
 
-    if ret.status_code == 200:
-        return ret.json()
+    print ret.headers
 
-    return False
+    if ret.status_code == 200:
+        item = ret.json()
+        item['cardNo'] = param['cardNo']
+        return item, True
+
+    return ret.json(), False

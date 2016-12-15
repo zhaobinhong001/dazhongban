@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import base64
+import re
 
 from django.conf import settings
 from filters.mixins import FiltersMixin
@@ -67,10 +68,31 @@ class IdentityViewSet(viewsets.ModelViewSet):
     queryset = Identity.objects.all()
 
     def create(self, request, *args, **kwargs):
+        errors = {}
+        certId = re.compile(r'^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$')
+        if not certId.match(request.data.get('certId')):
+            errors['certId'] = ('证件号码格式错误')
+
+        name = re.compile(r'^\S+$')
+        if not name.match(request.data.get('name')):
+            errors['name'] = ('姓名不能为空')
+
+        mobile_re = re.compile(r'^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$')
+        if not mobile_re.match(request.data.get('phone')):
+            errors['phone'] = ('电话格式不正确')
+
+        cardNo = re.compile(r'^(\d{16}|\d{19})$')
+        if not cardNo.match(request.data.get('cardNo')):
+            errors['carNo'] = ('银行卡格式不正确')
+
+        if len(errors):
+            return Response({'detail': errors}, status=status.HTTP_201_CREATED)
 
         item = {}
+        items = request.data
+        # mobile_validate(items['phone'])
 
-        for k, v in request.data.items():
+        for k, v in items.items():
             if k in fields:
                 if k in ['backPhoto', 'frontPhoto']:
                     if hasattr(v, 'file'):
@@ -80,10 +102,10 @@ class IdentityViewSet(viewsets.ModelViewSet):
                 else:
                     item[k] = v
 
-        data = iddentity_verify(item)
+        data, status_ = iddentity_verify(item)
 
-        if not data:
-            raise ValidationError(u"身份认证失败.")
+        if not status_:
+            raise ValidationError(data)
 
         return Response(data, status=status.HTTP_201_CREATED)
 

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
+
 import short_url
 from django.db.models import QuerySet
 from rest_framework import mixins
@@ -20,6 +22,7 @@ from .serializers import (
     ContactHideSerializer)
 from .utils import get_user_profile
 from .utils import get_user_settings
+from django.contrib.auth import get_user_model
 
 
 class ProfileViewSet(RetrieveUpdateAPIView):
@@ -164,9 +167,35 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
 
         '''
         self.serializer_class = ContainsSerializer
-        dates = request.data.get('contains')
-        print (dates)
-        detail = '成功'
+        # # 解析数据
+        contains = request.data.get('contains')
+
+        contains = json.loads(contains)
+
+        # 取出所有手机号
+        mobiles = []
+        contact = {}
+
+        for contain in contains:
+            if contain.get('phoneNum'):
+                for phone in contain.get('phoneNum'):
+                    mobiles.append(phone)
+                    contact[phone] = contain.get('name')
+
+        mobiles = list(set(mobiles))
+
+        # 读取数据库里的含税含有手机号列表的数据
+        users = get_user_model().objects.filter(mobile__in=mobiles)
+
+        for user in users:
+            obj, st = Contact.objects.get_or_create(owner=self.request.user, friend=user)
+
+            if st:
+                obj.alias = contact[user.mobile]
+                obj.status = 'new'
+                obj.save()
+
+        detail = '通讯录更新成功'
         return Response({'detail': detail}, status=status.HTTP_200_OK)
 
 

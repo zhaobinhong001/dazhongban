@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db.models import QuerySet
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Contract, Transfer
 from .serializers import ContractSerializer, TransferSerializer
@@ -15,7 +16,11 @@ class ContractViewSet(viewsets.ModelViewSet):
     '''
     queryset = Contract.objects.all()
     serializer_class = ContractSerializer
+    permission_classes = (IsAuthenticated,)
     allowed_methods = ('POST', 'OPTION', 'HEAD')
+
+    def perform_create(self, serializer):
+        serializer.save(sender=self.request.user)
 
     def get_queryset(self):
         queryset = self.queryset.filter(sender=self.request.user)
@@ -33,7 +38,11 @@ class TransferViewSet(viewsets.ModelViewSet):
     '''
     queryset = Transfer.objects.all()
     serializer_class = TransferSerializer
+    permission_classes = (IsAuthenticated,)
     allowed_methods = ('POST', 'OPTION', 'HEAD')
+
+    def perform_create(self, serializer):
+        serializer.save(sender=self.request.user)
 
     def get_queryset(self):
         queryset = self.queryset.filter(sender=self.request.user)

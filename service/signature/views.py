@@ -5,6 +5,7 @@ import base64
 import re
 
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 from filters.mixins import FiltersMixin
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework import serializers
@@ -69,28 +70,38 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         errors = {}
-        certId = re.compile(r'^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$')
-        if not certId.match(request.data.get('certId')):
-            errors['certId'] = ('证件号码格式错误')
 
-        name = re.compile(r'^\S+$')
-        if not name.match(request.data.get('name')):
-            errors['name'] = ('姓名不能为空')
+        if not request.data.get('certId'):
+            errors['certId'] = _('姓名不能为空')
+
+        if not request.data.get('name'):
+            errors['name'] = _('姓名不能为空')
+
+        if not request.data.get('phone'):
+            errors['phone'] = _('电话不能为空')
+
+        if not request.data.get('cardNo'):
+            errors['cardNo'] = _('银行卡不能为空')
+
+        certId = re.compile(r'^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$')
+
+        if not certId.match(request.data.get('certId')):
+            errors['certId'] = _('证件号码格式错误')
 
         mobile_re = re.compile(r'^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$')
+
         if not mobile_re.match(request.data.get('phone')):
-            errors['phone'] = ('电话格式不正确')
+            errors['phone'] = _('电话格式不正确')
 
         cardNo = re.compile(r'^(\d{16}|\d{19})$')
         if not cardNo.match(request.data.get('cardNo')):
-            errors['carNo'] = ('银行卡格式不正确')
+            errors['carNo'] = _('银行卡格式不正确')
 
         if len(errors):
             return Response({'detail': errors}, status=status.HTTP_201_CREATED)
 
         item = {}
         items = request.data
-        # mobile_validate(items['phone'])
 
         for k, v in items.items():
             if k in fields:
@@ -144,4 +155,5 @@ class ValidateViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericV
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
+
         return Response(serializer.data)

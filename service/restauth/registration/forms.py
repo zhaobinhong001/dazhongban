@@ -94,7 +94,7 @@ class SignupForm(forms.Form):
 
         profile, _ = Profile.objects.get_or_create(owner=user)
         profile.nick = user.mobile.replace(user.mobile[3:7], '****')
-        profile.avatar = '/media/avatar/default.jpg'
+        # profile.avatar = 'avatar/default.jpg'
         profile.save()
 
         return user

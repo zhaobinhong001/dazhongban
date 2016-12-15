@@ -87,7 +87,7 @@ class AddressViewSet(viewsets.ModelViewSet):
 
 
 class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin,
-    mixins.ListModelMixin, GenericViewSet):
+                     mixins.ListModelMixin, GenericViewSet):
     '''
     联系人接口
     --------
@@ -164,6 +164,8 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
 
         '''
         self.serializer_class = ContainsSerializer
+        dates = request.data.get('contains')
+        print (dates)
         detail = '成功'
         return Response({'detail': detail}, status=status.HTTP_200_OK)
 

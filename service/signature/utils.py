@@ -39,18 +39,15 @@ def iddentity_verify(param=None):
     data = {'data': {"certType": "1", "originType": "12"}}
 
     data['data'].update(param)
-    data['signKey'] = md5('%s%s%s' % (data['data']['certId'], data['data']['phone'], IDDENTITY_APPKEY))
-    data['signKey'] = data['signKey'].hexdigest()
-
-    data = json.dumps(data)
+    data['signKey'] = md5('%s%s%s' % (data['data']['certId'], data['data']['phone'], IDDENTITY_APPKEY)).hexdigest()
     headers = {'content-type': 'application/json; charset=utf-8', 'accept': 'application/json'}
-    ret = req.post(url=IDDENTITY_GATEWAY, data=data, headers=headers, verify=False)
 
-    print ret.headers
+    try:
+        ret = req.post(url=IDDENTITY_GATEWAY, data=json.dumps(data), headers=headers, verify=False)
 
-    if ret.status_code == 200:
-        item = ret.json()
-        item['cardNo'] = param['cardNo']
-        return item, True
-
-    return ret.json(), False
+        if ret.status_code == 200:
+            item = ret.json()
+            item['cardNo'] = param['cardNo']
+            return item, True
+    except req.ConnectionError:
+        return '认证服务器错误', False

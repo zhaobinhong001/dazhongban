@@ -65,10 +65,10 @@ if DEBUG:
 
     # import raven
 
-    # RAVEN_CONFIG = {
-    #     'dsn': 'http://e4899f2e02c44585b3f0243af059ffce:c1bdb8f4725c4d3683af484a76cc76ad@10.7.7.100:9000/2',
-    #     # 'release': raven.fetch_git_sha(os.path.dirname(__file__)),
-    # }
+    RAVEN_CONFIG = {
+        'dsn': 'http://a379074ac0aa49a5a3309ccd13d82cbd:614f6f2f1e0246fdadca0f7c4bcbba1f@10.7.7.22:9000/3',
+        # 'release': raven.fetch_git_sha(os.path.dirname(__file__)),
+    }
 
     # DEBUG_TOOLBAR_PANELS = ('cachalot.panels.CachalotPanel',)
     # LOGGING = {

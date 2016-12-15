@@ -83,6 +83,12 @@ class IdentityViewSet(viewsets.ModelViewSet):
         if not request.data.get('cardNo'):
             errors['cardNo'] = _('银行卡不能为空')
 
+        if not request.data.get('certId'):
+            errors['certId'] = _('姓名不能为空')
+
+        if not request.data.get('backPhoto'):
+            errors['backPhoto'] = _('姓名不能为空')
+
         certId = re.compile(r'^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$')
 
         if not certId.match(request.data.get('certId')):
@@ -108,11 +114,16 @@ class IdentityViewSet(viewsets.ModelViewSet):
                 if k in ['backPhoto', 'frontPhoto']:
                     if hasattr(v, 'file'):
                         item[k] = base64.b64encode(v.file.getvalue())
-                    else:
-                        item[k] = ''
                 else:
-                    item[k] = v
+                    if v.strip():
+                        item[k] = v
 
+        expired = request.data.get('expired')
+        expired = expired.strip() if expired.strip() else None
+        expired = expired.split('/')
+        expired = expired[1] + expired[0]
+
+        item['exp_Date'] = expired
         data, status_ = iddentity_verify(item)
 
         if not status_:

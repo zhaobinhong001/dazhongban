@@ -48,6 +48,8 @@ def iddentity_verify(param=None):
         if ret.status_code == 200:
             item = ret.json()
             item['cardNo'] = param['cardNo']
+            open('iddentity_input.txt', 'w').write(json.dumps(item))
+            open('iddentity_result.txt', 'w').write(ret.content)
             return item, True
     except req.ConnectionError:
         return '认证服务器错误', False

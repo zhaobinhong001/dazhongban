@@ -104,9 +104,9 @@ class IdentityViewSet(viewsets.ModelViewSet):
         if not mobile_re.match(request.data.get('phone')):
             errors['phone'] = _('电话格式不正确')
 
-        cardNo = re.compile(r'^(\d{16}|\d{19})$')
-        if not cardNo.match(request.data.get('cardNo')):
-            errors['carNo'] = _('银行卡格式不正确')
+        # cardNo = re.compile(r'^(\d{16}|\d{19})$')
+        # if not cardNo.match(request.data.get('cardNo')):
+        #     errors['carNo'] = _('银行卡格式不正确')
 
         if len(errors):
             return Response({'detail': errors}, status=status.HTTP_400_BAD_REQUEST)

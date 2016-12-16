@@ -3,7 +3,9 @@ from __future__ import unicode_literals
 
 import base64
 import re
+from io import BytesIO
 
+import requests
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from filters.mixins import FiltersMixin
@@ -25,22 +27,26 @@ from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerial
 
 class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
     serializer_class = SignatureSerializer
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     model = Signature
 
     def get_queryset(self):
         return self.request.user.signatures.all()
 
     def create(self, request, *args, **kwargs):
-        print request.data.get('signs')
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def perform_create(self, serializer):
-        return serializer.save(owner=self.request.user)
+        # print request.body
+        # try:
+
+        # data = request.data.get('signs')
+        # data = BytesIO(data) if data else None
+        rows = requests.post(settings.VERIFY_GATEWAY, data=request.body)
+
+        # print request.body
+        return Response(rows.content, status=status.HTTP_201_CREATED)
+        # except requests.ConnectionError:
+        #     raise requests.ConnectionError
+        # return Response({'detail': '验签服务器异常'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BankcardViewSet(viewsets.GenericViewSet):

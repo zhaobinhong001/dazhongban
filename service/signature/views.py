@@ -3,7 +3,9 @@ from __future__ import unicode_literals
 
 import base64
 import re
+from io import BytesIO
 
+import requests
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from filters.mixins import FiltersMixin
@@ -25,14 +27,26 @@ from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerial
 
 class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
     serializer_class = SignatureSerializer
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     model = Signature
 
     def get_queryset(self):
         return self.request.user.signatures.all()
 
-    def perform_create(self, serializer):
-        return serializer.save(owner=self.request.user)
+    def create(self, request, *args, **kwargs):
+
+        # print request.body
+        # try:
+
+        # data = request.data.get('signs')
+        # data = BytesIO(data) if data else None
+        rows = requests.post(settings.VERIFY_GATEWAY, data=request.body)
+
+        # print request.body
+        return Response(rows.content, status=status.HTTP_201_CREATED)
+        # except requests.ConnectionError:
+        #     raise requests.ConnectionError
+        # return Response({'detail': '验签服务器异常'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BankcardViewSet(viewsets.GenericViewSet):
@@ -104,7 +118,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
             errors['carNo'] = _('银行卡格式不正确')
 
         if len(errors):
-            return Response({'detail': errors}, status=status.HTTP_201_CREATED)
+            return Response({'detail': errors}, status=status.HTTP_400_BAD_REQUEST)
 
         item = {}
         items = request.data
@@ -118,12 +132,13 @@ class IdentityViewSet(viewsets.ModelViewSet):
                     if v.strip():
                         item[k] = v
 
-        expired = request.data.get('expired')
-        expired = expired.strip() if expired.strip() else None
-        expired = expired.split('/')
-        expired = expired[1] + expired[0]
+        if request.data.get('expired'):
+            expired = request.data.get('expired')
+            expired = expired.strip() if expired.strip() else None
+            expired = expired.split('/')
+            expired = expired[1] + expired[0]
+            item['exp_Date'] = expired
 
-        item['exp_Date'] = expired
         data, status_ = iddentity_verify(item)
 
         if not status_:

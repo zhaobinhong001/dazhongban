@@ -194,8 +194,10 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
                 obj.alias = contact[user.mobile]
                 obj.status = 'new'
                 obj.save()
+                detail = '通讯录更新成功'
+            else:
+                detail = '通讯录没有变化'
 
-        detail = '通讯录更新成功'
         return Response({'detail': detail}, status=status.HTTP_200_OK)
 
 

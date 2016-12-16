@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.viewsets import GenericViewSet
+from service.consumer.models import CustomUser
 
 from service.consumer.models import Contact
 from .serializers import (
@@ -169,8 +170,10 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
         self.serializer_class = ContainsSerializer
         # # 解析数据
         contains = request.data.get('contains')
-
-        contains = json.loads(contains)
+        try:
+            contains = json.loads(contains)
+        except Exception as e:
+            return Response({'detail': 'JSON格式错误'}, status=status.HTTP_400_BAD_REQUEST)
 
         # 取出所有手机号
         mobiles = []
@@ -185,18 +188,22 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
         mobiles = list(set(mobiles))
 
         # 读取数据库里的含税含有手机号列表的数据
-        users = get_user_model().objects.filter(mobile__in=mobiles)
+        detail = '通讯录没有变化'
 
-        for user in users:
-            obj, st = Contact.objects.get_or_create(owner=self.request.user, friend=user)
+        try:
+            users = get_user_model().objects.filter(mobile__in=mobiles)
 
-            if st:
-                obj.alias = contact[user.mobile]
-                obj.status = 'new'
-                obj.save()
-                detail = '通讯录更新成功'
-            else:
-                detail = '通讯录没有变化'
+            for user in users:
+                obj, st = Contact.objects.get_or_create(owner=self.request.user, friend=user)
+
+                if st:
+                    obj.alias = contact[user.mobile]
+                    obj.status = 'new'
+                    obj.save()
+
+            detail = '通讯录更新成功'
+        except CustomUser.DoesNotExist:
+            pass
 
         return Response({'detail': detail}, status=status.HTTP_200_OK)
 

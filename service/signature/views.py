@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 import base64
 import re
-from io import BytesIO
 
 import requests
 from django.conf import settings
@@ -34,7 +33,6 @@ class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
         return self.request.user.signatures.all()
 
     def create(self, request, *args, **kwargs):
-
         # print request.body
         # try:
 
@@ -86,7 +84,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
         errors = {}
 
         if not request.data.get('certId'):
-            errors['certId'] = _('姓名不能为空')
+            errors['certId'] = _('身份证不能为空')
 
         if not request.data.get('name'):
             errors['name'] = _('姓名不能为空')
@@ -97,14 +95,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
         if not request.data.get('cardNo'):
             errors['cardNo'] = _('银行卡不能为空')
 
-        if not request.data.get('certId'):
-            errors['certId'] = _('姓名不能为空')
-
-        if not request.data.get('backPhoto'):
-            errors['backPhoto'] = _('姓名不能为空')
-
         certId = re.compile(r'^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$')
-
         if not certId.match(request.data.get('certId')):
             errors['certId'] = _('证件号码格式错误')
 

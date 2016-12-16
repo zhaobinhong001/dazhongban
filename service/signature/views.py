@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import base64
 import re
 
-import requests
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from filters.mixins import FiltersMixin
@@ -34,7 +33,6 @@ class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
 
     def create(self, request, *args, **kwargs):
         print request.data.get('signs')
-        # requests.post(geatway, )
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -128,12 +126,13 @@ class IdentityViewSet(viewsets.ModelViewSet):
                     if v.strip():
                         item[k] = v
 
-        expired = request.data.get('expired')
-        expired = expired.strip() if expired.strip() else None
-        expired = expired.split('/')
-        expired = expired[1] + expired[0]
+        if request.data.get('expired'):
+            expired = request.data.get('expired')
+            expired = expired.strip() if expired.strip() else None
+            expired = expired.split('/')
+            expired = expired[1] + expired[0]
+            item['exp_Date'] = expired
 
-        item['exp_Date'] = expired
         data, status_ = iddentity_verify(item)
 
         if not status_:

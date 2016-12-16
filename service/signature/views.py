@@ -2,8 +2,10 @@
 from __future__ import unicode_literals
 
 import base64
+import re
 
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 from filters.mixins import FiltersMixin
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework import serializers
@@ -19,7 +21,6 @@ from service.signature.utils import iddentity_verify, fields
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
     CallbackSerializer
-import re
 
 
 class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
@@ -29,6 +30,14 @@ class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
 
     def get_queryset(self):
         return self.request.user.signatures.all()
+
+    def create(self, request, *args, **kwargs):
+        print request.data.get('signs')
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)
@@ -69,43 +78,65 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         errors = {}
-        certId = re.compile(r'^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$')
-        if not certId.match(request.data.get('certId')):
-            errors['certId'] = ('证件号码格式错误')
 
-        name = re.compile(r'^\S+$')
-        if not name.match(request.data.get('name')):
-            errors['name'] = ('姓名不能为空')
+        if not request.data.get('certId'):
+            errors['certId'] = _('姓名不能为空')
+
+        if not request.data.get('name'):
+            errors['name'] = _('姓名不能为空')
+
+        if not request.data.get('phone'):
+            errors['phone'] = _('电话不能为空')
+
+        if not request.data.get('cardNo'):
+            errors['cardNo'] = _('银行卡不能为空')
+
+        if not request.data.get('certId'):
+            errors['certId'] = _('姓名不能为空')
+
+        if not request.data.get('backPhoto'):
+            errors['backPhoto'] = _('姓名不能为空')
+
+        certId = re.compile(r'^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$')
+
+        if not certId.match(request.data.get('certId')):
+            errors['certId'] = _('证件号码格式错误')
 
         mobile_re = re.compile(r'^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$')
+
         if not mobile_re.match(request.data.get('phone')):
-            errors['phone'] = ('电话格式不正确')
+            errors['phone'] = _('电话格式不正确')
 
         cardNo = re.compile(r'^(\d{16}|\d{19})$')
         if not cardNo.match(request.data.get('cardNo')):
-            errors['carNo'] = ('银行卡格式不正确')
+            errors['carNo'] = _('银行卡格式不正确')
 
         if len(errors):
-            return Response({'detail': errors}, status=status.HTTP_201_CREATED)
+            return Response({'detail': errors}, status=status.HTTP_400_BAD_REQUEST)
 
         item = {}
         items = request.data
-        # mobile_validate(items['phone'])
 
         for k, v in items.items():
             if k in fields:
                 if k in ['backPhoto', 'frontPhoto']:
                     if hasattr(v, 'file'):
                         item[k] = base64.b64encode(v.file.getvalue())
-                    else:
-                        item[k] = ''
                 else:
-                    item[k] = v
+                    if v.strip():
+                        item[k] = v
 
-        data = iddentity_verify(item)
+        if request.data.get('expired'):
+            expired = request.data.get('expired')
+            expired = expired.strip() if expired.strip() else None
+            expired = expired.split('/')
+            expired = expired[1] + expired[0]
+            item['exp_Date'] = expired
 
-        if not data:
-            raise ValidationError(u"身份认证失败.")
+        data, status_ = iddentity_verify(item)
+
+        if not status_:
+            raise ValidationError(data)
 
         return Response(data, status=status.HTTP_201_CREATED)
 
@@ -144,4 +175,5 @@ class ValidateViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericV
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
+
         return Response(serializer.data)

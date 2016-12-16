@@ -16,7 +16,7 @@ def impotrbank():
     df.columns = [u'name', 'bank', 'card', 'type']
     # 从第四条记录开始取值
     df = df.iloc[3:]
-    # 增加一列
+    # 增加一列数据
     df['oldcard'] = '*'
     # 遍历需要的银行卡
     alist = [x[1] for x in BANKID]
@@ -40,4 +40,3 @@ def impotrbank():
     df.to_hdf('./resources/bankcard.h5', 'df')
     # 导出excel格式 文件
     # df.to_excel('./resources/bankcard.xlsx')
-

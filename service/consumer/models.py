@@ -24,7 +24,7 @@ class AbstractActionType(TimeStampedModel):
 
     def validate_unique(self):
         if (self.__class__.objects.filter(owner=self.owner, object_id=self.object_id,
-                content_type=self.content_type).exists()):
+                                          content_type=self.content_type).exists()):
             raise ValidationError({'detail': 'The record already exists. '})
 
     class Meta:
@@ -35,7 +35,7 @@ class CustomUserManager(BaseUserManager):
     use_in_migrations = True
 
     def _create_user(self, username, password,
-            is_staff, is_superuser, **extra_fields):
+                     is_staff, is_superuser, **extra_fields):
         """
         Creates and saves a User with the given username, email and password.
         """
@@ -47,9 +47,9 @@ class CustomUserManager(BaseUserManager):
         # email = self.normalize_email(email)
 
         user = self.model(username=username,
-            is_staff=is_staff, is_active=True,
-            is_superuser=is_superuser,
-            date_joined=now, **extra_fields)
+                          is_staff=is_staff, is_active=True,
+                          is_superuser=is_superuser,
+                          date_joined=now, **extra_fields)
 
         user.set_password(password)
         user.save(using=self._db)
@@ -101,7 +101,7 @@ class Profile(models.Model):
     bankcard = models.CharField(verbose_name=_(u'银行卡号'), max_length=100, default='')
     birthday = models.DateField(_(u'生日'), blank=True, null=True)
     avatar = ProcessedImageField(verbose_name=_(u'头像'), upload_to='avatar', processors=[ResizeToFill(320, 320)],
-        format='JPEG', null=True, default='assets/media/avatar/default.jpg')
+                                 format='JPEG', null=True, default='assets/media/avatar/default.jpg')
 
     friend_verify = models.BooleanField(verbose_name=_(u'加好友时是否验证'), default=False)
     mobile_verify = models.BooleanField(verbose_name=_(u'是否允许手机号查找'), default=False)
@@ -168,7 +168,7 @@ class Contact(TimeStampedModel, StatusModel):
     用户通讯录
 
     '''
-    STATUS = Choices(('invite', '邀请'), ('confirm', '确认'))
+    STATUS = Choices(('invite', '邀请'), ('confirm', '确认'), ('new', '新用户'))
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     friend = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('好友'), default='', related_name='friends')
     black = models.BooleanField(_('是否黑名单'), default=False)
@@ -242,7 +242,7 @@ class Settings(models.Model):
     document_type = models.CharField(verbose_name=_(u'证件类型'), max_length=10, choices=GENDER_CHOICES, default='identity')
     id_identity = models.BooleanField(verbose_name=_(u'身份认证'), default=False)
     avatar = ProcessedImageField(verbose_name=_(u'头像'), upload_to='avatar', processors=[ResizeToFill(320, 320)],
-        format='JPEG', null=True)
+                                 format='JPEG', null=True)
     friend_verify = models.BooleanField(verbose_name=_(u'加好友时是否验证'), default=False)
     mobile_verify = models.BooleanField(verbose_name=_(u'是否允许手机号查找'), default=False)
     public_name = models.BooleanField(verbose_name=_(u'是否公开姓名'), default=False)

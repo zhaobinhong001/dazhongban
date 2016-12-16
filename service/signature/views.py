@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import base64
 import re
 
+import requests
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from filters.mixins import FiltersMixin
@@ -30,6 +31,15 @@ class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
 
     def get_queryset(self):
         return self.request.user.signatures.all()
+
+    def create(self, request, *args, **kwargs):
+        print request.data.get('signs')
+        # requests.post(geatway, )
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)
@@ -104,7 +114,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
             errors['carNo'] = _('银行卡格式不正确')
 
         if len(errors):
-            return Response({'detail': errors}, status=status.HTTP_201_CREATED)
+            return Response({'detail': errors}, status=status.HTTP_400_BAD_REQUEST)
 
         item = {}
         items = request.data

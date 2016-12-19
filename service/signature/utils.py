@@ -5,6 +5,7 @@ import json
 
 import requests as req
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 from service.consumer.utils import md5
 from service.trade.models import Contract, Transfer
@@ -60,6 +61,11 @@ def iddentity_verify(param=None):
 
 def process_verify(uri, data, request):
     try:
+        receiver = get_user_model().objects.filter(mobile=data.get('mobile'))
+
+        if not receiver:
+            return False
+
         if '/contract/' in uri:
             if data.get('id'):
                 res = Contract.objects.get(id=data.get('id'))
@@ -72,7 +78,7 @@ def process_verify(uri, data, request):
                 if hasattr(res, key):
                     setattr(res, key, val)
 
-            res.receiver_id = data.get('receiver')
+            res.receiver = receiver
             res.save()
 
         elif '/transfer/' in uri:
@@ -87,7 +93,7 @@ def process_verify(uri, data, request):
                 if hasattr(res, key):
                     setattr(res, key, val)
 
-            res.receiver_id = data.get('receiver')
+            res.receiver = receiver
             res.save()
 
     except Exception as e:

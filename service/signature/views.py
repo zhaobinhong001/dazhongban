@@ -37,6 +37,9 @@ class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
         # 验签数据
         resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=request.body)
 
+        if (resp.status_code != 200) and (resp.status_code != 500):
+            return Response(resp.json(), status=status.HTTP_400_BAD_REQUEST)
+
         # 解析数据
         rest = resp.content.decode('hex')
         rest = json.loads(rest)

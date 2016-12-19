@@ -55,7 +55,7 @@ class AddFriendSerializer(serializers.Serializer):
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = ('id', 'city', 'area', 'address')
+        fields = ('id', 'city', 'area', 'address', 'name', 'mobile')
         # exclude = ('owner',)
 
 

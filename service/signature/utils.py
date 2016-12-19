@@ -7,6 +7,7 @@ import requests as req
 from django.conf import settings
 
 from service.consumer.utils import md5
+from service.trade.models import Contract, Transfer
 
 data = {
     "data": {
@@ -26,30 +27,70 @@ data = {
     "signKey": "4199bdf5ed7fc0fdc436b2a7480b4092"
 }
 
-IDDENTITY_APPKEY = settings.IDDENTITY_APPKEY
-IDDENTITY_GATEWAY = settings.IDDENTITY_GATEWAY
+APPKEY = settings.IDDENTITY_APPKEY
+GATEWAY = settings.IDDENTITY_GATEWAY
 
 fields = data['data'].keys()
 
 
 def iddentity_verify(param=None):
     if param is None:
-        return False
+        return '参数错误', False
+
+    del param['certType']
+    del param['originType']
 
     data = {'data': {"certType": "1", "originType": "12"}}
-
     data['data'].update(param)
-    data['signKey'] = md5('%s%s%s' % (data['data']['certId'], data['data']['phone'], IDDENTITY_APPKEY)).hexdigest()
+    data['signKey'] = md5('%s%s%s' % (data['data']['certId'], data['data']['phone'], APPKEY)).hexdigest()
     headers = {'content-type': 'application/json; charset=utf-8', 'accept': 'application/json'}
 
-    try:
-        ret = req.post(url=IDDENTITY_GATEWAY, data=json.dumps(data), headers=headers, verify=False)
+    ret = req.post(url=GATEWAY, data=json.dumps(data), headers=headers, verify=False)
+    print ret.content
 
-        if ret.status_code == 200:
-            item = ret.json()
-            item['cardNo'] = param['cardNo']
-            open('iddentity_input.txt', 'w').write(json.dumps(item))
-            open('iddentity_result.txt', 'w').write(ret.content)
-            return item, True
-    except req.ConnectionError:
-        return '认证服务器错误', False
+    if ret.status_code == 200:
+        open('iddentity_result.txt', 'w').write(ret.content)
+        item = ret.json()
+        item['cardNo'] = param['cardNo']
+        open('iddentity_input.txt', 'w').write(json.dumps(item))
+        return item, True
+
+    return '认证服务器错误', False
+
+
+def process_verify(uri, data, request):
+    try:
+        if '/contract/' in uri:
+            if data.get('id'):
+                res = Contract.objects.get(id=data.get('id'))
+                del data['id']
+            else:
+                res = Contract.objects.create()
+                res.sender = request.user
+
+            for key, val in data.items():
+                if hasattr(res, key):
+                    setattr(res, key, val)
+
+            res.receiver_id = data.get('receiver')
+            res.save()
+
+        elif '/transfer/' in uri:
+            if data.get('id'):
+                res = Transfer.objects.get(id=data.get('id'))
+                del data['id']
+            else:
+                res = Transfer.objects.create()
+                res.sender = request.user
+
+            for key, val in data.items():
+                if hasattr(res, key):
+                    setattr(res, key, val)
+
+            res.receiver_id = data.get('receiver')
+            res.save()
+
+    except Exception as e:
+        return False
+
+    return {'detail': '操作成功'}, True

@@ -96,7 +96,7 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
     联系人接口
     --------
 
-    - 上传通讯录 POST /api/me/contains/
+    - 上传通讯录 POST /api/me/contact/contains/
     - 设置黑名单 POST /api/me/contact/{pk}/
     - 批量隐藏我名字 POST /api/me/contact/hide/
     - 批量黑名单 POST /api/me/contact/black/

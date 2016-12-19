@@ -47,7 +47,7 @@ class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
         # 处理数据
         uri = rest.get('uri')
         data = rest.get('data')
-        body = process_verify(uri, data)
+        body = process_verify(uri, data, request)
 
         # 服务签名
         if body:

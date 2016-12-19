@@ -72,7 +72,8 @@ def process_verify(uri, data, request):
             res = Contract.objects.get(id=data.get('id'))
             del data['id']
         else:
-            res = Contract.objects.create(sender=request.user)
+            res = Contract()
+            res.sender = request.user
 
         for key, val in data.items():
             if hasattr(res, key):
@@ -86,7 +87,8 @@ def process_verify(uri, data, request):
             res = Transfer.objects.get(id=data.get('id'))
             del data['id']
         else:
-            res = Transfer.objects.create(sender=request.user)
+            res = Transfer()
+            res.sender = request.user
 
         for key, val in data.items():
             if hasattr(res, key):

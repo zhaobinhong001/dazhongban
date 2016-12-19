@@ -37,9 +37,11 @@ fields = data['data'].keys()
 def iddentity_verify(param=None):
     if param is None:
         return '参数错误', False
-
-    del param['certType']
-    del param['originType']
+    try:
+        del param['certType']
+        del param['originType']
+    except Exception as e:
+        pass
 
     data = {'data': {"certType": "1", "originType": "12"}}
     data['data'].update(param)

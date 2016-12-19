@@ -62,43 +62,39 @@ def iddentity_verify(param=None):
 
 
 def process_verify(uri, data, request):
-    try:
-        receiver = get_user_model().objects.filter(mobile=data.get('mobile'))
+    receiver = get_user_model().objects.filter(mobile=data.get('mobile'))
 
-        if not receiver:
-            return False
-
-        if '/contract/' in uri:
-            if data.get('id'):
-                res = Contract.objects.get(id=data.get('id'))
-                del data['id']
-            else:
-                res = Contract.objects.create()
-                res.sender = request.user
-
-            for key, val in data.items():
-                if hasattr(res, key):
-                    setattr(res, key, val)
-
-            res.receiver = receiver
-            res.save()
-
-        elif '/transfer/' in uri:
-            if data.get('id'):
-                res = Transfer.objects.get(id=data.get('id'))
-                del data['id']
-            else:
-                res = Transfer.objects.create()
-                res.sender = request.user
-
-            for key, val in data.items():
-                if hasattr(res, key):
-                    setattr(res, key, val)
-
-            res.receiver = receiver
-            res.save()
-
-    except Exception as e:
+    if not receiver:
         return False
+
+    if '/contract/' in uri:
+        if data.get('id'):
+            res = Contract.objects.get(id=data.get('id'))
+            del data['id']
+        else:
+            res = Contract.objects.create()
+            res.sender = request.user
+
+        for key, val in data.items():
+            if hasattr(res, key):
+                setattr(res, key, val)
+
+        res.receiver = receiver
+        res.save()
+
+    elif '/transfer/' in uri:
+        if data.get('id'):
+            res = Transfer.objects.get(id=data.get('id'))
+            del data['id']
+        else:
+            res = Transfer.objects.create()
+            res.sender = request.user
+
+        for key, val in data.items():
+            if hasattr(res, key):
+                setattr(res, key, val)
+
+        res.receiver = receiver
+        res.save()
 
     return {'detail': '操作成功'}, True

@@ -58,7 +58,7 @@ def iddentity_verify(param=None):
         open('iddentity_input.txt', 'w').write(json.dumps(item))
         return item, True
 
-    return '认证服务器错误', False
+    return '认证服务器错误' + ret.content, False
 
 
 def process_verify(uri, data, request):

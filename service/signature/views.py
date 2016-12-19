@@ -7,6 +7,7 @@ import re
 
 import requests
 from django.conf import settings
+from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from filters.mixins import FiltersMixin
 from rest_framework import filters, mixins, status, viewsets
@@ -52,10 +53,14 @@ class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
         # 服务签名
         if body:
             resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=json.dumps(body))
+
+            open('sign.txt', 'w').write(resp.content)
+            open('status_code.txt', 'w').write(resp.status_code)
+
             if resp.status_code == 200:
-                return Response(resp.content, status=status.HTTP_201_CREATED)
+                return HttpResponse(resp.content)
             else:
-                return Response({'detail': '验签服务器异常'}, status=status.HTTP_400_BAD_REQUEST)
+                return HttpResponse('验签服务器异常', status=status.HTTP_400_BAD_REQUEST)
 
         # 服务器异常提示
         return Response({'detail': '数据处理失败'}, status=status.HTTP_400_BAD_REQUEST)

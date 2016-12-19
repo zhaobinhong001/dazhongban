@@ -18,7 +18,7 @@ def impotrbank():
     df = df.iloc[3:]
     # 增加一列数据
     df['oldcard'] = '*'
-    df['bankid'] = '*'
+    df['bankID'] = '*'
     # 遍历需要的银行卡
     alist = [x[1] for x in BANKID]
 
@@ -39,7 +39,7 @@ def impotrbank():
     for index, x in df.iterrows():
         # 截取多余的字符
         x['name'] = x['name'][:-11]
-        x['bankid'] = banks[x['name']]
+        x['bankID'] = banks[x['name']]
         # 保留原始银行卡号
         x['oldcard'] = x['card']
         # 清洗数据

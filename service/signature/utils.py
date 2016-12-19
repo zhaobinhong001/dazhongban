@@ -7,6 +7,7 @@ import requests as req
 from django.conf import settings
 
 from service.consumer.utils import md5
+from service.trade.models import Contract, Transfer
 
 data = {
     "data": {
@@ -55,3 +56,41 @@ def iddentity_verify(param=None):
         return item, True
 
     return '认证服务器错误', False
+
+
+def process_verify(uri, data, request):
+    try:
+        if '/contract/' in uri:
+            if data.get('id'):
+                res = Contract.objects.get(id=data.get('id'))
+                del data['id']
+            else:
+                res = Contract.objects.create()
+                res.sender = request.user
+
+            for key, val in data.items():
+                if hasattr(res, key):
+                    setattr(res, key, val)
+
+            res.receiver_id = data.get('receiver')
+            res.save()
+
+        elif '/transfer/' in uri:
+            if data.get('id'):
+                res = Transfer.objects.get(id=data.get('id'))
+                del data['id']
+            else:
+                res = Transfer.objects.create()
+                res.sender = request.user
+
+            for key, val in data.items():
+                if hasattr(res, key):
+                    setattr(res, key, val)
+
+            res.receiver_id = data.get('receiver')
+            res.save()
+
+    except Exception as e:
+        return False
+
+    return {'detail': '操作成功'}, True

@@ -18,24 +18,36 @@ def impotrbank():
     df = df.iloc[3:]
     # 增加一列数据
     df['oldcard'] = '*'
+    df['bankID'] = '*'
     # 遍历需要的银行卡
     alist = [x[1] for x in BANKID]
+
+    banks = {}
+    for bank in BANKID:
+        banks[bank[1]] = bank[0]
+
     # 遍历excel文档获取全部银行信息
     for index, x in df.iterrows():
         # 截取多余的字符
         x['name'] = x['name'][:-11]
-        # 过滤不需要银行
+        # for y in banks:
+        #     if x['name'] == y[1]:
+        #         df['bankid'] = y[0]
         if x['name'] not in alist:
             df = df.drop(index, axis=0)
     # 遍历赋值
     for index, x in df.iterrows():
         # 截取多余的字符
         x['name'] = x['name'][:-11]
+        x['bankID'] = banks[x['name']]
         # 保留原始银行卡号
         x['oldcard'] = x['card']
         # 清洗数据
         x['card'] = x['card'].replace('x', u'')
         x['card'] = x['card'].replace('X', u'')
+        #
+        # x['bankid'] = banks[u"'" + x['name'] + "'"]
+
     # 导出高性能文件格式 hdf5
     df.to_hdf('./resources/bankcard.h5', 'df')
     # 导出excel格式 文件

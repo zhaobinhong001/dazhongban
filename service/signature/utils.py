@@ -62,7 +62,7 @@ def iddentity_verify(param=None):
 
 
 def process_verify(uri, data, request):
-    receiver = get_user_model().objects.filter(mobile=data.get('mobile'))
+    receiver = get_user_model().objects.filter(mobile=data.get('mobile')).get()
 
     if not receiver:
         return False

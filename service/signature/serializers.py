@@ -14,6 +14,7 @@ class BankcardSerializer(serializers.Serializer):
     name = serializers.CharField(label=u'卡片名称', default='', read_only=True)
     bank = serializers.CharField(label=u'银行名称', default='', read_only=True)
     type = serializers.CharField(label=u'卡片类型', default='', read_only=True)
+    bankid = serializers.CharField(label=u'银行编号', default='', read_only=True)
 
     def validate(self, attrs):
         # 验证银行卡号

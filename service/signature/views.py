@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import base64
 import re
 
+import requests
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from filters.mixins import FiltersMixin
@@ -25,22 +26,25 @@ from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerial
 
 class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
     serializer_class = SignatureSerializer
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     model = Signature
 
     def get_queryset(self):
         return self.request.user.signatures.all()
 
     def create(self, request, *args, **kwargs):
-        print request.data.get('signs')
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        # print request.body
+        # try:
 
-    def perform_create(self, serializer):
-        return serializer.save(owner=self.request.user)
+        # data = request.data.get('signs')
+        # data = BytesIO(data) if data else None
+        rows = requests.post(settings.VERIFY_GATEWAY, data=request.body)
+
+        # print request.body
+        return Response(rows.content, status=status.HTTP_201_CREATED)
+        # except requests.ConnectionError:
+        #     raise requests.ConnectionError
+        # return Response({'detail': '验签服务器异常'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BankcardViewSet(viewsets.GenericViewSet):
@@ -80,7 +84,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
         errors = {}
 
         if not request.data.get('certId'):
-            errors['certId'] = _('姓名不能为空')
+            errors['certId'] = _('身份证不能为空')
 
         if not request.data.get('name'):
             errors['name'] = _('姓名不能为空')
@@ -91,14 +95,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
         if not request.data.get('cardNo'):
             errors['cardNo'] = _('银行卡不能为空')
 
-        if not request.data.get('certId'):
-            errors['certId'] = _('姓名不能为空')
-
-        if not request.data.get('backPhoto'):
-            errors['backPhoto'] = _('姓名不能为空')
-
         certId = re.compile(r'^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$')
-
         if not certId.match(request.data.get('certId')):
             errors['certId'] = _('证件号码格式错误')
 
@@ -107,9 +104,9 @@ class IdentityViewSet(viewsets.ModelViewSet):
         if not mobile_re.match(request.data.get('phone')):
             errors['phone'] = _('电话格式不正确')
 
-        cardNo = re.compile(r'^(\d{16}|\d{19})$')
-        if not cardNo.match(request.data.get('cardNo')):
-            errors['carNo'] = _('银行卡格式不正确')
+        # cardNo = re.compile(r'^(\d{16}|\d{19})$')
+        # if not cardNo.match(request.data.get('cardNo')):
+        #     errors['carNo'] = _('银行卡格式不正确')
 
         if len(errors):
             return Response({'detail': errors}, status=status.HTTP_400_BAD_REQUEST)

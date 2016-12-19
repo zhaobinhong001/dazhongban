@@ -18,15 +18,17 @@ class BankcardSerializer(serializers.Serializer):
     def validate(self, attrs):
         # 验证银行卡号
         df = pd.read_hdf('./resources/bankcard.h5')
-        df = df.loc[df['card'] == attrs['card'][:6]]
-        df = df.iloc[0] if df else None
 
-        if not df:
-            raise serializers.ValidationError('未找到该类型卡信息,请确认卡号书写正确.')
+        for x in [8, 6, 5]:
+            vv = df.loc[df['card'] == attrs['card'][:x]]
+            if len(vv):
+                vv = vv.iloc[0]
+                del vv['card']
+                del vv['oldcard']
+                attrs.update(vv)
+                return attrs
 
-        attrs.update(df)
-
-        return attrs
+        raise serializers.ValidationError('未找到该类型卡信息,请确认卡号书写正确.')
 
 
 class IdentitySerializer(serializers.ModelSerializer):

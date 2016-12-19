@@ -7,6 +7,8 @@ from django.utils.translation import ugettext as _
 from suit_dashboard.box import Box, Item
 
 
+# 总用户数量 chart date
+
 class User(Box):
     # def get_title(self):
     #     return _('数据统计')
@@ -150,6 +152,98 @@ class User(Box):
         return [item_chart]
 
 
+option = {
+    "title": {
+        "text": _('总用户量'),
+        "x": -20
+    },
+    "subtitle": {
+        "text": "",
+        "x": -20
+    },
+    "xAxis": {
+        'title': {
+            'text': '时间'
+        },
+        "categories": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+        ]
+    },
+    "yAxis": {
+        "title": {
+            "text": "数量"
+        },
+        "plotLines": [
+            {
+                "value": 0,
+                "width": 1,
+                "color": "#808080"
+            }
+        ]
+    },
+    'credits': {
+        'enabled': False,
+
+    },
+    "tooltip": {
+        "valueSuffix": _('人')
+    },
+    "legend": {
+        "layout": "vertical",
+        "align": "right",
+        "verticalAlign": "middle",
+        "borderWidth": 0
+    },
+    "series": [
+        {
+            "name": _('用户量'),
+            "data": [
+                7,
+                6.9,
+                9.5,
+                14.5,
+                18.2,
+                21.5,
+                25.2,
+                26.5,
+                23.3,
+                18.3,
+                13.9,
+                9.6
+            ]
+        }
+    ]
+}
+
+
+class BasicLine(Box):
+    def get_items(self):
+        chart_options = option
+
+        # Create the chart item
+        item_chart = Item(
+            html_id='basicLine',
+            # name=_('数据统计'),
+            value=chart_options,
+            display=Item.AS_HIGHCHARTS)
+
+        # Return the list of items
+        return [item_chart]
+
+
+# 已认证用户chart date
+
 class Authentication(Box):
     def get_items(self):
         chart_options = {
@@ -163,7 +257,7 @@ class Authentication(Box):
             'credits': {
                 'enabled': True,
                 'text': _('已认证用户量'),
-                'href': 'data',
+                'href': 'aution',
                 'position': {
                     'align': 'center',
                     'verticalAlign': 'bottom',
@@ -192,7 +286,7 @@ class Authentication(Box):
                 }
             },
             'colors': ['#058DC7', '#50B432', '#ED561B', '#DDDF  00',
-                '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
+                       '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
             'series': [
                 {
                     "name": "Brands",
@@ -228,245 +322,11 @@ class Authentication(Box):
         return [item_chart]
 
 
-class SettledEnterprise(Box):
-    def get_items(self):
-        chart_options = {
-            'chart': {
-                'type': 'pie',
-                'height': 300,
-            },
-            'title': {
-                'text': _('')
-            },
-            'credits': {
-                'enabled': True,
-                'text': _('总入驻企业数量'),
-                'href': 'data',
-                'position': {
-                    'align': 'center',
-                    'verticalAlign': 'bottom',
-                    # 'x':100,
-                    # 'y': -10
-                },
-
-            },
-            'tooltip': {
-                'percentageDecimals': 1
-            },
-            'legend': {
-                'enabled': False
-            },
-            'plotOptions': {
-                'pie': {
-                    'allowPointSelect': True,
-                    'cursor': 'pointer',
-                    # 'dataLabels': {
-                    #     'enabled': True,
-                    #     'format': '<b>{point.name}</b>: {point.percentage:.1f} %',
-                    # }
-                },
-                'series': {
-                    'stacking': '',  # normal
-                }
-            },
-            'colors': ['#058DC7', '#50B432', '#ED561B', '#DDDF  00',
-                '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
-            'series': [
-                {
-                    "name": "Brands",
-                    "colorByPoint": True,
-                    "data": [
-                        {
-                            "name": _('历史总数'),
-                            "y": 200
-                        },
-                        {
-                            "name": _("本周新增"),
-                            "y": 40,
-                            "sliced": True,
-                            "selected": True
-                        },
-                        {
-                            "name": _("昨日新增"),
-                            "y": 10
-                        }
-                    ]
-                }
-            ]
-        }
-
-        # Create the chart item
-        item_chart = Item(
-            html_id='settledEnterprise',
-            # name=_('数据统计'),
-            value=chart_options,
-            display=Item.AS_HIGHCHARTS)
-
-        # Return the list of items
-        return [item_chart]
-
-
-class Signatures(Box):
-    def get_items(self):
-        chart_options = {
-            'chart': {
-                'type': 'pie',
-                'height': 300,
-            },
-            'title': {
-                'text': _('')
-            },
-            'credits': {
-                'enabled': True,
-                'text': _('用户签名次数'),
-                'href': 'data',
-                'position': {
-                    'align': 'center',
-                    'verticalAlign': 'bottom',
-                    # 'x':100,
-                    # 'y': -10
-                },
-
-            },
-            'tooltip': {
-                'percentageDecimals': 1
-            },
-            'legend': {
-                'enabled': False
-            },
-            'plotOptions': {
-                'pie': {
-                    'allowPointSelect': True,
-                    'cursor': 'pointer',
-                    # 'dataLabels': {
-                    #     'enabled': True,
-                    #     'format': '<b>{point.name}</b>: {point.percentage:.1f} %',
-                    # }
-                },
-                'series': {
-                    'stacking': '',  # normal
-                }
-            },
-            'colors': ['#058DC7', '#50B432', '#ED561B', '#DDDF  00',
-                '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
-            'series': [
-                {
-                    "name": "Brands",
-                    "colorByPoint": True,
-                    "data": [
-                        {
-                            "name": _('历史总数'),
-                            "y": 70
-                        },
-                        {
-                            "name": _("本周新增"),
-                            "y": 40,
-                            "sliced": True,
-                            "selected": True
-                        },
-                        {
-                            "name": _("昨日新增"),
-                            "y": 10
-                        }
-                    ]
-                }
-            ]
-        }
-
-        # Create the chart item
-        item_chart = Item(
-            html_id='signatures',
-            # name=_('数据统计'),
-            value=chart_options,
-            display=Item.AS_HIGHCHARTS)
-
-        # Return the list of items
-        return [item_chart]
-
-
-class Evidences(Box):
-    def get_items(self):
-        chart_options = {
-            'chart': {
-                'type': 'pie',
-                'height': 300,
-            },
-            'title': {
-                'text': _('')
-            },
-            'credits': {
-                'enabled': True,
-                'text': _('用户取证次数'),
-                'href': 'data',
-                'position': {
-                    'align': 'center',
-                    'verticalAlign': 'bottom',
-                    # 'x':100,
-                    # 'y': -10
-                },
-
-            },
-            'tooltip': {
-                'percentageDecimals': 1
-            },
-            'legend': {
-                'enabled': False
-            },
-            'plotOptions': {
-                'pie': {
-                    'allowPointSelect': True,
-                    'cursor': 'pointer',
-                    # 'dataLabels': {
-                    #     'enabled': True,
-                    #     'format': '<b>{point.name}</b>: {point.percentage:.1f} %',
-                    # }
-                },
-                'series': {
-                    'stacking': '',  # normal
-                }
-            },
-            'colors': ['#058DC7', '#50B432', '#ED561B', '#DDDF  00',
-                '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
-            'series': [
-                {
-                    "name": "Brands",
-                    "colorByPoint": True,
-                    "data": [
-                        {
-                            "name": _('历史总数'),
-                            "y": 70
-                        },
-                        {
-                            "name": _("本周新增"),
-                            "y": 40,
-                            "sliced": True,
-                            "selected": True
-                        },
-                        {
-                            "name": _("昨日新增"),
-                            "y": 10
-                        }
-                    ]
-                }
-            ]
-        }
-
-        # Create the chart item
-        item_chart = Item(
-            html_id='evidences',
-            # name=_('数据统计'),
-            value=chart_options,
-            display=Item.AS_HIGHCHARTS)
-
-        # Return the list of items
-        return [item_chart]
-
-
-class BasicLine(Box):
+class AutionLine(Box):
     def get_items(self):
         chart_options = {
             "title": {
-                "text": _('总用户数量'),
+                "text": _('1'),
                 "x": -20
             },
             "subtitle": {
@@ -547,3 +407,242 @@ class BasicLine(Box):
 
         # Return the list of items
         return [item_chart]
+
+
+# 总入驻企业数量 chart date
+
+class SettledEnterprise(Box):
+    def get_items(self):
+        chart_options = {
+            'chart': {
+                'type': 'pie',
+                'height': 300,
+            },
+            'title': {
+                'text': _('')
+            },
+            'credits': {
+                'enabled': True,
+                'text': _('总入驻企业数量'),
+                'href': 'data',
+                'position': {
+                    'align': 'center',
+                    'verticalAlign': 'bottom',
+                    # 'x':100,
+                    # 'y': -10
+                },
+
+            },
+            'tooltip': {
+                'percentageDecimals': 1
+            },
+            'legend': {
+                'enabled': False
+            },
+            'plotOptions': {
+                'pie': {
+                    'allowPointSelect': True,
+                    'cursor': 'pointer',
+                    # 'dataLabels': {
+                    #     'enabled': True,
+                    #     'format': '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    # }
+                },
+                'series': {
+                    'stacking': '',  # normal
+                }
+            },
+            'colors': ['#058DC7', '#50B432', '#ED561B', '#DDDF  00',
+                       '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
+            'series': [
+                {
+                    "name": "Brands",
+                    "colorByPoint": True,
+                    "data": [
+                        {
+                            "name": _('历史总数'),
+                            "y": 200
+                        },
+                        {
+                            "name": _("本周新增"),
+                            "y": 40,
+                            "sliced": True,
+                            "selected": True
+                        },
+                        {
+                            "name": _("昨日新增"),
+                            "y": 10
+                        }
+                    ]
+                }
+            ]
+        }
+
+        # Create the chart item
+        item_chart = Item(
+            html_id='settledEnterprise',
+            # name=_('数据统计'),
+            value=chart_options,
+            display=Item.AS_HIGHCHARTS)
+
+        # Return the list of items
+        return [item_chart]
+
+# 用户签名次数 chart date
+
+class Signatures(Box):
+    def get_items(self):
+        chart_options = {
+            'chart': {
+                'type': 'pie',
+                'height': 300,
+            },
+            'title': {
+                'text': _('')
+            },
+            'credits': {
+                'enabled': True,
+                'text': _('用户签名次数'),
+                'href': 'data',
+                'position': {
+                    'align': 'center',
+                    'verticalAlign': 'bottom',
+                    # 'x':100,
+                    # 'y': -10
+                },
+
+            },
+            'tooltip': {
+                'percentageDecimals': 1
+            },
+            'legend': {
+                'enabled': False
+            },
+            'plotOptions': {
+                'pie': {
+                    'allowPointSelect': True,
+                    'cursor': 'pointer',
+                    # 'dataLabels': {
+                    #     'enabled': True,
+                    #     'format': '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    # }
+                },
+                'series': {
+                    'stacking': '',  # normal
+                }
+            },
+            'colors': ['#058DC7', '#50B432', '#ED561B', '#DDDF  00',
+                       '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
+            'series': [
+                {
+                    "name": "Brands",
+                    "colorByPoint": True,
+                    "data": [
+                        {
+                            "name": _('历史总数'),
+                            "y": 70
+                        },
+                        {
+                            "name": _("本周新增"),
+                            "y": 40,
+                            "sliced": True,
+                            "selected": True
+                        },
+                        {
+                            "name": _("昨日新增"),
+                            "y": 10
+                        }
+                    ]
+                }
+            ]
+        }
+
+        # Create the chart item
+        item_chart = Item(
+            html_id='signatures',
+            # name=_('数据统计'),
+            value=chart_options,
+            display=Item.AS_HIGHCHARTS)
+
+        # Return the list of items
+        return [item_chart]
+
+# 用户取证次数 chart date
+
+class Evidences(Box):
+    def get_items(self):
+        chart_options = {
+            'chart': {
+                'type': 'pie',
+                'height': 300,
+            },
+            'title': {
+                'text': _('')
+            },
+            'credits': {
+                'enabled': True,
+                'text': _('用户取证次数'),
+                'href': 'data',
+                'position': {
+                    'align': 'center',
+                    'verticalAlign': 'bottom',
+                    # 'x':100,
+                    # 'y': -10
+                },
+
+            },
+            'tooltip': {
+                'percentageDecimals': 1
+            },
+            'legend': {
+                'enabled': False
+            },
+            'plotOptions': {
+                'pie': {
+                    'allowPointSelect': True,
+                    'cursor': 'pointer',
+                    # 'dataLabels': {
+                    #     'enabled': True,
+                    #     'format': '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    # }
+                },
+                'series': {
+                    'stacking': '',  # normal
+                }
+            },
+            'colors': ['#058DC7', '#50B432', '#ED561B', '#DDDF  00',
+                       '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
+            'series': [
+                {
+                    "name": "Brands",
+                    "colorByPoint": True,
+                    "data": [
+                        {
+                            "name": _('历史总数'),
+                            "y": 70
+                        },
+                        {
+                            "name": _("本周新增"),
+                            "y": 40,
+                            "sliced": True,
+                            "selected": True
+                        },
+                        {
+                            "name": _("昨日新增"),
+                            "y": 10
+                        }
+                    ]
+                }
+            ]
+        }
+
+        # Create the chart item
+        item_chart = Item(
+            html_id='evidences',
+            # name=_('数据统计'),
+            value=chart_options,
+            display=Item.AS_HIGHCHARTS)
+
+        # Return the list of items
+        return [item_chart]
+

@@ -67,6 +67,9 @@ def process_verify(uri, data):
     sender = Token.objects.filter(key=data.get('token')).get()
     sender = sender.user
 
+    if data.get('token'):
+        del data['token']
+
     if not receiver:
         return False
 

@@ -9,7 +9,7 @@ from .models import Groups, Token
 class GroupsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Groups
-        fields = ('id', 'name',)
+        fields = ('id', 'name', 'cover')
 
 
 class UsersSerializer(serializers.HyperlinkedModelSerializer):
@@ -21,4 +21,4 @@ class UsersSerializer(serializers.HyperlinkedModelSerializer):
 class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Token
-        exclude = ('owner','id')
+        exclude = ('owner', 'id')

@@ -2,7 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 import pandas as pd
 
-from service.signature.models import BANKID
+from config.settings.apps import BANKID
 
 
 def impotrbank():
@@ -45,8 +45,6 @@ def impotrbank():
         # 清洗数据
         x['card'] = x['card'].replace('x', u'')
         x['card'] = x['card'].replace('X', u'')
-        #
-        # x['bankid'] = banks[u"'" + x['name'] + "'"]
 
     # 导出高性能文件格式 hdf5
     df.to_hdf('./resources/bankcard.h5', 'df')

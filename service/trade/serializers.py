@@ -9,7 +9,7 @@ from .models import Contract, Transfer
 class ContractSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contract
-        exclude = ('sender',)
+        exclude = ('sender', 'receiver')
 
 
 class TransferSerializer(serializers.ModelSerializer):

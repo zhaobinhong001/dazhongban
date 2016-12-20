@@ -2,10 +2,12 @@
 from __future__ import unicode_literals
 
 import base64
+import json
 import re
 
 import requests
 from django.conf import settings
+from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from filters.mixins import FiltersMixin
 from rest_framework import filters, mixins, status, viewsets
@@ -18,10 +20,12 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 from url_filter.integrations.drf import DjangoFilterBackend
 
 from service.kernel.contrib.utils.hashlib import md5
-from service.signature.utils import iddentity_verify, fields
+from service.kernel.utils.bank_random import bankcard
+from service.signature.utils import iddentity_verify, fields, process_verify
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
     CallbackSerializer
+from service.consumer.models import Bankcard
 
 
 class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
@@ -33,18 +37,35 @@ class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
         return self.request.user.signatures.all()
 
     def create(self, request, *args, **kwargs):
-        # print request.body
-        # try:
+        # 验签数据
+        resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=request.body)
 
-        # data = request.data.get('signs')
-        # data = BytesIO(data) if data else None
-        rows = requests.post(settings.VERIFY_GATEWAY, data=request.body)
+        if (resp.status_code != 200) and (resp.status_code != 500):
+            return Response(resp.json(), status=status.HTTP_400_BAD_REQUEST)
 
-        # print request.body
-        return Response(rows.content, status=status.HTTP_201_CREATED)
-        # except requests.ConnectionError:
-        #     raise requests.ConnectionError
-        # return Response({'detail': '验签服务器异常'}, status=status.HTTP_400_BAD_REQUEST)
+        # 解析数据
+        rest = resp.content.decode('hex')
+        rest = json.loads(rest)
+
+        # 处理数据
+        uri = rest.get('uri')
+        data = rest.get('data')
+        body = process_verify(uri, data)
+
+        # 服务签名
+        if body:
+            resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=json.dumps(body))
+
+            open('sign.txt', 'w').write(resp.content)
+            open('status_code.txt', 'w').write(resp.status_code)
+
+            if resp.status_code == 200:
+                return HttpResponse(resp.content)
+            else:
+                return HttpResponse('验签服务器异常', status=status.HTTP_400_BAD_REQUEST)
+
+        # 服务器异常提示
+        return Response({'detail': '数据处理失败'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BankcardViewSet(viewsets.GenericViewSet):
@@ -123,18 +144,21 @@ class IdentityViewSet(viewsets.ModelViewSet):
                     if v.strip():
                         item[k] = v
 
-        if request.data.get('expired'):
-            expired = request.data.get('expired')
-            expired = expired.strip() if expired.strip() else None
-            expired = expired.split('/')
-            expired = expired[1] + expired[0]
-            item['exp_Date'] = expired
+        # if request.data.get('expired'):
+        #     expired = request.data.get('expired')
+        #     expired = expired.strip() if expired.strip() else None
+        #     expired = expired.split('/')
+        #     expired = expired[1] + expired[0]
+        #     item['exp_Date'] = expired
 
         data, status_ = iddentity_verify(item)
 
         if not status_:
             raise ValidationError(data)
-
+        # 生成模拟银行卡号
+        sfbcard = bankcard()
+        owner = self.request.user
+        Bankcard.objects.create(owner=owner, bank='收付宝', card=sfbcard, suffix='', type='储蓄卡', flag='')
         return Response(data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):

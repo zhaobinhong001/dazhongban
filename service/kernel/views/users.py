@@ -66,8 +66,10 @@ class UsersViewSet(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['POST', 'GET'])
     def invite(self, request, pk, *args, **kwargs):
         owner = request.user
-        friend = get_user_model().objects.get(id=pk)
-        ret, _ = Contact.objects.get_or_create(owner_id=owner.pk, friend_id=friend.pk)
+
+        ret, _ = Contact.objects.get_or_create(owner_id=owner.pk, friend_id=pk)
+        ret.status = 'invite'
+        ret.save()
 
         return Response({'detail': '操作成功'}, status=status.HTTP_201_CREATED)
 

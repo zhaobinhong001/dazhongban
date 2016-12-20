@@ -240,6 +240,7 @@ class BlacklistViewSet(viewsets.ModelViewSet):
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
     permission_classes = (IsAuthenticated,)
+    lookup_field = 'friend_id'
 
     def get_queryset(self):
         queryset = self.queryset.filter(owner=self.request.user).filter(black=True)

@@ -15,6 +15,8 @@ from model_utils.models import TimeStampedModel, StatusModel
 from pilkit.processors import ResizeToFill
 from rest_framework.serializers import ValidationError
 
+from config.settings.apps import BANKID
+
 
 class AbstractActionType(TimeStampedModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
@@ -193,11 +195,13 @@ class Bankcard(TimeStampedModel):
     银行卡信息
 
     '''
-    TYPE_CHOICES = (('储蓄卡', '储蓄卡'),)
-    FLAG_CHOICES = (('收', '收'),)
+    TYPE_CHOICES = (('借记卡', '借记卡'), ('贷记卡', '贷记卡'),)
+    FLAG_CHOICES = (('', ''), ('收', '收'),)
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True)
-    bank = models.CharField(verbose_name=_(u'所属银行'), blank=True, max_length=50, default='')
+    cover = ProcessedImageField(verbose_name=_(u'银行logo'), upload_to='bank', processors=[ResizeToFill(320, 320)],
+        format='JPEG', null=True, default='banks/default.jpg')
+    bank = models.CharField(verbose_name=_(u'所属银行'), blank=True, max_length=50, default='', choices=BANKID, )
     card = models.CharField(verbose_name=_(u'银行卡号'), blank=True, max_length=50, default='')
     suffix = models.CharField(verbose_name=_(u'卡号后缀'), max_length=10, default='')
     type = models.CharField(verbose_name=_('卡片类型'), max_length=10, choices=TYPE_CHOICES, default='')

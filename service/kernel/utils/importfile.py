@@ -2,7 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 import pandas as pd
 
-from service.signature.models import BANKID
+from config.settings.apps import BANKID
 
 
 def impotrbank():

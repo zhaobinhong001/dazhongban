@@ -6,6 +6,7 @@ import json
 import requests as req
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from rest_framework.authtoken.models import Token
 
 from service.consumer.utils import md5
 from service.trade.models import Contract, Transfer
@@ -61,8 +62,13 @@ def iddentity_verify(param=None):
     return '认证服务器错误' + ret.content, False
 
 
-def process_verify(uri, data, request):
+def process_verify(uri, data):
     receiver = get_user_model().objects.filter(mobile=data.get('mobile')).get()
+    sender = Token.objects.filter(key=data.get('token')).get()
+    sender = sender.user
+
+    if data.get('token'):
+        del data['token']
 
     if not receiver:
         return False
@@ -73,7 +79,7 @@ def process_verify(uri, data, request):
             del data['id']
         else:
             res = Contract()
-            res.sender_id = 1
+            res.sender = sender
 
         for key, val in data.items():
             if hasattr(res, key):
@@ -88,7 +94,7 @@ def process_verify(uri, data, request):
             del data['id']
         else:
             res = Transfer()
-            res.sender_id = 1
+            res.sender = sender
 
         for key, val in data.items():
             if hasattr(res, key):

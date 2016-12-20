@@ -188,6 +188,7 @@ class Contact(TimeStampedModel, StatusModel):
     class Meta:
         verbose_name = _(u'用户通讯录')
         verbose_name_plural = _(u'用户通讯录')
+        unique_together = (("owner", "friend"),)
 
 
 class Bankcard(TimeStampedModel):

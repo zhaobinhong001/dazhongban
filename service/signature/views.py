@@ -20,10 +20,12 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 from url_filter.integrations.drf import DjangoFilterBackend
 
 from service.kernel.contrib.utils.hashlib import md5
+from service.kernel.utils.bank_random import bankcard
 from service.signature.utils import iddentity_verify, fields, process_verify
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
     CallbackSerializer
+from service.consumer.models import Bankcard
 
 
 class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
@@ -142,18 +144,21 @@ class IdentityViewSet(viewsets.ModelViewSet):
                     if v.strip():
                         item[k] = v
 
-        if request.data.get('expired'):
-            expired = request.data.get('expired')
-            expired = expired.strip() if expired.strip() else None
-            expired = expired.split('/')
-            expired = expired[1] + expired[0]
-            item['exp_Date'] = expired
+        # if request.data.get('expired'):
+        #     expired = request.data.get('expired')
+        #     expired = expired.strip() if expired.strip() else None
+        #     expired = expired.split('/')
+        #     expired = expired[1] + expired[0]
+        #     item['exp_Date'] = expired
 
         data, status_ = iddentity_verify(item)
 
         if not status_:
             raise ValidationError(data)
-
+        # 生成模拟银行卡号
+        sfbcard = bankcard()
+        owner = self.request.user
+        Bankcard.objects.create(owner=owner, bank='收付宝', card=sfbcard, suffix='', type='储蓄卡', flag='')
         return Response(data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):

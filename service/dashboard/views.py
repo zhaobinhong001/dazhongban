@@ -8,7 +8,8 @@ from django.utils.translation import ugettext_lazy as _
 from suit_dashboard.layout import Grid, Row, Column
 from suit_dashboard.views import DashboardView
 
-from .boxes import User, Authentication, SettledEnterprise, Evidences, Signatures, BasicLine, AutionLine
+from .boxes import User, Authentication, SettledEnterprise, Evidences, Signatures, BasicLine, AutionLine, SetEnLine, \
+    SignLine, EvidLine
 
 
 class HomeView(DashboardView):
@@ -38,3 +39,27 @@ class AutionView(DashboardView):
         {'url': 'admin:aution', 'name': _('已认证用户量')},
     )
     grid = Grid(Row(Column(AutionLine(), width=12)))
+
+
+class SetEnView(DashboardView):
+    template_name = 'data.html'
+    crumbs = (
+        {'url': 'admin:seten', 'name': _('总入驻企业数量')},
+    )
+    grid = Grid(Row(Column(SetEnLine(), width=12)))
+
+
+class SignView(DashboardView):
+    template_name = 'data.html'
+    crumbs = (
+        {'url': 'admin:sign', 'name': _('用户签名次数')},
+    )
+    grid = Grid(Row(Column(SignLine(), width=12)))
+
+
+class EvidView(DashboardView):
+    template_name = 'data.html'
+    crumbs = (
+        {'url': 'admin:evid', 'name': _('用户取证次数')},
+    )
+    grid = Grid(Row(Column(EvidLine(), width=12)))

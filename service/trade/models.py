@@ -45,14 +45,16 @@ class Contract(TimeStampedModel, StatusModel):
 
 # 消费表
 class Transfer(TimeStampedModel):
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='transfer_sender')
-    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='transfer_receiver')
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='sender')
+    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='receiver')
 
     type = models.CharField(verbose_name=u'消费类型', max_length=100, default=0, choices=CONSUMPTION_TYPE)
-    mobile = models.CharField(verbose_name=u'手机号', max_length=100, default='')
+    mobile = models.CharField(verbose_name=u'对方手机号', max_length=100, default='')
     amount = models.DecimalField(verbose_name=u'交易金额', max_digits=10, decimal_places=2)
-    summary = models.CharField(verbose_name=u'原因', max_length=300)
-    transfer = models.CharField(verbose_name=u'转出银行卡', max_length=100, default='')
+    summary = models.CharField(verbose_name=u'交易原因', max_length=300)
+
+    payment = models.CharField(verbose_name=u'支付账户', max_length=100, default='')
+    receipt = models.CharField(verbose_name=u'收款账户', max_length=100, default='')
 
     def __unicode__(self):
         return '%s %s %s' % (self.sender, self.receiver, self.type)

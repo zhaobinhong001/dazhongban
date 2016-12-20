@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from model_utils.models import TimeStampedModel
+from model_utils.models import TimeStampedModel, StatusModel
 
 CONSUMPTION_TYPE = (
     ('0', '扫码支付'),
@@ -19,7 +19,9 @@ CONTRACT_TYPE = (
 
 
 # 合约表
-class Contract(TimeStampedModel):
+class Contract(TimeStampedModel, StatusModel):
+    STATUS = (('sender', '发送'), ('receiver', '接受'),)
+
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='contract_sender')
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='contract_receiver', blank=True,
         null=True)

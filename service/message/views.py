@@ -71,19 +71,18 @@ class GroupViewSet(NestedViewSetMixin, mixins.CreateModelMixin,
     model = Groups
 
     def perform_create(self, serializer):
-        result = client.Group.create(userId=self.request.user.pk, groupId=self.request.data.get('id'),
-            groupName=self.request.data.get('name'))
+        groups = serializer.save(owner=self.request.user)
+        result = client.Group.create(userId=self.request.user.pk, groupId=groups.pk, groupName=groups.name)
 
         if not result:
             raise Exception
 
-        result = client.Group.join(userId=self.request.user.pk, groupId=self.request.data.get('id'),
-            groupName=self.request.data.get('name'))
+        result = client.Group.join(userId=self.request.user.pk, groupId=groups.pk, groupName=groups.name)
 
         if not result:
             raise Exception
 
-        return serializer.save(owner=self.request.user)
+        return groups
 
     def perform_update(self, serializer):
         result = client.Group.refresh(groupId=self.request.user.pk, groupName=self.request.data.get('name'))

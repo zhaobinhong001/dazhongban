@@ -13,6 +13,11 @@ class ContractViewSet(viewsets.ModelViewSet):
     '''
     合约接口
     ----
+
+    合约类型
+    ('receipt', '收据'),
+    ('borrow', '借条'),
+    ('owe', '欠条'),
     '''
     queryset = Contract.objects.all()
     serializer_class = ContractSerializer
@@ -33,8 +38,13 @@ class ContractViewSet(viewsets.ModelViewSet):
 
 class TransferViewSet(viewsets.ModelViewSet):
     '''
-    消费记录接口
+    转账支付接口
     ----
+
+    支付类型
+
+    ('0', '扫码支付'),
+    ('1', '第三方支付'),
     '''
     queryset = Transfer.objects.all()
     serializer_class = TransferSerializer

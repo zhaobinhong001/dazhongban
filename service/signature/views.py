@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import base64
+import json
 import re
 
 import requests
@@ -19,7 +20,7 @@ from url_filter.integrations.drf import DjangoFilterBackend
 
 from service.kernel.contrib.utils.hashlib import md5
 from service.kernel.utils.bank_random import bankcard
-from service.signature.utils import iddentity_verify, fields
+from service.signature.utils import iddentity_verify, fields, process_verify
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
     CallbackSerializer
@@ -35,18 +36,31 @@ class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
         return self.request.user.signatures.all()
 
     def create(self, request, *args, **kwargs):
-        # print request.body
-        # try:
+        # 验签数据
+        resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=request.body)
 
-        # data = request.data.get('signs')
-        # data = BytesIO(data) if data else None
-        rows = requests.post(settings.VERIFY_GATEWAY, data=request.body)
+        if (resp.status_code != 200) and (resp.status_code != 500):
+            return Response(resp.json(), status=status.HTTP_400_BAD_REQUEST)
 
-        # print request.body
-        return Response(rows.content, status=status.HTTP_201_CREATED)
-        # except requests.ConnectionError:
-        #     raise requests.ConnectionError
-        # return Response({'detail': '验签服务器异常'}, status=status.HTTP_400_BAD_REQUEST)
+        # 解析数据
+        rest = resp.content.decode('hex')
+        rest = json.loads(rest)
+
+        # 处理数据
+        uri = rest.get('uri')
+        data = rest.get('data')
+        body = process_verify(uri, data, request)
+
+        # 服务签名
+        if body:
+            resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=json.dumps(body))
+            if resp.status_code == 200:
+                return Response(resp.content, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'detail': '验签服务器异常'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 服务器异常提示
+        return Response({'detail': '数据处理失败'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BankcardViewSet(viewsets.GenericViewSet):

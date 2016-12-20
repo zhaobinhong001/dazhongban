@@ -56,6 +56,7 @@ class Validate(TimeStampedModel):
 
 
 class Identity(TimeStampedModel):
+    CHOICES_LEVEL = (('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D'),)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     certId = models.CharField(verbose_name=u'证件号 *', max_length=100, default='')
     certType = models.IntegerField(verbose_name=u'证件类型', default='1')
@@ -69,6 +70,8 @@ class Identity(TimeStampedModel):
     bankID = models.CharField(verbose_name=u'银行ID', max_length=100, default='', choices=BANKID)
     cvn2 = models.CharField(verbose_name=u'信用卡背面的末3位数字', max_length=10, default='', null=True, blank=True)
     expired = models.CharField(verbose_name=u'有效期', max_length=100, default='', null=True, blank=True)
+    level = models.CharField(verbose_name=u'认证级别', max_length=100, default='', null=True, blank=True,
+        choices=CHOICES_LEVEL)
 
     def __unicode__(self):
         return self.name

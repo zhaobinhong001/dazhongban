@@ -103,4 +103,4 @@ def process_verify(uri, data):
         res.receiver = receiver
         res.save()
 
-    return {'detail': '操作成功'}, True
+    return {'detail': json.dumps(res)}, True

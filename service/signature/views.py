@@ -19,13 +19,13 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from url_filter.integrations.drf import DjangoFilterBackend
 
+from service.consumer.models import Bankcard
 from service.kernel.contrib.utils.hashlib import md5
 from service.kernel.utils.bank_random import bankcard
 from service.signature.utils import iddentity_verify, fields, process_verify
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
     CallbackSerializer
-from service.consumer.models import Bankcard
 
 
 class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
@@ -97,6 +97,15 @@ class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
 
 
 class IdentityViewSet(viewsets.ModelViewSet):
+    '''
+    身份认证接口
+    ----------
+
+    - 支持借记卡和贷记卡
+    - 贷记卡必须填写 `信用卡背面的末3位数字` 和 `有效期` (按卡片背面一样抄录)
+    - 根据不同认证填写认证级别 A,B,C,D
+
+    '''
     permission_classes = (IsAuthenticated,)
     serializer_class = IdentitySerializer
     queryset = Identity.objects.all()
@@ -155,10 +164,11 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
         if not status_:
             raise ValidationError(data)
+
         # 生成模拟银行卡号
-        sfbcard = bankcard()
-        owner = self.request.user
-        Bankcard.objects.create(owner=owner, bank='收付宝', card=sfbcard, suffix='', type='储蓄卡', flag='')
+        Bankcard.objects.create(owner=request.user, bank='收付宝', card=bankcard(), suffix='', type='借记卡', flag='')
+        request.user.level = '%s-50' % request.data.get('level')
+
         return Response(data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):

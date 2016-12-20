@@ -98,6 +98,7 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
 
     - 上传通讯录 POST /api/me/contact/contains/
     - 设置黑名单 POST /api/me/contact/{pk}/
+    - 批量隐藏我名字(批量) POST /api/me/contact/black/
     - 批量隐藏我名字 POST /api/me/contact/hide/
     - 批量黑名单 POST /api/me/contact/black/
 
@@ -232,10 +233,11 @@ class BlacklistViewSet(viewsets.ModelViewSet):
     黑名单
     -----
 
-    - 取消黑名单 POST /api/me/blacklist/{pk}
+    - 取消黑名单(批量) POST /api/me/blacklist/revert/
+    - 取消黑名单(单个) POST /api/me/blacklist/{pk}
     - POST参数: black = false
 
-
+    `hide 和 black 接口 psot 参数 userid 为多个 id 用 "," 隔开`
     '''
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer

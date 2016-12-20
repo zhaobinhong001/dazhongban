@@ -14,19 +14,22 @@ class BankcardSerializer(serializers.Serializer):
     name = serializers.CharField(label=u'卡片名称', default='', read_only=True)
     bank = serializers.CharField(label=u'银行名称', default='', read_only=True)
     type = serializers.CharField(label=u'卡片类型', default='', read_only=True)
+    bankID = serializers.CharField(label=u'银行编号', default='', read_only=True)
 
     def validate(self, attrs):
         # 验证银行卡号
         df = pd.read_hdf('./resources/bankcard.h5')
-        df = df.loc[df['card'] == attrs['card'][:6]]
-        df = df.iloc[0] if df else None
 
-        if not df:
-            raise serializers.ValidationError('未找到该类型卡信息,请确认卡号书写正确.')
+        for x in [8, 6, 5]:
+            vv = df.loc[df['card'] == attrs['card'][:x]]
+            if len(vv):
+                vv = vv.iloc[0]
+                del vv['card']
+                del vv['oldcard']
+                attrs.update(vv)
+                return attrs
 
-        attrs.update(df)
-
-        return attrs
+        raise serializers.ValidationError('未找到该类型卡信息,请确认卡号书写正确.')
 
 
 class IdentitySerializer(serializers.ModelSerializer):

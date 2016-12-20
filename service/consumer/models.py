@@ -128,8 +128,10 @@ class Address(TimeStampedModel):
 
     '''
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, db_index=True)
-    city = models.CharField(verbose_name=_(u'城市'), blank=True, max_length=255, db_index=True)
+    name = models.CharField(verbose_name=_(u'联系人'), blank=True, null=True, max_length=100, db_index=True)
+    mobile = models.CharField(verbose_name=_(u'手机号'), blank=True, null=True, max_length=100, db_index=True)
     area = models.CharField(verbose_name=_(u'市区'), blank=True, null=True, max_length=255, db_index=True)
+    city = models.CharField(verbose_name=_(u'城市'), blank=True, max_length=255, db_index=True)
     address = models.CharField(verbose_name=_(u'详细地址'), blank=True, null=True, max_length=255, db_index=True)
     default = models.BooleanField(verbose_name=_('默认地址'), default=False)
 
@@ -168,7 +170,7 @@ class Contact(TimeStampedModel, StatusModel):
     用户通讯录
 
     '''
-    STATUS = Choices(('invite', '邀请'), ('confirm', '确认'))
+    STATUS = Choices(('invite', '邀请'), ('confirm', '确认'), ('new', '新用户'))
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
     friend = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('好友'), default='', related_name='friends')
     black = models.BooleanField(_('是否黑名单'), default=False)

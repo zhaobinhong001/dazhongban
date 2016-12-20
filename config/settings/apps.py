@@ -30,3 +30,5 @@ JPUSH_SECRET = u'6e449bd8dd4dd2e5dff00c02'
 
 IDDENTITY_APPKEY = '69tx91g3kpzlqkndszzofj38fr'
 IDDENTITY_GATEWAY = 'https://10.7.7.71:3002/api/register'
+
+VERIFY_GATEWAY = 'http://10.7.7.22:9090'

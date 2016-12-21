@@ -155,7 +155,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
             raise ValidationError(data)
 
         # 生成模拟银行卡号
-        Bankcard.objects.create(owner=request.user, bank='收付宝', card=bankcard(), suffix='', type='借记卡', flag='')
+        Bankcard.objects.create(owner=request.user, bank=u'收付宝', card=bankcard(), suffix='', type=u'借记卡', flag='')
         request.user.level = '%s-50' % request.data.get('level')
 
         return Response(data, status=status.HTTP_201_CREATED)
@@ -190,7 +190,7 @@ class ValidateViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericV
     lookup_field = 'nu'
 
     def list(self, request, *args, **kwargs):
-        return Response({'detail': '不支持该方法'})
+        return Response({'detail': u'不支持该方法'})
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()

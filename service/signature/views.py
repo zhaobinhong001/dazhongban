@@ -28,7 +28,34 @@ from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerial
     CallbackSerializer
 
 
-class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
+class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
+    '''
+    验签接口
+    =======
+
+    ### 交易验签:
+    - ```转账状态 status = ('', '无状态'), ('agree', '同意'), ('reject', '拒绝')```
+    - ```转账类型 type = ('transfer', '转账'),('receiver', '收款'),('thirty', '第三方'),```
+
+    ###合约类型
+    - ```合约类型('receipt', '收据'),('borrow', '借条'),('owe', '欠条')```
+
+    ### 所有返回正确的结构为 ：
+
+    - ```{'errors': 0, 'detail': {'uri': uri, 'id': res.id, 'type': type, 'status': status}}```
+
+    ### 失败结构
+    - ```{'errors': 1, 'detail': detail}```
+
+    ### 输入说明
+
+    > - 输入内容为一个 `json` 编码后的字符串
+    > - json 结构为 {'uri':'', 'data':{'token':token,'type': type ...}}
+    > - `data` 里`token`,`type`为必须项，
+    > - 状态 `status` 和 `id` 发送时刻不传入
+    > - 状态 `status` 和 `id` 接受时刻必须传入
+
+    '''
     serializer_class = SignatureSerializer
     # permission_classes = (IsAuthenticated,)
     model = Signature

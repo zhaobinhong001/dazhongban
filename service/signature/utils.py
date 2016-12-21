@@ -114,8 +114,15 @@ def process_verify(uri, data):
                 return {'errors': 1, 'detail': '交易订单不存在'}
         else:
             res = Transfer()
-            res.sender_id = token.user.pk
-            res.receiver_id = receiver_id
+
+            if type == 'transfer':
+                res.sender_id = token.user.pk
+                res.receiver_id = receiver_id
+            elif type == 'receiver':
+                res.sender_id = receiver_id
+                res.receiver_id = token.user.pk
+            elif type == 'thirty':
+                pass
 
         for key, val in data.items():
             if hasattr(res, key):

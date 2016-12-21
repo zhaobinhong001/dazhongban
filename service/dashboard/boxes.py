@@ -23,7 +23,8 @@ Yesterdaylen = get_user_model().objects.filter(date_joined__range=(yesterday, to
 weeklen = get_user_model().objects.filter(date_joined__range=(weekday, today)).count()
 
 userTitle = '总用户数量'
-print 1
+
+
 # pie chart
 
 # @title        图标题

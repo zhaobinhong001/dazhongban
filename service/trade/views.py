@@ -19,8 +19,7 @@ class ContractViewSet(viewsets.ModelViewSet):
     ('borrow', '借条'),
     ('owe', '欠条'),
 
-    转账状态 status = ('', '无状态'), ('agree', '同意'), ('reject', '拒绝')
-    转账类型 type = ('transfer', '转账'),('receiver', '收款'),('thirty', '第三方'),
+
     '''
     queryset = Contract.objects.all()
     serializer_class = ContractSerializer
@@ -44,11 +43,8 @@ class TransferViewSet(viewsets.ModelViewSet):
     转账支付接口
     ----
 
-    支付类型
-
-    ('transfer', '转账'),
-    ('receiver', '收款'),
-    ('thirty', '第三方'),
+    转账状态 status = ('', '无状态'), ('agree', '同意'), ('reject', '拒绝')
+    转账类型 type = ('transfer', '转账'),('receiver', '收款'),('thirty', '第三方'),
     '''
     queryset = Transfer.objects.all()
     serializer_class = TransferSerializer

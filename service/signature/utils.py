@@ -5,6 +5,7 @@ import json
 
 import requests as req
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 
 from service.consumer.utils import md5
@@ -87,6 +88,15 @@ def process_verify(uri, data):
         res.save()
 
     elif '/transfer/' in uri:
+        if data.get('receiver_id'):
+            try:
+                receiver = get_user_model().objects.get(id=data.get('receiver_id'))
+                receiver_id = receiver.pk
+            except get_user_model().DoesNotExist:
+                return {'errors': 1, 'detail': '收款方不存在'}
+        else:
+            return {'errors': 1, 'detail': '收款方不能为空'}
+
         if data.get('id'):
             try:
                 res = Transfer.objects.get(id=data.get('id'))
@@ -97,6 +107,7 @@ def process_verify(uri, data):
         else:
             res = Transfer()
             res.sender_id = token.user.pk
+            res.receiver_id = receiver_id
 
         for key, val in data.items():
             if hasattr(res, key):

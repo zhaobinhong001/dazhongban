@@ -33,7 +33,7 @@ class Contract(TimeStampedModel, StatusModel):
     make_date = models.DateTimeField(verbose_name=u'操作时间', blank=True, null=True)
 
     def __unicode__(self):
-        return '%s %s %s' % (self.sender, self.receiver, self.type)
+        return self.summary
 
     def __str__(self):
         return self.__unicode__()
@@ -57,7 +57,7 @@ class Transfer(TimeStampedModel):
     receipt = models.CharField(verbose_name=u'收款账户', max_length=100, default='')
 
     def __unicode__(self):
-        return '%s %s %s' % (self.sender, self.receiver, self.type)
+        return self.summary
 
     def __str__(self):
         return self.__unicode__()

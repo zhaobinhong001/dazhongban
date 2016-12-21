@@ -41,19 +41,21 @@ class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
         resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=request.body)
 
         if (resp.status_code != 200) and (resp.status_code != 500):
-            return Response(resp.json(), status=status.HTTP_400_BAD_REQUEST)
+            body = resp.content
+        else:
 
-        # 解析数据
-        rest = resp.content.decode('hex')
-        rest = json.loads(rest)
+            # 解析数据
+            rest = resp.content.decode('hex')
+            rest = json.loads(rest)
 
-        # 处理数据
-        uri = rest.get('uri')
-        data = rest.get('data')
-        body = process_verify(uri, data)
+            # 处理数据
+            uri = rest.get('uri')
+            data = rest.get('data')
+            body = process_verify(uri, data)
+            body = json.dumps(body)
 
         # 服务签名
-        resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=json.dumps(body))
+        resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=body)
         return HttpResponse(resp.content)
 
 

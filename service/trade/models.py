@@ -7,8 +7,9 @@ from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel, StatusModel
 
 CONSUMPTION_TYPE = (
-    ('0', '扫码支付'),
-    ('1', '第三方支付'),
+    ('transfer', '转账'),
+    ('receiver', '收款'),
+    ('thirty', '第三方'),
 )
 
 CONTRACT_TYPE = (

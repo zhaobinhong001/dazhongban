@@ -43,8 +43,9 @@ class TransferViewSet(viewsets.ModelViewSet):
 
     支付类型
 
-    ('0', '扫码支付'),
-    ('1', '第三方支付'),
+    ('transfer', '转账'),
+    ('receiver', '收款'),
+    ('thirty', '第三方'),
     '''
     queryset = Transfer.objects.all()
     serializer_class = TransferSerializer

@@ -19,13 +19,13 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from url_filter.integrations.drf import DjangoFilterBackend
 
+from service.consumer.models import Bankcard
 from service.kernel.contrib.utils.hashlib import md5
 from service.kernel.utils.bank_random import bankcard
 from service.signature.utils import iddentity_verify, fields, process_verify
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
     CallbackSerializer
-from service.consumer.models import Bankcard
 
 
 class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
@@ -53,19 +53,8 @@ class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
         body = process_verify(uri, data)
 
         # 服务签名
-        if body:
-            resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=json.dumps(body))
-
-            open('sign.txt', 'w').write(resp.content)
-            open('status_code.txt', 'w').write(resp.status_code)
-
-            if resp.status_code == 200:
-                return HttpResponse(resp.content)
-            else:
-                return HttpResponse('验签服务器异常', status=status.HTTP_400_BAD_REQUEST)
-
-        # 服务器异常提示
-        return Response({'detail': '数据处理失败'}, status=status.HTTP_400_BAD_REQUEST)
+        resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=json.dumps(body))
+        return HttpResponse(resp.content)
 
 
 class BankcardViewSet(viewsets.GenericViewSet):
@@ -97,6 +86,15 @@ class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
 
 
 class IdentityViewSet(viewsets.ModelViewSet):
+    '''
+    身份认证接口
+    ----------
+
+    - 支持借记卡和贷记卡
+    - 贷记卡必须填写 `信用卡背面的末3位数字` 和 `有效期` (按卡片背面一样抄录)
+    - 根据不同认证填写认证级别 A,B,C,D
+
+    '''
     permission_classes = (IsAuthenticated,)
     serializer_class = IdentitySerializer
     queryset = Identity.objects.all()
@@ -144,21 +142,22 @@ class IdentityViewSet(viewsets.ModelViewSet):
                     if v.strip():
                         item[k] = v
 
-        # if request.data.get('expired'):
-        #     expired = request.data.get('expired')
-        #     expired = expired.strip() if expired.strip() else None
-        #     expired = expired.split('/')
-        #     expired = expired[1] + expired[0]
-        #     item['exp_Date'] = expired
+        if request.data.get('expired'):
+            expired = request.data.get('expired')
+            expired = expired.strip() if expired.strip() else None
+            expired = expired.split('/')
+            expired = expired[1] + expired[0]
+            item['exp_Date'] = expired
 
         data, status_ = iddentity_verify(item)
 
         if not status_:
             raise ValidationError(data)
+
         # 生成模拟银行卡号
-        sfbcard = bankcard()
-        owner = self.request.user
-        Bankcard.objects.create(owner=owner, bank='收付宝', card=sfbcard, suffix='', type='储蓄卡', flag='')
+        Bankcard.objects.create(owner=request.user, bank=u'收付宝', card=bankcard(), suffix='', type=u'借记卡', flag='')
+        request.user.level = '%s-50' % request.data.get('level')
+
         return Response(data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
@@ -191,7 +190,7 @@ class ValidateViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericV
     lookup_field = 'nu'
 
     def list(self, request, *args, **kwargs):
-        return Response({'detail': '不支持该方法'})
+        return Response({'detail': u'不支持该方法'})
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()

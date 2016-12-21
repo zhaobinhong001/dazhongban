@@ -78,7 +78,7 @@ def process_verify(uri, data):
                 return {'errors': 1, 'detail': '合约不存在'}
         else:
             res = Contract()
-            res.sender = token.user
+            res.sender_id = token.user.pk
 
         for key, val in data.items():
             if hasattr(res, key):
@@ -96,7 +96,7 @@ def process_verify(uri, data):
                 return {'errors': 1, 'detail': '交易订单不存在'}
         else:
             res = Transfer()
-            res.sender = token.user
+            res.sender_id = token.user.pk
 
         for key, val in data.items():
             if hasattr(res, key):
@@ -104,4 +104,4 @@ def process_verify(uri, data):
 
         res.save()
 
-    return {'errors': 0, 'detail': '交易订单不存在'}
+    return {'errors': 0, 'detail': {'uri': uri, 'id': res.id}}

@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import json
 
 import short_url
+from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from rest_framework import mixins
 from rest_framework import status
@@ -14,16 +15,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.viewsets import GenericViewSet
-from service.consumer.models import CustomUser
 
 from service.consumer.models import Contact
+from service.consumer.models import CustomUser
 from .serializers import (
     AddressSerializer, ProfileSerializer, AvatarSerializer, ContactSerializer, BankcardSerializer,
     SettingsSerializer, AddFriendSerializer, NickSerializer, ContactDetailSerializer, ContainsSerializer,
     ContactHideSerializer)
 from .utils import get_user_profile
 from .utils import get_user_settings
-from django.contrib.auth import get_user_model
 
 
 class ProfileViewSet(RetrieveUpdateAPIView):
@@ -91,13 +91,14 @@ class AddressViewSet(viewsets.ModelViewSet):
 
 
 class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin,
-                     mixins.ListModelMixin, GenericViewSet):
+    mixins.ListModelMixin, GenericViewSet):
     '''
     联系人接口
     --------
 
     - 上传通讯录 POST /api/me/contact/contains/
     - 设置黑名单 POST /api/me/contact/{pk}/
+    - 批量隐藏我名字(批量) POST /api/me/contact/black/
     - 批量隐藏我名字 POST /api/me/contact/hide/
     - 批量黑名单 POST /api/me/contact/black/
 
@@ -108,8 +109,10 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
     serializer_class = ContactSerializer
     permission_classes = (IsAuthenticated,)
     queryset = Contact.objects.all()
+    lookup_field = 'friend_id'
 
     def get_queryset(self):
+
         queryset = self.queryset.filter(owner=self.request.user).filter(black=False)
 
         if isinstance(queryset, QuerySet):
@@ -130,21 +133,21 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
     def hide(self, request, *args, **kwargs):
         self.serializer_class = ContactHideSerializer
         if request.method == 'POST':
-            userid = request.data['userid']
-            Contact.objects.filter(owner_id__in=userid.split(',')).update(hide=True)
+            userid = request.data['userid'].replace(u'，', '.')
+            Contact.objects.filter(friend__in=userid.split(','), owner=request.user).update(hide=True)
             return Response({'detail': '成功'}, status=status.HTTP_200_OK)
         else:
-            return Response({'detail': '不支持该方法'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': '不支持 GET 方法'}, status=status.HTTP_400_BAD_REQUEST)
 
     @list_route(methods=['GET', 'POST'])
     def black(self, request, *args, **kwargs):
         self.serializer_class = ContactHideSerializer
         if request.method == 'POST':
-            userid = request.data['userid']
-            Contact.objects.filter(owner_id__in=userid.split(',')).update(black=True)
+            userid = request.data['userid'].replace(u'，', '.')
+            Contact.objects.filter(friend__in=userid.split(','), owner=request.user).update(black=True)
             return Response({'detail': '成功'}, status=status.HTTP_200_OK)
         else:
-            return Response({'detail': '不支持该方法'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': '不支持 GET 方法'}, status=status.HTTP_400_BAD_REQUEST)
 
     @list_route(methods=['GET', 'POST'])
     def contains(self, request, *args, **kwargs):
@@ -211,6 +214,9 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
 class BankcardViewSet(viewsets.ModelViewSet):
     '''
     银行卡信息
+
+    银行代码表，已经发送至各位邮件了
+
     '''
     serializer_class = BankcardSerializer
     permission_classes = (IsAuthenticated,)
@@ -227,14 +233,16 @@ class BlacklistViewSet(viewsets.ModelViewSet):
     黑名单
     -----
 
-    - 取消黑名单 POST /api/me/blacklist/{pk}
+    - 取消黑名单(批量) POST /api/me/blacklist/revert/
+    - 取消黑名单(单个) POST /api/me/blacklist/{pk}
     - POST参数: black = false
 
-
+    `hide 和 black 接口 psot 参数 userid 为多个 id 用 "," 隔开`
     '''
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
     permission_classes = (IsAuthenticated,)
+    lookup_field = 'friend_id'
 
     def get_queryset(self):
         queryset = self.queryset.filter(owner=self.request.user).filter(black=True)
@@ -252,6 +260,16 @@ class BlacklistViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+    @list_route(methods=['GET', 'POST'])
+    def revert(self, request, *args, **kwargs):
+        self.serializer_class = ContactHideSerializer
+        if request.method == 'POST':
+            userid = request.data['userid'].replace(u'，', '.')
+            Contact.objects.filter(friend__in=userid.split(','), owner=request.user).update(black=False)
+            return Response({'detail': '成功'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'detail': '不支持 GET 方法'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SettingsViewSet(RetrieveUpdateAPIView):

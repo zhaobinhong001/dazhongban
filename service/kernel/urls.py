@@ -5,11 +5,13 @@ from django.conf.urls import include, url
 from rest_framework.routers import DefaultRouter
 from rest_framework_swagger.views import get_swagger_view
 
+from service.kernel.views.scan import ScanViewSet
 from service.kernel.views.users import UsersViewSet
 
 router = DefaultRouter()
 
 router.register(r'users', UsersViewSet, base_name='users')
+router.register(r'scan', ScanViewSet, base_name='scan')
 # router.register(r'aaa', GoodsViewSet, base_name='aa')
 # router.register(r'first', FirstViewSet, base_name='first')
 # router.register(r'trade', TradeViewSet, base_name='trade')

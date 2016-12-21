@@ -6,6 +6,7 @@ import json
 import requests as req
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from rest_framework.authtoken.models import Token
 
 from service.consumer.utils import md5
 from service.trade.models import Contract, Transfer
@@ -52,49 +53,66 @@ def iddentity_verify(param=None):
     print ret.content
 
     if ret.status_code == 200:
-        open('iddentity_result.txt', 'w').write(ret.content)
         item = ret.json()
         item['cardNo'] = param['cardNo']
-        open('iddentity_input.txt', 'w').write(json.dumps(item))
         return item, True
 
-    return '认证服务器错误' + ret.content, False
+    return u'认证服务器错误' + ret.content, False
 
 
-def process_verify(uri, data, request):
-    receiver = get_user_model().objects.filter(mobile=data.get('mobile')).get()
+def process_verify(uri, data):
+    try:
+        token = Token.objects.filter(key=data.get('token')).get()
+    except Token.DoesNotExist:
+        return {'errors': 1, 'detail': '用户不存在'}
 
-    if not receiver:
-        return False
+    if data.get('token'):
+        del data['token']
 
     if '/contract/' in uri:
         if data.get('id'):
-            res = Contract.objects.get(id=data.get('id'))
-            del data['id']
+            try:
+                res = Contract.objects.get(id=data.get('id'))
+                res.receiver = token.user
+                del data['id']
+            except Contract.DoesNotExist:
+                return {'errors': 1, 'detail': '合约不存在'}
         else:
             res = Contract()
-            res.sender_id = 1
+            res.sender_id = token.user.pk
 
         for key, val in data.items():
             if hasattr(res, key):
                 setattr(res, key, val)
 
-        res.receiver = receiver
         res.save()
 
     elif '/transfer/' in uri:
+        if data.get('receiver_id'):
+            try:
+                receiver = get_user_model().objects.get(id=data.get('receiver_id'))
+                receiver_id = receiver.pk
+            except get_user_model().DoesNotExist:
+                return {'errors': 1, 'detail': '收款方不存在'}
+        else:
+            return {'errors': 1, 'detail': '收款方不能为空'}
+
         if data.get('id'):
-            res = Transfer.objects.get(id=data.get('id'))
-            del data['id']
+            try:
+                res = Transfer.objects.get(id=data.get('id'))
+                res.receiver = token.user
+                del data['id']
+            except Transfer.DoesNotExist:
+                return {'errors': 1, 'detail': '交易订单不存在'}
         else:
             res = Transfer()
-            res.sender_id = 1
+            res.sender_id = token.user.pk
+            res.receiver_id = receiver_id
 
         for key, val in data.items():
             if hasattr(res, key):
                 setattr(res, key, val)
 
-        res.receiver = receiver
         res.save()
 
-    return {'detail': '操作成功'}, True
+    return {'errors': 0, 'detail': {'uri': uri, 'id': res.id}}

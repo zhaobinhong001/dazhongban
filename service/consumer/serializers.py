@@ -120,6 +120,7 @@ class BankcardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bankcard
         exclude = ('owner',)
+        read_only_fields = ('cover',)
 
 
 class SettingsSerializer(serializers.ModelSerializer):

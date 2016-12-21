@@ -17,7 +17,7 @@ class QRToken(TimeStampedModel):
     '''
     # LOGIN_STATUS = (('error', u'失败'), ('success', u'成功'))
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, default='', blank=True, null=True)
-    # status = models.CharField(verbose_name=u'登录状态', blank=True, max_length=50, choices=LOGIN_STATUS)
+    # status = models.CharField(verbose_name=u'登录状态', max_length=50, default='', blank=True, null=True)
     key = models.CharField(verbose_name=u'扫码唯一标识', blank=True, max_length=50, default='')
 
     def generate_code(self):

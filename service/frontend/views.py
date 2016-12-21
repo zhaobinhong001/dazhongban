@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from cStringIO import StringIO
+
+import datetime
 import qrcode
 import short_url
+import time
 from django.http import HttpResponse
 from django.shortcuts import render
 from service.frontend.models import QRToken
@@ -47,18 +50,26 @@ def scan_login(request):
     # 生成url
     url = 'http://' + request.get_host() + '/check/%s/' % token.key
     url1 = 'http://' + request.get_host() + '/qs/%s/' % token.key
+    expiration = 'http://' + request.get_host() + '/expiration/'
     success = 'http://' + request.get_host() + '/success/'
 
-    return render(request, 'scanlogin.html', {'url': url, 'url1': url1, 'success': success})
+    return render(request, 'scanlogin.html', {'url': url, 'url1': url1, 'success': success, 'expiration': expiration})
 
 
 def check(request, key):
     # 查看扫码状态
+    obj = QRToken.objects.filter(key=key).get()
+    nowTime = int(time.mktime(datetime.datetime.now().timetuple()))
+    created = int(time.mktime(obj.created.timetuple()))
+    isexpiration = nowTime - created
+
     try:
-        obj = QRToken.objects.filter(key=key).get()
-        if obj.owner is None:
+        if isexpiration > 60:
+            return HttpResponse('408')
+        elif obj.owner is None:
             return HttpResponse('505')
-        return HttpResponse('201')
+        else:
+            return HttpResponse('201')
     except QRToken.DoesNotExist:
         raise Exception()
 
@@ -66,3 +77,8 @@ def check(request, key):
 def success(request):
     # 登陆成功返回的页面
     return render(request, 'success.html')
+
+
+def expiration(request):
+    # 登陆超时返回的页面
+    return render(request, 'expiration.html')

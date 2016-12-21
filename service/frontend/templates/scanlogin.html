@@ -43,9 +43,13 @@
                         case '201':
                             window.location.href = '{{ success }}';
                             break;
+                        case '408':
+                            window.location.href = '{{ expiration }}';
+                            break;
                         case '505':
                             setTimeout(a, 2000);
                             break;
+
                     }
                 }
 

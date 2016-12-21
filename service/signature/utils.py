@@ -63,11 +63,9 @@ def iddentity_verify(param=None):
 def process_verify(uri, data):
     try:
         token = Token.objects.filter(key=data.get('token')).get()
+        del data['token']
     except Token.DoesNotExist:
         return {'errors': 1, 'detail': '用户不存在'}
-
-    if data.get('token'):
-        del data['token']
 
     if '/contract/' in uri:
         if data.get('id'):
@@ -88,6 +86,16 @@ def process_verify(uri, data):
         res.save()
 
     elif '/transfer/' in uri:
+
+        type = data.get('type')
+        status = data.get('status')
+
+        if type:
+            return {'errors': 1, 'detail': 'type 不能为空'}
+
+        if status:
+            return {'errors': 1, 'detail': 'status 不能为空'}
+
         if data.get('receiver_id'):
             try:
                 receiver = get_user_model().objects.get(id=data.get('receiver_id'))
@@ -106,8 +114,15 @@ def process_verify(uri, data):
                 return {'errors': 1, 'detail': '交易订单不存在'}
         else:
             res = Transfer()
-            res.sender_id = token.user.pk
-            res.receiver_id = receiver_id
+
+            if type == 'transfer':
+                res.sender_id = token.user.pk
+                res.receiver_id = receiver_id
+            elif type == 'receiver':
+                res.sender_id = receiver_id
+                res.receiver_id = token.user.pk
+            elif type == 'thirty':
+                pass
 
         for key, val in data.items():
             if hasattr(res, key):
@@ -115,4 +130,4 @@ def process_verify(uri, data):
 
         res.save()
 
-    return {'errors': 0, 'detail': {'uri': uri, 'id': res.id}}
+    return {'errors': 0, 'detail': {'uri': uri, 'id': res.id, 'type': res.type, 'status': res.status}}

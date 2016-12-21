@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from model_utils import Choices
 from model_utils.models import TimeStampedModel, StatusModel
 
 CONSUMPTION_TYPE = (
@@ -45,7 +46,8 @@ class Contract(TimeStampedModel, StatusModel):
 
 
 # 消费表
-class Transfer(TimeStampedModel):
+class Transfer(TimeStampedModel, StatusModel):
+    STATUS = Choices(('', '无状态'), ('agree', '同意'), ('reject', '拒绝'))
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='sender')
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='receiver')
 

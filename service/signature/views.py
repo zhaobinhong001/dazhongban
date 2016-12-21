@@ -53,19 +53,8 @@ class VerifyViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
         body = process_verify(uri, data)
 
         # 服务签名
-        if body:
-            resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=json.dumps(body))
-
-            open('sign.txt', 'w').write(resp.content)
-            open('status_code.txt', 'w').write(resp.status_code)
-
-            if resp.status_code == 200:
-                return HttpResponse(resp.content)
-            else:
-                return HttpResponse('验签服务器异常', status=status.HTTP_400_BAD_REQUEST)
-
-        # 服务器异常提示
-        return Response({'detail': '数据处理失败'}, status=status.HTTP_400_BAD_REQUEST)
+        resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=json.dumps(body))
+        return HttpResponse(resp.content)
 
 
 class BankcardViewSet(viewsets.GenericViewSet):

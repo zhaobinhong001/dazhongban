@@ -18,6 +18,9 @@ class ContractViewSet(viewsets.ModelViewSet):
     ('receipt', '收据'),
     ('borrow', '借条'),
     ('owe', '欠条'),
+
+    转账状态 status = ('', '无状态'), ('agree', '同意'), ('reject', '拒绝')
+    转账类型 type = ('transfer', '转账'),('receiver', '收款'),('thirty', '第三方'),
     '''
     queryset = Contract.objects.all()
     serializer_class = ContractSerializer

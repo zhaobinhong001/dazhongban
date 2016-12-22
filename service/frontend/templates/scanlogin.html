@@ -17,7 +17,7 @@
     <div class="loginPanel normalPanel">
         <div class="title">扫码登录</div>
         <div class="waiting panelContent">
-            <div class="wrp_code"><img class="qrcode lightBorder" src="{{ url1 }}">
+            <div class="wrp_code"><img class="qrcode lightBorder" src="{{ qrcode }}">
             </div>
             <div class="info">
                 <div class="status status_browser js_status normal" id="wx_default_tip">
@@ -32,24 +32,27 @@
         function a(c) {
             $.ajax({
                 type: "GET",
-                url: "{{ url }}",
+                url: "{{ scan }}",
                 cache: false,
+                dataType: 'json',
                 timeout: 2000,
-                success: function (code) {
-                    console.log(code);
-                    console.log("YZx3BrLzbA==");
+                success: function (data) {
+                    var data = eval('(' + data + ')');
+                    console.log(data.data);
 
-                    switch (code) {
-                        case '201':
-                            window.location.href = '{{ success }}';
+                    switch (data.data) {
+                        case 'done':
+                            window.location.href = '{{ done }}';
                             break;
-                        case '408':
-                            window.location.href = '{{ expiration }}';
+                        case 'cancel':
+                            window.location.href = '{{ cancel }}';
                             break;
-                        case '505':
+                        case 'timeout':
+                            window.location.reload();
+                            break;
+                        case 'scan':
                             setTimeout(a, 2000);
                             break;
-
                     }
                 }
 

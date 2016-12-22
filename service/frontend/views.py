@@ -33,7 +33,7 @@ def q(request, uid):
 
 def qs(request, key):
     # 生成扫码登陆图片
-    url = 'http://' + request.get_host() + '/api/scan/%s/binding_code/' % key
+    url = 'http://' + request.get_host() + '/api/scan/%s/scan/' % key
     img = generate_qrcode(url)
     buf = StringIO()
     img.save(buf)
@@ -48,37 +48,36 @@ def scan_login(request):
     token.save()
 
     # 生成url
-    url = 'http://' + request.get_host() + '/check/%s/' % token.key
-    url1 = 'http://' + request.get_host() + '/qs/%s/' % token.key
-    expiration = 'http://' + request.get_host() + '/expiration/'
-    success = 'http://' + request.get_host() + '/success/'
+    done = 'http://' + request.get_host() + '/api/scan/%s/done/' % token.key
+    scan = 'http://' + request.get_host() + '/api/scan/%s/scan/' % token.key
+    cancel = 'http://' + request.get_host() + '/api/scan/%s/cancel/' % token.key
+    qrcode = 'http://' + request.get_host() + '/qs/%s/' % token.key
+    return render(request, 'scanlogin.html',
+                  {'done': done, 'scan': scan, 'cancel': cancel,  'qrcode': qrcode})
 
-    return render(request, 'scanlogin.html', {'url': url, 'url1': url1, 'success': success, 'expiration': expiration})
-
-
-def check(request, key):
-    # 查看扫码状态
-    obj = QRToken.objects.filter(key=key).get()
-    nowTime = int(time.mktime(datetime.datetime.now().timetuple()))
-    created = int(time.mktime(obj.created.timetuple()))
-    isexpiration = nowTime - created
-
-    try:
-        if isexpiration > 60:
-            return HttpResponse('408')
-        elif obj.owner is None:
-            return HttpResponse('505')
-        else:
-            return HttpResponse('201')
-    except QRToken.DoesNotExist:
-        raise Exception()
-
-
-def success(request):
-    # 登陆成功返回的页面
-    return render(request, 'success.html')
-
-
-def expiration(request):
-    # 登陆超时返回的页面
-    return render(request, 'expiration.html')
+# def check(request, key):
+#     # 查看扫码状态
+#     obj = QRToken.objects.filter(key=key).get()
+#     nowTime = int(time.mktime(datetime.datetime.now().timetuple()))
+#     created = int(time.mktime(obj.created.timetuple()))
+#     isexpiration = nowTime - created
+#
+#     try:
+#         if isexpiration > 60:
+#             return HttpResponse('408')
+#         elif obj.owner is None:
+#             return HttpResponse('505')
+#         else:
+#             return HttpResponse('201')
+#     except QRToken.DoesNotExist:
+#         raise Exception()
+#
+#
+# def success(request):
+#     # 登陆成功返回的页面
+#     return render(request, 'success.html')
+#
+#
+# def expiration(request):
+#     # 登陆超时返回的页面
+#     return render(request, 'expiration.html')

@@ -12,9 +12,7 @@ from suit_dashboard.box import Box, Item
 from service.kernel.models.enterprise import EnterpriseUser
 
 # 用户信息
-userlen = get_user_model().objects.all().count(
-
-)
+userlen = get_user_model().objects.all().count()
 today = datetime.date.today()
 yesterday = today - datetime.timedelta(days=1)
 weekday = today - datetime.timedelta(days=7)

@@ -13,7 +13,7 @@ from service.frontend.models import QRToken
 
 from django.conf import settings
 
-from service.kernel.serializers.scan import ScanSerializer
+from service.kernel.serializers.shared import ScanSerializer
 
 
 class QRLoginViewSet(viewsets.GenericViewSet):

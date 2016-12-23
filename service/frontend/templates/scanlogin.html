@@ -29,7 +29,7 @@
                 <i class="status_icon icon38_msg succ"></i>
                 <div class="status_txt">
                     <h4>扫描成功</h4>
-                    <p>请在微信中点击确认即可登录</p>
+                    <p>请在中点击确认即可登录</p>
                 </div>
             </div>
             <div class="status status_fail js_status" style="display:none" id="wx_after_cancel">
@@ -44,7 +44,7 @@
 </div>
 <script type="text/javascript">
     function login() {
-        window.location.href = '/api/qrlogin/{{ key }}/done/';
+        window.location.href = '/api/qrlogin/{{ key }}/scan/';
 
     }
     !function () {
@@ -60,15 +60,15 @@
 
                     switch (data.status) {
                         case 'done':
-                            $(".js_status").hide();
-                            $("#wx_after_scan").show();
-                            setTimeout(login, 2000);
+                            window.location.href = '/api/qrlogin/{{ key }}/done/';
                             break;
                         case 'cancel':
                             window.location.href = '/api/qrlogin/{{ key }}/cancel/';
                             break;
                         case 'scan':
-                            window.location.href = '/api/qrlogin/{{ key }}/scan/';
+                            $(".js_status").hide();
+                            $("#wx_after_scan").show();
+                            setTimeout(login, 5000);
                             break;
                         case 'timeout':
                         {#                            $('#qrcode').attr('src',data.key);#}

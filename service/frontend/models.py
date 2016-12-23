@@ -1,4 +1,4 @@
-# coding:utf-8
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 import hashlib
@@ -7,18 +7,19 @@ import random
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from model_utils.models import TimeStampedModel
+from model_utils import Choices
+from model_utils.models import TimeStampedModel, StatusModel
 
 
-class QRToken(TimeStampedModel):
+class QRToken(TimeStampedModel, StatusModel):
     '''
     扫码登陆
 
     '''
-    # LOGIN_STATUS = (('error', u'失败'), ('success', u'成功'))
+    STATUS = Choices('init', 'scan', 'done', 'cancel')
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, default='', blank=True, null=True)
-    # status = models.CharField(verbose_name=u'登录状态', blank=True, max_length=50, choices=LOGIN_STATUS)
     key = models.CharField(verbose_name=u'扫码唯一标识', blank=True, max_length=50, default='')
+    raw = models.TextField(verbose_name=u'原始数据')
 
     def generate_code(self):
         randomNum = str(random.randint(0, 999999)).zfill(6)

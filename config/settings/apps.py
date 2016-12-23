@@ -332,3 +332,5 @@ BANKID = (
     ('DYLSCZ', u'东营莱商村镇银行'),
     ('HZUB', u'杭州联合农村商业银行'),
 )
+
+SCAN_TIMEOUT = 60

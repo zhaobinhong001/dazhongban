@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 
-from .views import ContractViewSet, TransferViewSet
+from .views import TransferViewSet
+from service.kernel.views.consumption import ContractViewSet
 
 router = DefaultRouter()
 router.register(r'transfer', TransferViewSet, base_name='transfer')

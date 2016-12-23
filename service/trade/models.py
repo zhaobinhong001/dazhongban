@@ -47,7 +47,7 @@ class Contract(TimeStampedModel, StatusModel):
 
 # 消费表
 class Transfer(TimeStampedModel, StatusModel):
-    STATUS = Choices(('', '无状态'), ('agree', '同意'), ('reject', '拒绝'))
+    STATUS = Choices(('normal', '无状态'), ('agree', '同意'), ('reject', '拒绝'))
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='sender')
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='receiver')
 

@@ -43,10 +43,10 @@
     </div>
 </div>
 <script type="text/javascript">
-{#    function login() {#}
-{#        window.location.href = '/api/qrlogin/{{ key }}/scan/';#}
-{##}
-{#    }#}
+    {#    function login() {#}
+    {#        window.location.href = '/api/qrlogin/{{ key }}/scan/';#}
+    {##}
+    {#    }#}
     !function () {
         function a() {
             $.ajax({
@@ -63,7 +63,9 @@
                             window.location.href = '/api/qrlogin/{{ key }}/done/';
                             break;
                         case 'cancel':
-                            window.location.href = '/api/qrlogin/{{ key }}/cancel/';
+                            $(".js_status").hide();
+                            $("#wx_after_cancel").show();
+                            setTimeout(a, 2000);
                             break;
                         case 'scan':
                             $(".js_status").hide();

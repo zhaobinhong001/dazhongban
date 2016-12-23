@@ -1,9 +1,9 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
-from ..models.consumption import Consumption
+from service.kernel.models.consumption import Contract
 
 class ConsumptionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Consumption
-        fields = '__all__'
+        model = Contract
+        exclude = ('sender', 'receiver')

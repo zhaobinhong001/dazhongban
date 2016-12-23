@@ -96,14 +96,16 @@ def process_verify(uri, data):
         if not status:
             return {'errors': 1, 'detail': 'status 不能为空'}
 
-        if data.get('receiver_id'):
-            try:
-                receiver = get_user_model().objects.get(id=data.get('receiver_id'))
-                receiver_id = receiver.pk
-            except get_user_model().DoesNotExist:
-                return {'errors': 1, 'detail': '收款方不存在'}
-        else:
-            return {'errors': 1, 'detail': '收款方不能为空'}
+        # 转账时收款方不能为空
+        if data.get('type') != 'receiver':
+            if data.get('receiver_id'):
+                try:
+                    receiver = get_user_model().objects.get(id=data.get('receiver_id'))
+                    receiver_id = receiver.pk
+                except get_user_model().DoesNotExist:
+                    return {'errors': 1, 'detail': '收款方不存在'}
+            else:
+                return {'errors': 1, 'detail': '收款方不能为空'}
 
         if data.get('id'):
             try:

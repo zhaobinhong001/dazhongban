@@ -10,8 +10,8 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/impowerApp29579a.css">
-    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <link rel="stylesheet" href="{{ STATIC_URL }}frontend/css/impowerApp29579a.css">
+    <script src="{{ STATIC_URL }}frontend/js/jquery.min.js"></script>
 </head>
 <body style="background-color: rgb(51, 51, 51); padding: 50px;">
 <div class="main impowerBox">
@@ -43,10 +43,10 @@
     </div>
 </div>
 <script type="text/javascript">
-    function login() {
-        window.location.href = '/api/qrlogin/{{ key }}/scan/';
-
-    }
+{#    function login() {#}
+{#        window.location.href = '/api/qrlogin/{{ key }}/scan/';#}
+{##}
+{#    }#}
     !function () {
         function a() {
             $.ajax({
@@ -68,7 +68,7 @@
                         case 'scan':
                             $(".js_status").hide();
                             $("#wx_after_scan").show();
-                            setTimeout(login, 5000);
+                            setTimeout(a, 2000);
                             break;
                         case 'timeout':
                         {#                            $('#qrcode').attr('src',data.key);#}

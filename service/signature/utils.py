@@ -90,8 +90,11 @@ def process_verify(uri, data):
         type = data.get('type')
         status = data.get('status')
 
-        if type:
+        if not type:
             return {'errors': 1, 'detail': 'type 不能为空'}
+
+        if not status:
+            return {'errors': 1, 'detail': 'status 不能为空'}
 
         if data.get('receiver_id'):
             try:

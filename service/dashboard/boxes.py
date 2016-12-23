@@ -3,9 +3,197 @@
 
 from __future__ import unicode_literals
 
+import time
+
+import datetime
+from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
 from suit_dashboard.box import Box, Item
+from service.kernel.models.enterprise import EnterpriseUser
 
+# 用户信息
+userlen = get_user_model().objects.all().count()
+today = datetime.date.today()
+yesterday = today - datetime.timedelta(days=1)
+weekday = today - datetime.timedelta(days=7)
+
+Yesterdaylen = get_user_model().objects.filter(date_joined__range=(yesterday, today)).count()
+weeklen = get_user_model().objects.filter(date_joined__range=(weekday, today)).count()
+
+userTitle = '总用户数量'
+
+
+# pie chart
+
+# @title        图标题
+# @href         链接
+# @hislen       历史总数
+# @yesterdaylen 昨日新增
+# @weeklen      本周新增
+def pieOption(title, href, hislen, yesterdaylen, weeklen):
+    data = {
+        'chart': {
+            'type': 'pie',
+            'height': 300,
+        },
+        'colors': [
+            'red',
+            'blue',
+            'yellow',
+            '#1aadce',
+            '#492970',
+            '#f28f43',
+            '#77a1e5',
+            '#c42525',
+            '#a6c96a'
+        ],
+        'title': {
+            'text': _('')
+        },
+        'credits': {
+            'enabled': True,
+            'text': _(title),
+            'href': href,
+            'position': {
+                'align': 'center',
+                'verticalAlign': 'bottom',
+                # 'x':100,
+                # 'y': -10
+            },
+
+        },
+        'tooltip': {
+            'percentageDecimals': 1
+        },
+        'legend': {
+            'enabled': False
+        },
+        'plotOptions': {
+            'pie': {
+                'allowPointSelect': True,
+                'cursor': 'pointer',
+                # 'dataLabels': {
+                #     'enabled': True,
+                #     'format': '<b>{point.name}</b>: {point.percentage:.1f} %',
+                # }
+            },
+            'series': {
+                'stacking': '',  # normal
+            }
+        },
+        'series': [
+            {
+                "name": "Brands",
+                "colorByPoint": True,
+                "data": [
+                    {
+                        "name": _('历史总数'),
+                        "y": hislen
+                    },
+                    {
+                        "name": _("本周新增"),
+                        "y": weeklen,
+                        "sliced": True,
+                        "selected": True
+                    },
+                    {
+                        "name": _("昨日新增"),
+                        "y": yesterdaylen
+                    }
+                ]
+            }
+        ]
+    }
+    return data
+
+
+# line chart
+# user 用户信息
+now = datetime.datetime.now()
+today_year = now.year
+last_year = int(now.year) - 1
+today_year_months = range(1, now.month + 1)
+last_year_months = range(now.month + 1, 13)
+data_list_lasts = []
+
+for last_year_month in last_year_months:
+    date_list = '%s-%s' % (last_year, last_year_month)
+
+    data_list_lasts.append(date_list)
+
+data_list_todays = []
+
+for today_year_month in today_year_months:
+    data_list = '%s-%s' % (today_year, today_year_month)
+
+    data_list_todays.append(data_list)
+
+data_year_month = data_list_lasts + data_list_todays
+
+# ina = get_user_model().objects.filter(date_joined__year='2016', date_joined__month='12')
+ary = []
+
+for myd in data_year_month:
+    ye = myd.split('-')
+    ina = get_user_model().objects.filter(date_joined__year=ye[0], date_joined__month=ye[1]).count()
+    ary.append(ina)
+
+
+# @title 线图标题
+# @ary   12个月对应数据 type：array
+
+def lineOption(title, ary, month=data_year_month, xAxis='时间', yAxis='数量', tooltipVal='人', lineName='用户量'):
+    data = {
+        "title": {
+            "text": _(title),
+            "x": -20
+        },
+        "subtitle": {
+            "text": "",
+            "x": -20
+        },
+        "xAxis": {
+            'title': {
+                'text': xAxis
+            },
+            "categories": month
+        },
+        "yAxis": {
+            "title": {
+                "text": yAxis
+            },
+            "plotLines": [
+                {
+                    "value": 0,
+                    "width": 1,
+                    "color": "#808080"
+                }
+            ]
+        },
+        'credits': {
+            'enabled': False,
+
+        },
+        "tooltip": {
+            "valueSuffix": _(tooltipVal)
+        },
+        "legend": {
+            "layout": "vertical",
+            "align": "right",
+            "verticalAlign": "middle",
+            "borderWidth": 0
+        },
+        "series": [
+            {
+                "name": _(lineName),
+                "data": ary
+            }
+        ]
+    }
+    return data
+
+
+# 总用户数量 chart date
 
 class User(Box):
     # def get_title(self):
@@ -65,79 +253,7 @@ class User(Box):
         #     cpu_color = orange
 
         # Now create a chart to display CPU and RAM usage
-        chart_options = {
-            'chart': {
-                'type': 'pie',
-                'height': 300,
-            },
-            'colors': [
-                'red',
-                'blue',
-                'yellow',
-                '#1aadce',
-                '#492970',
-                '#f28f43',
-                '#77a1e5',
-                '#c42525',
-                '#a6c96a'
-            ],
-            'title': {
-                'text': _('')
-            },
-            'credits': {
-                'enabled': True,
-                'text': _('总用户数量'),
-                'href': 'data',
-                'position': {
-                    'align': 'center',
-                    'verticalAlign': 'bottom',
-                    # 'x':100,
-                    # 'y': -10
-                },
-
-            },
-            'tooltip': {
-                'percentageDecimals': 1
-            },
-            'legend': {
-                'enabled': False
-            },
-            'plotOptions': {
-                'pie': {
-                    'allowPointSelect': True,
-                    'cursor': 'pointer',
-                    # 'dataLabels': {
-                    #     'enabled': True,
-                    #     'format': '<b>{point.name}</b>: {point.percentage:.1f} %',
-                    # }
-                },
-                'series': {
-                    'stacking': '',  # normal
-                }
-            },
-            'series': [
-                {
-                    "name": "Brands",
-                    "colorByPoint": True,
-                    "data": [
-                        {
-                            "name": _('历史总数'),
-                            "y": 70
-                        },
-                        {
-                            "name": _("本周新增"),
-                            "y": 40,
-                            "sliced": True,
-                            "selected": True
-                        },
-                        {
-                            "name": _("昨日新增"),
-                            "y": 10
-                        }
-                    ]
-                }
-            ]
-        }
+        chart_options = pieOption(userTitle, 'data', userlen, Yesterdaylen, weeklen)
 
         # Create the chart item
         item_chart = Item(
@@ -150,72 +266,26 @@ class User(Box):
         return [item_chart]
 
 
+class BasicLine(Box):
+    def get_items(self):
+        chart_options = lineOption('总用户', ary, data_year_month)
+
+        # Create the chart item
+        item_chart = Item(
+            html_id='basicLine',
+            # name=_('数据统计'),
+            value=chart_options,
+            display=Item.AS_HIGHCHARTS)
+
+        # Return the list of items
+        return [item_chart]
+
+
+# 已认证用户pie chart date
+# pieOption('已认证用户量','aution',userlen, Yesterdaylen, weeklen)
 class Authentication(Box):
     def get_items(self):
-        chart_options = {
-            'chart': {
-                'type': 'pie',
-                'height': 300,
-            },
-            'title': {
-                'text': _('')
-            },
-            'credits': {
-                'enabled': True,
-                'text': _('已认证用户量'),
-                'href': 'data',
-                'position': {
-                    'align': 'center',
-                    'verticalAlign': 'bottom',
-                    # 'x':100,
-                    # 'y': -10
-                },
-
-            },
-            'tooltip': {
-                'percentageDecimals': 1
-            },
-            'legend': {
-                'enabled': False
-            },
-            'plotOptions': {
-                'pie': {
-                    'allowPointSelect': True,
-                    'cursor': 'pointer',
-                    # 'dataLabels': {
-                    #     'enabled': True,
-                    #     'format': '<b>{point.name}</b>: {point.percentage:.1f} %',
-                    # }
-                },
-                'series': {
-                    'stacking': '',  # normal
-                }
-            },
-            'colors': ['#058DC7', '#50B432', '#ED561B', '#DDDF  00',
-                '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
-            'series': [
-                {
-                    "name": "Brands",
-                    "colorByPoint": True,
-                    "data": [
-                        {
-                            "name": _('历史总数'),
-                            "y": 100
-                        },
-                        {
-                            "name": _("本周新增"),
-                            "y": 40,
-                            "sliced": True,
-                            "selected": True
-                        },
-                        {
-                            "name": _("昨日新增"),
-                            "y": 10
-                        }
-                    ]
-                }
-            ]
-        }
+        chart_options = pieOption('已认证用户量', 'aution', userlen, Yesterdaylen, weeklen)
 
         # Create the chart item
         item_chart = Item(
@@ -228,72 +298,35 @@ class Authentication(Box):
         return [item_chart]
 
 
+# 已认证用户line chart date
+# lineOption('已认证用户量', ary, data_year_month)
+class AutionLine(Box):
+    def get_items(self):
+        chart_options = lineOption('已认证用户量', ary, data_year_month)
+
+        # Create the chart item
+        item_chart = Item(
+            html_id='autionLine',
+            # name=_('数据统计'),
+            value=chart_options,
+            display=Item.AS_HIGHCHARTS)
+
+        # Return the list of items
+        return [item_chart]
+
+
+# 总入驻企业数量 chart date
+
+# 入驻企业信息
+entlen = EnterpriseUser.objects.all().count()
+yesterdayenlen = EnterpriseUser.objects.filter(settled_date__range=(yesterday, today)).count()
+weekenlen = EnterpriseUser.objects.filter(settled_date__range=(weekday, today)).count()
+enterpriseUserTitle = '总入驻企业数量'
+
+
 class SettledEnterprise(Box):
     def get_items(self):
-        chart_options = {
-            'chart': {
-                'type': 'pie',
-                'height': 300,
-            },
-            'title': {
-                'text': _('')
-            },
-            'credits': {
-                'enabled': True,
-                'text': _('总入驻企业数量'),
-                'href': 'data',
-                'position': {
-                    'align': 'center',
-                    'verticalAlign': 'bottom',
-                    # 'x':100,
-                    # 'y': -10
-                },
-
-            },
-            'tooltip': {
-                'percentageDecimals': 1
-            },
-            'legend': {
-                'enabled': False
-            },
-            'plotOptions': {
-                'pie': {
-                    'allowPointSelect': True,
-                    'cursor': 'pointer',
-                    # 'dataLabels': {
-                    #     'enabled': True,
-                    #     'format': '<b>{point.name}</b>: {point.percentage:.1f} %',
-                    # }
-                },
-                'series': {
-                    'stacking': '',  # normal
-                }
-            },
-            'colors': ['#058DC7', '#50B432', '#ED561B', '#DDDF  00',
-                '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
-            'series': [
-                {
-                    "name": "Brands",
-                    "colorByPoint": True,
-                    "data": [
-                        {
-                            "name": _('历史总数'),
-                            "y": 200
-                        },
-                        {
-                            "name": _("本周新增"),
-                            "y": 40,
-                            "sliced": True,
-                            "selected": True
-                        },
-                        {
-                            "name": _("昨日新增"),
-                            "y": 10
-                        }
-                    ]
-                }
-            ]
-        }
+        chart_options = pieOption(enterpriseUserTitle, 'seten', entlen, yesterdayenlen, weekenlen)
 
         # Create the chart item
         item_chart = Item(
@@ -306,72 +339,38 @@ class SettledEnterprise(Box):
         return [item_chart]
 
 
+# 入驻企业数量 line data
+
+setenTitle = '总入驻企业数量'
+setenAry = []
+for seten in data_year_month:
+    seten = seten.split('-')
+    setA = EnterpriseUser.objects.filter(settled_date__year=seten[0], settled_date__month=seten[1]).count()
+    setenAry.append(setA)
+
+
+# create 入驻企业数量 line
+class SetEnLine(Box):
+    def get_items(self):
+        chart_options = lineOption(setenTitle, setenAry, data_year_month)
+
+        # Create the chart item
+        item_chart = Item(
+            html_id='setEnLine',
+            # name=_('数据统计'),
+            value=chart_options,
+            display=Item.AS_HIGHCHARTS)
+
+        # Return the list of items
+        return [item_chart]
+
+
+# 用户签名次数 pie chart date
+# pieOption('用户签名次数','sign',userlen, Yesterdaylen, weeklen)
+
 class Signatures(Box):
     def get_items(self):
-        chart_options = {
-            'chart': {
-                'type': 'pie',
-                'height': 300,
-            },
-            'title': {
-                'text': _('')
-            },
-            'credits': {
-                'enabled': True,
-                'text': _('用户签名次数'),
-                'href': 'data',
-                'position': {
-                    'align': 'center',
-                    'verticalAlign': 'bottom',
-                    # 'x':100,
-                    # 'y': -10
-                },
-
-            },
-            'tooltip': {
-                'percentageDecimals': 1
-            },
-            'legend': {
-                'enabled': False
-            },
-            'plotOptions': {
-                'pie': {
-                    'allowPointSelect': True,
-                    'cursor': 'pointer',
-                    # 'dataLabels': {
-                    #     'enabled': True,
-                    #     'format': '<b>{point.name}</b>: {point.percentage:.1f} %',
-                    # }
-                },
-                'series': {
-                    'stacking': '',  # normal
-                }
-            },
-            'colors': ['#058DC7', '#50B432', '#ED561B', '#DDDF  00',
-                '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
-            'series': [
-                {
-                    "name": "Brands",
-                    "colorByPoint": True,
-                    "data": [
-                        {
-                            "name": _('历史总数'),
-                            "y": 70
-                        },
-                        {
-                            "name": _("本周新增"),
-                            "y": 40,
-                            "sliced": True,
-                            "selected": True
-                        },
-                        {
-                            "name": _("昨日新增"),
-                            "y": 10
-                        }
-                    ]
-                }
-            ]
-        }
+        chart_options = pieOption('用户签名次数', 'sign', userlen, Yesterdaylen, weeklen)
 
         # Create the chart item
         item_chart = Item(
@@ -384,72 +383,28 @@ class Signatures(Box):
         return [item_chart]
 
 
+# 用户签名次数 line chart date
+# lineOption('用户签名次数', setenAry, data_year_month,  yAxis='次')
+class SignLine(Box):
+    def get_items(self):
+        chart_options = lineOption('用户签名次数', setenAry, data_year_month, yAxis='次')
+
+        # Create the chart item
+        item_chart = Item(
+            html_id='signLine',
+            # name=_('数据统计'),
+            value=chart_options,
+            display=Item.AS_HIGHCHARTS)
+
+        # Return the list of items
+        return [item_chart]
+
+
+# 用户取证次数 pie chart date
+# pieOption('用户取证次数', 'evid', userlen, Yesterdaylen, weeklen)
 class Evidences(Box):
     def get_items(self):
-        chart_options = {
-            'chart': {
-                'type': 'pie',
-                'height': 300,
-            },
-            'title': {
-                'text': _('')
-            },
-            'credits': {
-                'enabled': True,
-                'text': _('用户取证次数'),
-                'href': 'data',
-                'position': {
-                    'align': 'center',
-                    'verticalAlign': 'bottom',
-                    # 'x':100,
-                    # 'y': -10
-                },
-
-            },
-            'tooltip': {
-                'percentageDecimals': 1
-            },
-            'legend': {
-                'enabled': False
-            },
-            'plotOptions': {
-                'pie': {
-                    'allowPointSelect': True,
-                    'cursor': 'pointer',
-                    # 'dataLabels': {
-                    #     'enabled': True,
-                    #     'format': '<b>{point.name}</b>: {point.percentage:.1f} %',
-                    # }
-                },
-                'series': {
-                    'stacking': '',  # normal
-                }
-            },
-            'colors': ['#058DC7', '#50B432', '#ED561B', '#DDDF  00',
-                '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
-            'series': [
-                {
-                    "name": "Brands",
-                    "colorByPoint": True,
-                    "data": [
-                        {
-                            "name": _('历史总数'),
-                            "y": 70
-                        },
-                        {
-                            "name": _("本周新增"),
-                            "y": 40,
-                            "sliced": True,
-                            "selected": True
-                        },
-                        {
-                            "name": _("昨日新增"),
-                            "y": 10
-                        }
-                    ]
-                }
-            ]
-        }
+        chart_options = pieOption('用户取证次数', 'evid', userlen, Yesterdaylen, weeklen)
 
         # Create the chart item
         item_chart = Item(
@@ -462,85 +417,15 @@ class Evidences(Box):
         return [item_chart]
 
 
-class BasicLine(Box):
+# 用户取证次数 line chart date
+# lineOption('用户取证次数', setenAry, data_year_month,  yAxis='次')
+class EvidLine(Box):
     def get_items(self):
-        chart_options = {
-            "title": {
-                "text": _('总用户数量'),
-                "x": -20
-            },
-            "subtitle": {
-                "text": "",
-                "x": -20
-            },
-            "xAxis": {
-                'title': {
-                    'text': '时间'
-                },
-                "categories": [
-                    "Jan",
-                    "Feb",
-                    "Mar",
-                    "Apr",
-                    "May",
-                    "Jun",
-                    "Jul",
-                    "Aug",
-                    "Sep",
-                    "Oct",
-                    "Nov",
-                    "Dec"
-                ]
-            },
-            "yAxis": {
-                "title": {
-                    "text": "数量"
-                },
-                "plotLines": [
-                    {
-                        "value": 0,
-                        "width": 1,
-                        "color": "#808080"
-                    }
-                ]
-            },
-            'credits': {
-                'enabled': False,
-
-            },
-            "tooltip": {
-                "valueSuffix": _('人')
-            },
-            "legend": {
-                "layout": "vertical",
-                "align": "right",
-                "verticalAlign": "middle",
-                "borderWidth": 0
-            },
-            "series": [
-                {
-                    "name": _('用户量'),
-                    "data": [
-                        7,
-                        6.9,
-                        9.5,
-                        14.5,
-                        18.2,
-                        21.5,
-                        25.2,
-                        26.5,
-                        23.3,
-                        18.3,
-                        13.9,
-                        9.6
-                    ]
-                }
-            ]
-        }
+        chart_options = lineOption('用户取证次数', setenAry, data_year_month, yAxis='次')
 
         # Create the chart item
         item_chart = Item(
-            html_id='basicLine',
+            html_id='evidLine',
             # name=_('数据统计'),
             value=chart_options,
             display=Item.AS_HIGHCHARTS)

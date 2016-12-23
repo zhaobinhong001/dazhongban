@@ -7,10 +7,12 @@ from rest_framework_swagger.views import get_swagger_view
 
 from service.kernel.views.scan import QRLoginViewSet
 from service.kernel.views.users import UsersViewSet
+from service.kernel.views.bootstrap import VersionViewSet
 
 router = DefaultRouter()
 
 router.register(r'users', UsersViewSet, base_name='users')
+router.register(r'version', VersionViewSet, base_name='version')
 router.register(r'qrlogin', QRLoginViewSet, base_name='qrlogin')
 # router.register(r'aaa', GoodsViewSet, base_name='aa')
 # router.register(r'first', FirstViewSet, base_name='first')

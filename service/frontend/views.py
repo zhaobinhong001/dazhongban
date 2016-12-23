@@ -57,7 +57,7 @@ def scan_login(request):
     done = 'http://' + request.get_host() + '/api/scan/%s/done/' % token.key
     scan = 'http://' + request.get_host() + '/api/scan/%s/scan/' % token.key
     cancel = 'http://' + request.get_host() + '/api/scan/%s/cancel/' % token.key
-    check = 'http://' + request.get_host() + '/api/scan/%s/_check/' % token.key
+    check = 'http://' + request.get_host() + '/api/scan/%s/check/' % token.key
 
     # 写入数据库
     token.raw = {'type': 'qrlogin', 'data': json.dumps({'done': done, 'scan': scan, 'cancel': cancel}).encode('hex')}

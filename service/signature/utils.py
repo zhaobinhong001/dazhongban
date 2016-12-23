@@ -93,9 +93,6 @@ def process_verify(uri, data):
         if type:
             return {'errors': 1, 'detail': 'type 不能为空'}
 
-        if status:
-            return {'errors': 1, 'detail': 'status 不能为空'}
-
         if data.get('receiver_id'):
             try:
                 receiver = get_user_model().objects.get(id=data.get('receiver_id'))
@@ -130,4 +127,4 @@ def process_verify(uri, data):
 
         res.save()
 
-    return {'errors': 0, 'detail': {'uri': uri, 'id': res.id, 'type': res.type, 'status': res.status}}
+    return {'errors': 0, 'detail': {'type': res.type, 'data': {'status': res.status, 'uri': uri, 'id': res.id}}}

@@ -79,6 +79,10 @@ class Identity(TimeStampedModel):
     def __str__(self):
         return self.__unicode__()
 
+    def save(self, *args, **kwargs):
+        self.owner.update(level=self.level)
+        super(self.__class__, self).save(*args, **kwargs)
+
     class Meta:
         verbose_name = u'身份认证'
         verbose_name_plural = u'身份认证'

@@ -21,7 +21,7 @@ from url_filter.integrations.drf import DjangoFilterBackend
 
 from service.consumer.models import Bankcard
 from service.kernel.contrib.utils.hashlib import md5
-from service.kernel.utils.bank_random import bankcard
+from service.kernel.utils.bank import bankcard
 from service.signature.utils import iddentity_verify, fields, process_verify
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
@@ -144,6 +144,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
             errors['cardNo'] = _('银行卡不能为空')
 
         certId = re.compile(r'^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$')
+
         if not certId.match(request.data.get('certId')):
             errors['certId'] = _('证件号码格式错误')
 
@@ -151,10 +152,6 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
         if not mobile_re.match(request.data.get('phone')):
             errors['phone'] = _('电话格式不正确')
-
-        # cardNo = re.compile(r'^(\d{16}|\d{19})$')
-        # if not cardNo.match(request.data.get('cardNo')):
-        #     errors['carNo'] = _('银行卡格式不正确')
 
         if len(errors):
             return Response({'detail': errors}, status=status.HTTP_400_BAD_REQUEST)

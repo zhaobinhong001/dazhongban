@@ -68,3 +68,17 @@ class Transfer(TimeStampedModel, StatusModel):
     class Meta:
         verbose_name = _(u'消费记录')
         verbose_name_plural = _(u'消费记录')
+
+
+class Purchased(TimeStampedModel):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='purchased')
+
+    def __unicode__(self):
+        return self.signs
+
+    def __str__(self):
+        return self.__unicode__()
+
+    class Meta:
+        verbose_name = u'消费记录'
+        verbose_name_plural = u'消费记录'

@@ -3,11 +3,9 @@ before_script:
 
 rspec:
   script:
-<<<<<<< HEAD
     - python manage.py runserver
-=======
     - python manage.py test
->>>>>>> 584b54b3cf0c7cef63f37e2246f9c0890069b36d
+
 
 rubocop:
   script:

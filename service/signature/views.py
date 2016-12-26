@@ -207,7 +207,7 @@ class CertificateViewSet(GenericViewSet):
     def create(self, request, *args, **kwargs):
         result = requests.post(settings.VERIFY_GATEWAY + '/Query', data=request.data.get('dn'))
 
-        if request.data.get('reissue'):
+        if request.data.get('reissue') and (result.json().get('status') == '4'):
             result = requests.post(settings.VERIFY_GATEWAY + '/Reissue', data=request.data.get('dn'))
 
         return Response(result.json(), status=status.HTTP_200_OK)

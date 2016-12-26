@@ -21,7 +21,7 @@ from url_filter.integrations.drf import DjangoFilterBackend
 
 from service.consumer.models import Bankcard
 from service.kernel.contrib.utils.hashlib import md5
-from service.kernel.utils.bank import bankcard
+from service.kernel.utils.bank_random import bankcard
 from service.signature.utils import iddentity_verify, fields, process_verify
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \

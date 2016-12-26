@@ -23,9 +23,9 @@ from service.consumer.models import Bankcard
 from service.kernel.contrib.utils.hashlib import md5
 from service.kernel.utils.bank import bankcard
 from service.signature.utils import iddentity_verify, fields, process_verify
-from .models import Signature, Identity, Validate
+from .models import Signature, Identity, Validate, Purchased
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
-    CallbackSerializer
+    CallbackSerializer, PurchasedSerializer
 
 
 class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
@@ -80,6 +80,10 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
             data = rest.get('data')
             body = process_verify(uri, data)
             body = json.dumps(body)
+
+        # 保存数据
+        serializer = self.get_serializer(data=data)
+        self.perform_create(serializer)
 
         # 服务签名
         resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=body)
@@ -182,7 +186,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
         # 生成模拟银行卡号
         Bankcard.objects.create(owner=request.user, bank=u'收付宝', card=bankcard(), suffix='', type=u'借记卡', flag='')
-        request.user.level = '%s-50' % request.data.get('level')
+        request.user.update(level='%s-50' % request.data.get('level'))
 
         return Response(data, status=status.HTTP_201_CREATED)
 
@@ -207,6 +211,12 @@ class CallbackViewSet(mixins.CreateModelMixin, GenericViewSet):
 
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class PurchasedViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = PurchasedSerializer
+    queryset = Purchased.objects.all()
 
 
 class ValidateViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):

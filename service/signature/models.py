@@ -23,6 +23,20 @@ class Bankcard(TimeStampedModel):
         verbose_name_plural = u'银行卡片'
 
 
+class Purchased(TimeStampedModel):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='purchased')
+
+    def __unicode__(self):
+        return self.signs
+
+    def __str__(self):
+        return self.__unicode__()
+
+    class Meta:
+        verbose_name = u'消费记录'
+        verbose_name_plural = u'消费记录'
+
+
 class Signature(TimeStampedModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='signatures')
     signs = models.TextField(verbose_name=u'证书密文', default='')
@@ -79,9 +93,9 @@ class Identity(TimeStampedModel):
     def __str__(self):
         return self.__unicode__()
 
-    def save(self, *args, **kwargs):
-        self.owner.update(level=self.level)
-        super(self.__class__, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     self.owner.update(level=self.level)
+    #     super(self.__class__, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = u'身份认证'

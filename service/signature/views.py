@@ -21,11 +21,11 @@ from url_filter.integrations.drf import DjangoFilterBackend
 
 from service.consumer.models import Bankcard
 from service.kernel.contrib.utils.hashlib import md5
-from service.kernel.utils.bank_random import bankcard
+from service.kernel.utils.bank import bankcard
 from service.signature.utils import iddentity_verify, fields, process_verify
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
-    CallbackSerializer
+    CallbackSerializer, CertificateSerializer
 
 
 class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
@@ -81,6 +81,10 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
             body = process_verify(uri, data)
             body = json.dumps(body)
 
+        # 保存数据
+        serializer = self.get_serializer(data=data)
+        self.perform_create(serializer)
+
         # 服务签名
         resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=body)
         return HttpResponse(resp.content)
@@ -109,9 +113,6 @@ class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return self.request.user.signatures.all()
-
-    def perform_create(self, serializer):
-        return serializer.save(owner=self.request.user)
 
 
 class IdentityViewSet(viewsets.ModelViewSet):
@@ -144,6 +145,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
             errors['cardNo'] = _('银行卡不能为空')
 
         certId = re.compile(r'^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$')
+
         if not certId.match(request.data.get('certId')):
             errors['certId'] = _('证件号码格式错误')
 
@@ -151,10 +153,6 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
         if not mobile_re.match(request.data.get('phone')):
             errors['phone'] = _('电话格式不正确')
-
-        # cardNo = re.compile(r'^(\d{16}|\d{19})$')
-        # if not cardNo.match(request.data.get('cardNo')):
-        #     errors['carNo'] = _('银行卡格式不正确')
 
         if len(errors):
             return Response({'detail': errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -185,12 +183,30 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
         # 生成模拟银行卡号
         Bankcard.objects.create(owner=request.user, bank=u'收付宝', card=bankcard(), suffix='', type=u'借记卡', flag='')
-        request.user.level = '%s-50' % request.data.get('level')
+        request.user.update(level='%s-50' % request.data.get('level'))
 
         return Response(data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)
+
+
+class CertificateViewSet(GenericViewSet):
+    serializer_class = CertificateSerializer
+
+    def get_queryset(self):
+        pass
+
+    def list(self, request, *args, **kwargs):
+        return Response([])
+
+    def create(self, request, *args, **kwargs):
+        result = requests.post(settings.VERIFY_GATEWAY + '/Query', data=request.data.get('dn'))
+
+        if request.data.get('reissue'):
+            result = requests.post(settings.VERIFY_GATEWAY + '/Reissue', data=request.data.get('dn'))
+
+        return Response(result.json(), status=status.HTTP_200_OK)
 
 
 class CallbackViewSet(mixins.CreateModelMixin, GenericViewSet):

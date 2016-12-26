@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import jsonfield
 from django.conf import settings
 from django.db import models
 from model_utils.models import TimeStampedModel
@@ -24,12 +25,14 @@ class Bankcard(TimeStampedModel):
 
 
 class Signature(TimeStampedModel):
+    SIGNATURE_TYPE = ()
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='signatures')
     signs = models.TextField(verbose_name=u'证书密文', default='')
-    created_at = models.DateField(auto_now=True)
+    type = models.CharField(verbose_name=u'签名类型', max_length=100, choices=SIGNATURE_TYPE)
+    extra = jsonfield.JSONField(verbose_name=u'附加内容', default={'data': None, 'type': None})
 
     def __unicode__(self):
-        return self.signs
+        return '%s - %s' % (self.created, self.type)
 
     def __str__(self):
         return self.__unicode__()
@@ -78,6 +81,10 @@ class Identity(TimeStampedModel):
 
     def __str__(self):
         return self.__unicode__()
+
+    # def save(self, *args, **kwargs):
+    #     self.owner.update(level=self.level)
+    #     super(self.__class__, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = u'身份认证'

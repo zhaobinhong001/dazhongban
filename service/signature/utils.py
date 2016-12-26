@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 
 from service.consumer.utils import md5
-from service.trade.models import Contract, Transfer
+from service.trade.models import Contract
 
 data = {
     "data": {
@@ -121,7 +121,7 @@ def process_verify(uri, data):
                 res.sender_id = token.user.pk
                 res.receiver_id = receiver_id
             elif type == 'receiver':
-                res.receiver_id = token.user.pk
+                res.sender_id = token.user.pk
             elif type == 'thirty':
                 pass
 
@@ -131,4 +131,5 @@ def process_verify(uri, data):
 
         res.save()
 
-    return {'errors': 0, 'detail': {'type': res.type, 'data': {'status': res.status, 'uri': uri, 'id': res.id}}}
+    return {'errors': 0,
+        'detail': {'type': res.type, 'data': {'status': res.status, 'uri': uri, 'id': res.id}}}, token.user

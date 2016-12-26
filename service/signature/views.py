@@ -57,7 +57,6 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
 
     '''
     serializer_class = SignatureSerializer
-    # permission_classes = (IsAuthenticated,)
     model = Signature
 
     def get_queryset(self):
@@ -72,22 +71,26 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
         else:
 
             # 解析数据
-            rest = resp.content.decode('hex')
-            rest = json.loads(rest)
+            sign = resp.content.decode('hex')
+            rest = json.loads(sign)
 
             # 处理数据
             uri = rest.get('uri')
             data = rest.get('data')
             body = process_verify(uri, data)
-            body = json.dumps(body)
 
         # 保存数据
+        data = {'extra': json.dumps(body['detail']), 'signs': resp.content, 'type': body['detail']['type']}
         serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
 
         # 服务签名
-        resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=body)
+        resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=json.dumps(body))
         return HttpResponse(resp.content)
+
+    def perform_create(self, serializer):
+        return serializer.save(owner=self.request.user)
 
 
 class BankcardViewSet(viewsets.GenericViewSet):
@@ -115,7 +118,7 @@ class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
         return self.request.user.signatures.all()
 
 
-class IdentityViewSet(viewsets.ModelViewSet):
+class IdentityViewSet(viewsets.GenericViewSet):
     '''
     身份认证接口
     ----------
@@ -183,7 +186,8 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
         # 生成模拟银行卡号
         Bankcard.objects.create(owner=request.user, bank=u'收付宝', card=bankcard(), suffix='', type=u'借记卡', flag='')
-        request.user.update(level='%s-50' % request.data.get('level'))
+        request.user.level = '%s-50' % request.data.get('level')
+        request.user.save()
 
         return Response(data, status=status.HTTP_201_CREATED)
 

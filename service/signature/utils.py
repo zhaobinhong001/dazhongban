@@ -109,19 +109,18 @@ def process_verify(uri, data):
 
         if data.get('id'):
             try:
-                res = Transfer.objects.get(id=data.get('id'))
+                res = Contract.objects.get(id=data.get('id'))
                 res.receiver = token.user
                 del data['id']
-            except Transfer.DoesNotExist:
+            except Contract.DoesNotExist:
                 return {'errors': 1, 'detail': '交易订单不存在'}
         else:
-            res = Transfer()
+            res = Contract()
 
             if type == 'transfer':
                 res.sender_id = token.user.pk
                 res.receiver_id = receiver_id
             elif type == 'receiver':
-                res.sender_id = receiver_id
                 res.receiver_id = token.user.pk
             elif type == 'thirty':
                 pass

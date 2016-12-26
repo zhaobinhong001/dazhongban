@@ -7,6 +7,7 @@ from django.db import models
 from model_utils.models import TimeStampedModel
 
 from config.settings.apps import BANKID
+from service.trade.models import CONTRACT_TYPE
 
 
 class Bankcard(TimeStampedModel):
@@ -25,10 +26,9 @@ class Bankcard(TimeStampedModel):
 
 
 class Signature(TimeStampedModel):
-    SIGNATURE_TYPE = ()
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='signatures')
     signs = models.TextField(verbose_name=u'证书密文', default='')
-    type = models.CharField(verbose_name=u'签名类型', max_length=100, choices=SIGNATURE_TYPE)
+    type = models.CharField(verbose_name=u'签名类型', max_length=100, choices=CONTRACT_TYPE)
     extra = jsonfield.JSONField(verbose_name=u'附加内容', default={'data': None, 'type': None})
 
     def __unicode__(self):

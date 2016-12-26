@@ -77,7 +77,7 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
             # 处理数据
             uri = rest.get('uri')
             data = rest.get('data')
-            body = process_verify(uri, data)
+            body, self.request.user = process_verify(uri, data)
 
         # 保存数据
         data = {'extra': json.dumps(body['detail']), 'signs': resp.content, 'type': body['detail']['type']}

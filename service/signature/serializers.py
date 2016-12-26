@@ -6,7 +6,7 @@ from django.conf import settings
 from rest_framework import serializers
 
 from service.kernel.contrib.utils.hashlib import md5
-from .models import Signature, Validate, Identity, Purchased
+from .models import Signature, Validate, Identity
 
 
 class BankcardSerializer(serializers.Serializer):
@@ -38,16 +38,18 @@ class IdentitySerializer(serializers.ModelSerializer):
         exclude = ('owner', 'certType', 'originType')
 
 
-class PurchasedSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Purchased
-        exclude = ('owner',)
-
-
 class SignatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Signature
-        exclude = ('owner',)
+        fields = ('created', 'type', 'extra')
+
+
+class CertificateSerializer(serializers.Serializer):
+    dn = serializers.CharField()
+    reissue = serializers.BooleanField(label=u'自动补发')
+
+    class Meta:
+        fields = ('dn',)
 
 
 class CallbackSerializer(serializers.ModelSerializer):

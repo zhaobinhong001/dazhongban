@@ -5,6 +5,9 @@ from django.db.models import QuerySet
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
+from service.trade.models import Purchased
+from service.trade.serializers import PurchasedSerializer
+
 from .models import Contract, Transfer
 from .serializers import ContractSerializer, TransferSerializer
 
@@ -61,3 +64,9 @@ class TransferViewSet(viewsets.ModelViewSet):
             queryset = queryset.all()
 
         return queryset
+
+
+class PurchasedViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = PurchasedSerializer
+    queryset = Purchased.objects.all()

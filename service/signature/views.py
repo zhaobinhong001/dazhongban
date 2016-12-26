@@ -23,9 +23,9 @@ from service.consumer.models import Bankcard
 from service.kernel.contrib.utils.hashlib import md5
 from service.kernel.utils.bank import bankcard
 from service.signature.utils import iddentity_verify, fields, process_verify
-from .models import Signature, Identity, Validate, Purchased
+from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
-    CallbackSerializer, PurchasedSerializer
+    CallbackSerializer, CertificateSerializer
 
 
 class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
@@ -114,9 +114,6 @@ class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
     def get_queryset(self):
         return self.request.user.signatures.all()
 
-    def perform_create(self, serializer):
-        return serializer.save(owner=self.request.user)
-
 
 class IdentityViewSet(viewsets.ModelViewSet):
     '''
@@ -194,6 +191,24 @@ class IdentityViewSet(viewsets.ModelViewSet):
         return serializer.save(owner=self.request.user)
 
 
+class CertificateViewSet(GenericViewSet):
+    serializer_class = CertificateSerializer
+
+    def get_queryset(self):
+        pass
+
+    def list(self, request, *args, **kwargs):
+        return Response([])
+
+    def create(self, request, *args, **kwargs):
+        result = requests.post(settings.VERIFY_GATEWAY + '/Query', data=request.data.get('dn'))
+
+        if request.data.get('reissue'):
+            result = requests.post(settings.VERIFY_GATEWAY + '/Reissue', data=request.data.get('dn'))
+
+        return Response(result.json(), status=status.HTTP_200_OK)
+
+
 class CallbackViewSet(mixins.CreateModelMixin, GenericViewSet):
     serializer_class = CallbackSerializer
     queryset = Validate.objects.all()
@@ -211,12 +226,6 @@ class CallbackViewSet(mixins.CreateModelMixin, GenericViewSet):
 
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class PurchasedViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = PurchasedSerializer
-    queryset = Purchased.objects.all()
 
 
 class ValidateViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):

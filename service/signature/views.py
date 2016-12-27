@@ -80,7 +80,9 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
             body, self.request.user = process_verify(uri, data)
 
         # 保存数据
+        self.contract_id = body['detail']['id']
         data = {'extra': json.dumps(body['detail']), 'signs': resp.content, 'type': body['detail']['type']}
+
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -104,6 +106,13 @@ class BankcardViewSet(viewsets.GenericViewSet):
 
 
 class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
+    '''
+    验签记录历史
+    ----------
+    时间过滤规则：
+    在 url 后面加 ?created__range=<start_date>,<end_date>
+    例如: ?created__range=2010-01-01,2016-12-31
+    '''
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter,)
     filter_fields = ['created']
 

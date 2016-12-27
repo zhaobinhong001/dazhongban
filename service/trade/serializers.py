@@ -19,12 +19,6 @@ class ContractSerializer(serializers.ModelSerializer):
         exclude = ('sender', 'receiver')
 
 
-# class SenderSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = settings.AUTH_USER_MODEL
-#         fields = ('username', 'level', 'mobile', 'nick', 'name')
-
-
 class ContractDetailSerializer(serializers.ModelSerializer):
     sender_nick = serializers.StringRelatedField(read_only=True, source='sender.profile.nick')
     sender_name = serializers.StringRelatedField(read_only=True, source='sender.profile.name')
@@ -34,7 +28,7 @@ class ContractDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Contract
-        fields = '__all__'
+        fields = ('describe', 'sender_nick', 'sender_name', 'receiver_nick', 'receiver_name')
 
 
 class TransferSerializer(serializers.ModelSerializer):

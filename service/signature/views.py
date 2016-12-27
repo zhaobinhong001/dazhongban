@@ -80,8 +80,8 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
             body, self.request.user = process_verify(uri, data)
 
         # 保存数据
-        self.contract_id = body['detail']['id']
-        data = {'extra': json.dumps(body['detail']), 'signs': resp.content, 'type': body['detail']['type']}
+        detail = json.dumps(body['detail']) if isinstance(body['detail'], dict) else body['detail']
+        data = {'extra': detail, 'signs': resp.content, 'type': body['detail']['type']}
 
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)

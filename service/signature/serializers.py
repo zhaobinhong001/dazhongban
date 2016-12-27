@@ -41,7 +41,7 @@ class IdentitySerializer(serializers.ModelSerializer):
 class SignatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Signature
-        fields = ('created', 'type', 'extra')
+        fields = ('id', 'created', 'type', 'extra')
 
 
 class CertificateSerializer(serializers.Serializer):

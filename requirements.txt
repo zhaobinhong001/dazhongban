@@ -72,3 +72,4 @@ django-url-filter
 flower
 pandas
 django-jsonfield
+django-constance

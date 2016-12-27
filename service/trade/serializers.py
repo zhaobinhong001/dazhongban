@@ -25,10 +25,11 @@ class ContractDetailSerializer(serializers.ModelSerializer):
 
     receiver_nick = serializers.StringRelatedField(read_only=True, source='receiver.profile.nick')
     receiver_name = serializers.StringRelatedField(read_only=True, source='receiver.profile.name')
+    description = serializers.CharField()
 
     class Meta:
         model = Contract
-        fields = ('describe', 'sender_nick', 'sender_name', 'receiver_nick', 'receiver_name')
+        fields = '__all__'
 
 
 class TransferSerializer(serializers.ModelSerializer):

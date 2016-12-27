@@ -7,6 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 from model_utils import Choices
 from model_utils.models import TimeStampedModel, StatusModel
 
+from service.kernel.utils.china.number import Number
+
 CONSUMPTION_TYPE = (
     ('transfer', '转账'),
     ('receiver', '收款'),
@@ -41,23 +43,28 @@ class Contract(TimeStampedModel, StatusModel):
     payment = models.CharField(verbose_name=u'支付账户', max_length=100, default='')
     receipt = models.CharField(verbose_name=u'收款账户', max_length=100, default='')
 
-    @property
-    def describe(self):
-        return self.contrtem(self.type, dict([(attr, getattr(self, attr)) for attr in [f.name for f in self._meta.fields]]))
+    # def description(self):
+    #     return self.contrtem(self.type, self, identity=self.receiver.identity.certId)
 
-    def contrtem(type, data):
+    @property
+    def description(self):
         '''
         合约模板
 
         '''
+        pt = Number()
+        data = dict([(attr, getattr(self, attr)) for attr in [f.name for f in self._meta.fields]])
+        data['receiver'] = self.receiver.profile.name if hasattr(self.receiver, 'profile') else '匿名'
+        data['amount_zh'] = pt.convert(data['amount'])
+        data['identity'] = self.receiver.identity.certId if hasattr(self.receiver, 'identity') else '99999999'
 
         content = {}
+        content['receipt'] = "今日本人向 %(receiver)s (身份证号码: %(identity)s)借款人民币 %(amount).2f元(大写:%(amount_zh)s) 立此为据"
+        content['borrow'] = "今日本人向 %(receiver)s (身份证号码: %(identity)s)借款人民币 %(amount).2f元(大写:%(amount_zh)s) 立此为据"
+        content['owe'] = "今日本人向 %(receiver)s (身份证号码: %(identity)s)借款人民币 %(amount).2f元(大写:%(amount_zh)s) 立此为据"
 
-        content['receipt'] = "今日本人向 %(receiver)s (身份证号码: %(identity)s)借款人民币 %(amount)f元(大写:XXX)立此为据"
-        content['borrow'] = "今日本人向 %(receiver)s (身份证号码: %(identity)s)借款人民币 %(amount)f元(大写:XXX)立此为据"
-        content['owe'] = "今日本人向 %(receiver)s (身份证号码: %(identity)s)借款人民币 %(amount)f元(大写:XXX)立此为据"
-
-        return content[type] % data
+        content = content[self.type] % data if content.get(self.type) else None
+        return content
 
     def __unicode__(self):
         return self.summary

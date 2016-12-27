@@ -65,7 +65,7 @@ class Validate(TimeStampedModel):
 
 class Identity(TimeStampedModel):
     CHOICES_LEVEL = (('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D'),)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL)
+    owner = models.OneToOneField(settings.AUTH_USER_MODEL)
     certId = models.CharField(verbose_name=u'证件号 *', max_length=100, default='')
     certType = models.IntegerField(verbose_name=u'证件类型', default='1')
     name = models.CharField(verbose_name=u'姓名 *', max_length=50, default='')

@@ -65,7 +65,7 @@ def process_verify(uri, data):
         token = Token.objects.filter(key=data.get('token')).get()
         del data['token']
     except Token.DoesNotExist:
-        return {'errors': 1, 'detail': '用户不存在'}
+        return {'errors': 1, 'detail': '用户不存在'}, False
 
     if '/contract/' in uri:
         if data.get('id'):
@@ -74,7 +74,7 @@ def process_verify(uri, data):
                 res.receiver = token.user
                 del data['id']
             except Contract.DoesNotExist:
-                return {'errors': 1, 'detail': '合约不存在'}
+                return {'errors': 1, 'detail': '合约不存在'}, False
         else:
             res = Contract()
             res.sender_id = token.user.pk
@@ -91,10 +91,10 @@ def process_verify(uri, data):
         status = data.get('status')
 
         if not type:
-            return {'errors': 1, 'detail': 'type 不能为空'}
+            return {'errors': 1, 'detail': 'type 不能为空'}, False
 
         if not status:
-            return {'errors': 1, 'detail': 'status 不能为空'}
+            return {'errors': 1, 'detail': 'status 不能为空'}, False
 
         # 转账时收款方不能为空
         if data.get('type') != 'receiver':
@@ -103,9 +103,9 @@ def process_verify(uri, data):
                     receiver = get_user_model().objects.get(id=data.get('receiver_id'))
                     receiver_id = receiver.pk
                 except get_user_model().DoesNotExist:
-                    return {'errors': 1, 'detail': '收款方不存在'}
+                    return {'errors': 1, 'detail': '收款方不存在'}, False
             else:
-                return {'errors': 1, 'detail': '收款方不能为空'}
+                return {'errors': 1, 'detail': '收款方不能为空'}, False
 
         if data.get('id'):
             try:
@@ -113,7 +113,7 @@ def process_verify(uri, data):
                 res.receiver = token.user
                 del data['id']
             except Contract.DoesNotExist:
-                return {'errors': 1, 'detail': '交易订单不存在'}
+                return {'errors': 1, 'detail': '交易订单不存在'}, False
         else:
             res = Contract()
 

@@ -41,6 +41,24 @@ class Contract(TimeStampedModel, StatusModel):
     payment = models.CharField(verbose_name=u'支付账户', max_length=100, default='')
     receipt = models.CharField(verbose_name=u'收款账户', max_length=100, default='')
 
+    @property
+    def describe(self):
+        return self.contrtem(self.type, dict([(attr, getattr(self, attr)) for attr in [f.name for f in self._meta.fields]]))
+
+    def contrtem(type, data):
+        '''
+        合约模板
+
+        '''
+
+        content = {}
+
+        content['receipt'] = "今日本人向 %(receiver)s (身份证号码: %(identity)s)借款人民币 %(amount)f元(大写:XXX)立此为据"
+        content['borrow'] = "今日本人向 %(receiver)s (身份证号码: %(identity)s)借款人民币 %(amount)f元(大写:XXX)立此为据"
+        content['owe'] = "今日本人向 %(receiver)s (身份证号码: %(identity)s)借款人民币 %(amount)f元(大写:XXX)立此为据"
+
+        return content[type] % data
+
     def __unicode__(self):
         return self.summary
 

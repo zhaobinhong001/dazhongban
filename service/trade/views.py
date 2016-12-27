@@ -2,13 +2,13 @@
 from __future__ import unicode_literals
 
 from django.db.models import QuerySet
-from rest_framework import viewsets
+from rest_framework import filters, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from url_filter.integrations.drf import DjangoFilterBackend
 
 from service.trade.models import Purchased
 from service.trade.serializers import PurchasedSerializer, ContractDetailSerializer
-
 from .models import Contract, Transfer
 from .serializers import ContractSerializer, TransferSerializer
 
@@ -28,15 +28,19 @@ class ContractViewSet(viewsets.ReadOnlyModelViewSet):
     ('owe', '欠条'),
 
 
-
+    时间过滤规则：
+    在 url 后面加 ?created__range=<start_date>,<end_date>
+    例如: ?created__range=2010-01-01,2016-12-31
     '''
+
+    filter_backends = (DjangoFilterBackend, filters.OrderingFilter,)
+    filter_fields = ['created']
+
+    ordering_fields = ('created',)
+    ordering = ('id',)
     queryset = Contract.objects.all()
     serializer_class = ContractSerializer
     permission_classes = (IsAuthenticated,)
-    # allowed_methods = ('POST', 'OPTION', 'HEAD')
-
-    # def perform_create(self, serializer):
-    #     serializer.save(sender=self.request.user)
 
     def retrieve(self, request, *args, **kwargs):
         self.serializer_class = ContractDetailSerializer

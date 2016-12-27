@@ -32,9 +32,9 @@ class Signature(TimeStampedModel):
     type = models.CharField(verbose_name=u'签名类型', max_length=100, choices=CONTRACT_TYPE)
     extra = jsonfield.JSONField(verbose_name=u'附加内容', default={'data': None, 'type': None})
 
-    content_object = GenericForeignKey('content_type', 'object_id')
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
+    # content_object = GenericForeignKey('content_type', 'object_id')
+    # content_type = models.ForeignKey(ContentType)
+    # object_id = models.PositiveIntegerField()
 
     def __unicode__(self):
             return '%s - %s' % (self.created, self.type)

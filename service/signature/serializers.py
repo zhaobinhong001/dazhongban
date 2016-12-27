@@ -41,7 +41,15 @@ class IdentitySerializer(serializers.ModelSerializer):
 class SignatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Signature
-        exclude = ('owner',)
+        fields = ('id', 'created', 'type', 'extra')
+
+
+class CertificateSerializer(serializers.Serializer):
+    dn = serializers.CharField()
+    reissue = serializers.BooleanField(label=u'自动补发')
+
+    class Meta:
+        fields = ('dn',)
 
 
 class CallbackSerializer(serializers.ModelSerializer):

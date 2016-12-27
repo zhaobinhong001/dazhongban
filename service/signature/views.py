@@ -25,7 +25,7 @@ from service.kernel.utils.bank_random import bankcard
 from service.signature.utils import iddentity_verify, fields, process_verify
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
-    CallbackSerializer
+    CallbackSerializer, CertificateSerializer
 
 
 class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
@@ -57,7 +57,6 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
 
     '''
     serializer_class = SignatureSerializer
-    # permission_classes = (IsAuthenticated,)
     model = Signature
 
     def get_queryset(self):
@@ -72,18 +71,28 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
         else:
 
             # 解析数据
-            rest = resp.content.decode('hex')
-            rest = json.loads(rest)
+            sign = resp.content.decode('hex')
+            rest = json.loads(sign)
 
             # 处理数据
             uri = rest.get('uri')
             data = rest.get('data')
-            body = process_verify(uri, data)
-            body = json.dumps(body)
+            body, self.request.user = process_verify(uri, data)
+
+        # 保存数据
+        self.contract_id = body['detail']['id']
+        data = {'extra': json.dumps(body['detail']), 'signs': resp.content, 'type': body['detail']['type']}
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
 
         # 服务签名
-        resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=body)
+        resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=json.dumps(body))
         return HttpResponse(resp.content)
+
+    def perform_create(self, serializer):
+        return serializer.save(owner=self.request.user)
 
 
 class BankcardViewSet(viewsets.GenericViewSet):
@@ -97,6 +106,13 @@ class BankcardViewSet(viewsets.GenericViewSet):
 
 
 class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
+    '''
+    验签记录历史
+    ----------
+    时间过滤规则：
+    在 url 后面加 ?created__range=<start_date>,<end_date>
+    例如: ?created__range=2010-01-01,2016-12-31
+    '''
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter,)
     filter_fields = ['created']
 
@@ -110,11 +126,8 @@ class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
     def get_queryset(self):
         return self.request.user.signatures.all()
 
-    def perform_create(self, serializer):
-        return serializer.save(owner=self.request.user)
 
-
-class IdentityViewSet(viewsets.ModelViewSet):
+class IdentityViewSet(viewsets.GenericViewSet):
     '''
     身份认证接口
     ----------
@@ -144,6 +157,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
             errors['cardNo'] = _('银行卡不能为空')
 
         certId = re.compile(r'^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$')
+
         if not certId.match(request.data.get('certId')):
             errors['certId'] = _('证件号码格式错误')
 
@@ -151,10 +165,6 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
         if not mobile_re.match(request.data.get('phone')):
             errors['phone'] = _('电话格式不正确')
-
-        # cardNo = re.compile(r'^(\d{16}|\d{19})$')
-        # if not cardNo.match(request.data.get('cardNo')):
-        #     errors['carNo'] = _('银行卡格式不正确')
 
         if len(errors):
             return Response({'detail': errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -186,11 +196,30 @@ class IdentityViewSet(viewsets.ModelViewSet):
         # 生成模拟银行卡号
         Bankcard.objects.create(owner=request.user, bank=u'收付宝', card=bankcard(), suffix='', type=u'借记卡', flag='')
         request.user.level = '%s-50' % request.data.get('level')
+        request.user.save()
 
         return Response(data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)
+
+
+class CertificateViewSet(GenericViewSet):
+    serializer_class = CertificateSerializer
+
+    def get_queryset(self):
+        pass
+
+    def list(self, request, *args, **kwargs):
+        return Response([])
+
+    def create(self, request, *args, **kwargs):
+        result = requests.post(settings.VERIFY_GATEWAY + '/Query', data=request.data.get('dn'))
+
+        if request.data.get('reissue') and (result.json().get('status') == '4'):
+            result = requests.post(settings.VERIFY_GATEWAY + '/Reissue', data=request.data.get('dn'))
+
+        return Response(result.json(), status=status.HTTP_200_OK)
 
 
 class CallbackViewSet(mixins.CreateModelMixin, GenericViewSet):

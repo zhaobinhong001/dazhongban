@@ -222,7 +222,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def get_queryset(self):
-        queryset = self.queryset.filter(sender=self.request.user)
+        queryset = self.queryset.filter(owner=self.request.user)
 
         if isinstance(queryset, QuerySet):
             queryset = queryset.all()

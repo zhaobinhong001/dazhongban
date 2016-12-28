@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.db.models import Q
 from django.db.models import QuerySet
 from rest_framework import filters, viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -43,13 +44,25 @@ class ContractViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
 
     def retrieve(self, request, *args, **kwargs):
+        self.queryset = self.queryset
         self.serializer_class = ContractDetailSerializer
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.queryset.filter(Q(sender=self.request.user) | ~Q(status='normal'))
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
     def get_queryset(self):
-        queryset = self.queryset.filter(sender=self.request.user)
+        queryset = self.queryset
 
         if isinstance(queryset, QuerySet):
             queryset = queryset.all()

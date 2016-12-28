@@ -7,6 +7,7 @@ import re
 
 import requests
 from django.conf import settings
+from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from filters.mixins import FiltersMixin
@@ -132,7 +133,7 @@ class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
         return self.request.user.signatures.all()
 
 
-class IdentityViewSet(viewsets.GenericViewSet):
+class IdentityViewSet(viewsets.ModelViewSet):
     '''
     身份认证接口
     ----------
@@ -198,12 +199,35 @@ class IdentityViewSet(viewsets.GenericViewSet):
         if not status_:
             raise ValidationError(data)
 
-        # 生成模拟银行卡号
-        Bankcard.objects.create(owner=request.user, bank=u'收付宝', card=bankcard(), suffix='', type=u'借记卡', flag='')
-        request.user.level = '%s-50' % request.data.get('level')
-        request.user.save()
+        # 判断记录是否存在
+        instance = self.get_queryset().get(owner=request.user)
 
-        return Response(data, status=status.HTTP_201_CREATED)
+        # 存在为更新
+        if instance:
+            serializer = self.get_serializer(instance, data=data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+        else:
+            # 不存在为创建
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+
+            # 创建时，生成模拟银行卡号
+            Bankcard.objects.create(owner=request.user, bank=u'收付宝', card=bankcard(), suffix='', type=u'借记卡', flag='')
+            request.user.level = request.data.get('level')
+            request.user.credit = '50'
+            request.user.save()
+
+        return Response(serializer.data)
+
+    def get_queryset(self):
+        queryset = self.queryset.filter(sender=self.request.user)
+
+        if isinstance(queryset, QuerySet):
+            queryset = queryset.all()
+
+        return queryset
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)

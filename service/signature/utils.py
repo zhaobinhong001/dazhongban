@@ -50,7 +50,6 @@ def iddentity_verify(param=None):
     headers = {'content-type': 'application/json; charset=utf-8', 'accept': 'application/json'}
 
     ret = req.post(url=GATEWAY, data=json.dumps(data), headers=headers, verify=False)
-    print ret.content
 
     if ret.status_code == 200:
         item = ret.json()

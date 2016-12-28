@@ -76,6 +76,7 @@ class CustomUser(AbstractUser):
     verify = models.CharField(_(u'短信码'), max_length=5, blank=True)
     device = models.CharField(_(u'设备号'), max_length=100, blank=False, null=False)
     level = models.CharField(_(u'用户等级'), max_length=100, blank=False, null=False)
+    credit = models.IntegerField(_(u'用户积分'), default='50')
 
     objects = CustomUserManager()
 

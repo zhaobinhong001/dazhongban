@@ -43,8 +43,6 @@ class Contract(TimeStampedModel, StatusModel):
     payment = models.CharField(verbose_name=u'支付账户', max_length=100, default='')
     receipt = models.CharField(verbose_name=u'收款账户', max_length=100, default='')
 
-    # def description(self):
-    #     return self.contrtem(self.type, self, identity=self.receiver.identity.certId)
 
     @property
     def description(self):

@@ -17,13 +17,14 @@ class GroupSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     level = serializers.StringRelatedField(source='owner.level')
+    credit = serializers.StringRelatedField(source='owner.credit')
     mobile = serializers.StringRelatedField(source='owner.mobile')
 
     class Meta:
         model = Profile
-        read_only_fields = ("name", "phone", "qr", "level", 'bankcard', 'idcard')
+        read_only_fields = ("name", "phone", "qr", "level", 'bankcard', 'idcard', 'credit')
         fields = (
-            "name", "nick", "phone", "mobile", "gender", "birthday", "qr", 'level', 'idcard', 'bankcard', 'avatar')
+            "name", "nick", "phone", "mobile", "gender", "birthday", "qr", 'level', 'idcard', 'bankcard', 'avatar', 'credit')
 
 
 class UserSerializer(serializers.ModelSerializer):

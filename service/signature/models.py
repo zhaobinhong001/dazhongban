@@ -72,13 +72,13 @@ class Identity(TimeStampedModel):
     phone = models.CharField(verbose_name=u'电话 *', max_length=100, default='')
     originType = models.IntegerField(verbose_name=u'渠道类型 ', default='1')
     address = models.CharField(verbose_name=u'地址', max_length=200, default='', null=True, blank=True)
-    frontPhoto = models.ImageField(verbose_name=u'证件照正面')
-    backPhoto = models.ImageField(verbose_name=u'证件照反面')
+    frontPhoto = models.ImageField(verbose_name=u'证件照正面', upload_to='identity')
+    backPhoto = models.ImageField(verbose_name=u'证件照反面', upload_to='identity')
     cardNo = models.CharField(verbose_name=u'银行卡号', max_length=100, default='')
     bankID = models.CharField(verbose_name=u'银行ID', max_length=100, default='', choices=BANKID)
     cvn2 = models.CharField(verbose_name=u'信用卡背面的末3位数字', max_length=10, default='', null=True, blank=True)
     expired = models.CharField(verbose_name=u'有效期', max_length=100, default='', null=True, blank=True)
-    level = models.CharField(verbose_name=u'认证级别', max_length=100, default='', null=True, blank=True,
+    level = models.CharField(verbose_name=u'认证级别 *', max_length=100, default='', null=True, blank=True,
         choices=CHOICES_LEVEL)
 
     def __unicode__(self):

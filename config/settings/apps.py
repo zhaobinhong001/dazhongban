@@ -20,6 +20,7 @@ INSTALLED_APPS += (
     'easy_select2',
     'import_export',
     'daterange_filter',
+    'constance',
 )
 
 RONGCLOUD_APPKEY = 'ik1qhw09ifflp'
@@ -334,3 +335,9 @@ BANKID = (
 )
 
 SCAN_TIMEOUT = 60
+
+CONSTANCE_CONFIG = {
+    'BORROW': ('', '借款模板'),
+    'RECEIPT': ('', '收据模板'),
+    'OWE': ('', '欠条模板'),
+}

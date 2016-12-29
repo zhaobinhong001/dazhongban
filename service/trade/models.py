@@ -9,6 +9,8 @@ from model_utils.models import TimeStampedModel, StatusModel
 
 from service.kernel.utils.china.number import Number
 
+from constance import config
+
 CONSUMPTION_TYPE = (
     ('transfer', '转账'),
     ('receiver', '收款'),
@@ -32,7 +34,7 @@ class Contract(TimeStampedModel, StatusModel):
 
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='contract_sender')
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='contract_receiver', blank=True,
-        null=True)
+                                 null=True)
 
     type = models.CharField(verbose_name=u'类型', max_length=100, default=0, choices=CONTRACT_TYPE)
     mobile = models.CharField(verbose_name=u'手机号', max_length=100, default='')
@@ -42,7 +44,6 @@ class Contract(TimeStampedModel, StatusModel):
 
     payment = models.CharField(verbose_name=u'支付账户', max_length=100, default='')
     receipt = models.CharField(verbose_name=u'收款账户', max_length=100, default='')
-
 
     @property
     def description(self):
@@ -57,9 +58,9 @@ class Contract(TimeStampedModel, StatusModel):
         data['identity'] = self.receiver.identity.certId if hasattr(self.receiver, 'identity') else '99999999'
 
         content = {}
-        content['receipt'] = "今日本人向 %(receiver)s (身份证号码: %(identity)s)借款人民币 %(amount).2f元(大写:%(amount_zh)s) 立此为据"
-        content['borrow'] = "今日本人向 %(receiver)s (身份证号码: %(identity)s)借款人民币 %(amount).2f元(大写:%(amount_zh)s) 立此为据"
-        content['owe'] = "今日本人向 %(receiver)s (身份证号码: %(identity)s)借款人民币 %(amount).2f元(大写:%(amount_zh)s) 立此为据"
+        content['receipt'] = config.RECEIPT
+        content['borrow'] = config.BORROW
+        content['owe'] = config.OWE
 
         content = content[self.type] % data if content.get(self.type) else None
         return content

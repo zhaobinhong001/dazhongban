@@ -211,14 +211,13 @@ class IdentityViewSet(viewsets.ModelViewSet):
         data['backPhoto'] = request.data['backPhoto']
 
         # 判断记录是否存在
-        instance = self.get_queryset().get(owner=request.user)
-
         # 存在为更新
-        if instance:
+        try:
+            instance = self.get_queryset().get(owner=request.user)
             serializer = self.get_serializer(instance, data=data)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
-        else:
+        except Identity.DoesNotExist:
             # 不存在为创建
             serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)

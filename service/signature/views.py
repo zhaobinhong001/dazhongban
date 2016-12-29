@@ -178,14 +178,22 @@ class IdentityViewSet(viewsets.ModelViewSet):
         item = {}
         items = request.data
 
+        # for k in fields:
+        #     if k in ['backPhoto', 'frontPhoto']:
+        #         if hasattr(items[k], 'file'):
+        #             item[k] = base64.b64encode(items[k].file.getvalue())
+        #     else:
+        #         if items[k].strip():
+        #             item[k] = items.get(k).strip()
+
         for k, v in items.items():
             if k in fields:
                 if k in ['backPhoto', 'frontPhoto']:
                     if hasattr(v, 'file'):
                         item[k] = base64.b64encode(v.file.getvalue())
                 else:
-                    if v.strip():
-                        item[k] = v
+                    # if v.strip():
+                    item[k] = v
 
         if request.data.get('expired'):
             expired = request.data.get('expired')
@@ -198,6 +206,9 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
         if not status_:
             raise ValidationError(data)
+
+        data['frontPhoto'] = request.data['frontPhoto']
+        data['backPhoto'] = request.data['backPhoto']
 
         # 判断记录是否存在
         instance = self.get_queryset().get(owner=request.user)

@@ -96,7 +96,7 @@ def process_verify(uri, data):
             return {'errors': 1, 'detail': 'status 不能为空'}, False
 
         # 转账时收款方不能为空
-        if data.get('type') != 'receiver':
+        if (data.get('type') == 'transfer') and (data.get('status') == 'normal'):
             if data.get('receiver_id'):
                 try:
                     receiver = get_user_model().objects.get(id=data.get('receiver_id'))

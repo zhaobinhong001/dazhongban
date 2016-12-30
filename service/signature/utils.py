@@ -56,7 +56,7 @@ def iddentity_verify(param=None):
         item['cardNo'] = param['cardNo']
         return item, True
 
-    return u'认证服务器错误' + ret.content, False
+    return u'认证服务器错误 %s' % ret.content.encode('utf-8'), False
 
 
 def process_verify(uri, data):

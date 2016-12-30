@@ -204,6 +204,8 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
         data, status_ = iddentity_verify(item)
 
+        print data
+
         if not status_:
             raise ValidationError(data)
 

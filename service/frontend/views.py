@@ -2,15 +2,19 @@
 from __future__ import unicode_literals
 
 import json
+import tempfile
 from cStringIO import StringIO
+from random import choice
 
-import datetime
 import qrcode
 import short_url
-import time
+from PIL import Image
 from django.http import HttpResponse
 from django.shortcuts import render
-from service.frontend.models import QRToken
+
+from config.settings.static import MEDIA_ROOT
+from .models import QRToken
+from .utiils import logo_abb, merge_image
 
 
 def generate_qrcode(data, size=11):
@@ -25,9 +29,107 @@ def generate_qrcode(data, size=11):
 def q(request, uid):
     uid = short_url.decode_url(uid)
     url = 'http://' + request.get_host() + '/api/users/%s/invite/' % uid
+    logo = MEDIA_ROOT + "/avatar/default.jpg"
+    white = MEDIA_ROOT + "/avatar/white.png"
+
+    list = range(1, 6)
+    type = choice(list)
+
+    if type == 1:
+        ground = Image.open(MEDIA_ROOT + "/avatar/ground1.jpg")
+    elif type == 2:
+        ground = Image.open(MEDIA_ROOT + "/avatar/ground2.jpg")
+    elif type == 3:
+        ground = Image.open(MEDIA_ROOT + "/avatar/ground3.jpg")
+    elif type == 4:
+        ground = Image.open(MEDIA_ROOT + "/avatar/ground4.jpg")
+    elif type == 5:
+        ground = Image.open(MEDIA_ROOT + "/avatar/ground5.jpg")
+    else:
+        ground = Image.open(MEDIA_ROOT + "/avatar/ground1.jpg")
+
     img = generate_qrcode(url)
-    buf = StringIO()
-    img.save(buf)
+
+    # if img.mode != 'RGBA':
+    #     img = img.convert('RGBA')
+
+    ground_w, ground_h = ground.size
+
+    if type == 2:
+        scale = 60
+    elif type == 3:
+        scale = 68
+    elif type == 4 or type == 5:
+        scale = 64
+    else:
+        scale = 60
+
+    img_w = int(ground_w / 100 * scale)
+    img_h = int(ground_h / 100 * scale)
+
+    img = logo_abb(img, img_w, img_h)  # 图片缩略
+    img_w, img_h = img.size
+
+    if type == 4 or type == 5:
+        w = int((ground_w - img_w) / 2 + 2)
+        h = int((ground_h - img_h) / 2 - 8)
+    else:
+        w = int((ground_w - img_w) / 2 + 3)
+        h = int((ground_h - img_h) / 2 + 3)
+
+    # 合并二维码与背景图
+    img = merge_image(ground, img, w, h)
+
+    if type == 1 or type == 3:
+        img = logo_abb(img, 258, 258)
+        temp = tempfile.mkstemp('.png')
+        temp = temp[1]
+
+        img.save(temp)
+        stream = open(temp)
+
+        return HttpResponse(stream, content_type="image/jpeg")
+
+    image_w, image_h = img.size
+
+    white = Image.open(white)
+
+    white_w = int(image_w / 8)
+    white_h = int(image_h / 8)
+
+    white = logo_abb(white, white_w, white_h)  # 图片缩略
+
+    white_w, white_h = white.size
+
+    w = int((image_w - white_w) / 2)
+    h = int((image_h - white_h) / 2)
+
+    # 合并二维码与白色图片
+    qr = merge_image(img, white, w, h)
+
+    # logo
+    logo = Image.open(logo)
+
+    logo_w = int(image_w / 8 - 8)
+    logo_h = int(image_h / 8 - 8)
+
+    logo = logo_abb(logo, logo_w, logo_h)  # logo 缩略
+
+    w = int((image_w - white_w) / 2 + 4)
+    h = int((image_h - white_h) / 2 + 4)
+
+    # 合并二维码与logo头像
+    img = merge_image(qr, logo, w, h)
+
+    img = logo_abb(img, 258, 258)
+
+    temp = tempfile.mkstemp('.png')
+    temp = temp[1]
+
+    img.save(temp)
+    stream = open(temp)
+
+    return HttpResponse(stream, content_type="image/jpeg")
 
     stream = buf.getvalue()
     return HttpResponse(stream, content_type="image/jpeg")
@@ -66,30 +168,3 @@ def scan_login(request):
     key = token.key
 
     return render(request, 'scanlogin.html', locals())
-
-# def check(request, key):
-#     # 查看扫码状态
-#     obj = QRToken.objects.filter(key=key).get()
-#     nowTime = int(time.mktime(datetime.datetime.now().timetuple()))
-#     created = int(time.mktime(obj.created.timetuple()))
-#     isexpiration = nowTime - created
-#
-#     try:
-#         if isexpiration > 60:
-#             return HttpResponse('408')
-#         elif obj.owner is None:
-#             return HttpResponse('505')
-#         else:
-#             return HttpResponse('201')
-#     except QRToken.DoesNotExist:
-#         raise Exception()
-#
-#
-# def success(request):
-#     # 登陆成功返回的页面
-#     return render(request, 'success.html')
-#
-#
-# def expiration(request):
-#     # 登陆超时返回的页面
-#     return render(request, 'expiration.html')

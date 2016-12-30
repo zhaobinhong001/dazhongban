@@ -50,9 +50,6 @@ def q(request, uid):
 
     img = generate_qrcode(url)
 
-    # if img.mode != 'RGBA':
-    #     img = img.convert('RGBA')
-
     ground_w, ground_h = ground.size
 
     if type == 2:

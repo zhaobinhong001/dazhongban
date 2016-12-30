@@ -32,8 +32,8 @@ def q(request, uid):
     logo = MEDIA_ROOT + "/avatar/default.jpg"
     white = MEDIA_ROOT + "/avatar/white.png"
 
-    list = range(1, 6)
-    type = choice(list)
+    random_list = range(1, 6)
+    type = choice(random_list)
 
     if type == 1:
         ground = Image.open(MEDIA_ROOT + "/avatar/ground1.jpg")
@@ -49,6 +49,9 @@ def q(request, uid):
         ground = Image.open(MEDIA_ROOT + "/avatar/ground1.jpg")
 
     img = generate_qrcode(url)
+
+    # if img.mode != 'RGBA':
+    #     img = img.convert('RGBA')
 
     ground_w, ground_h = ground.size
 

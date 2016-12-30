@@ -35,7 +35,7 @@ class BankcardSerializer(serializers.Serializer):
 class IdentitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Identity
-        exclude = ('owner', 'certType', 'originType')
+        exclude = ('owner', 'certType', 'originType', 'dn')
 
 
 class SignatureSerializer(serializers.ModelSerializer):

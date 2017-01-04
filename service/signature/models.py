@@ -77,7 +77,7 @@ class Identity(TimeStampedModel):
     cardNo = models.CharField(verbose_name=u'银行卡号', max_length=100, default='')
     bankID = models.CharField(verbose_name=u'银行ID', max_length=100, default='', choices=BANKID)
     cvn2 = models.CharField(verbose_name=u'信用卡背面的末3位数字', max_length=10, default='', null=True, blank=True)
-    dn = models.CharField(verbose_name=u'DN', max_length=200, default='', null=True, blank=True)
+    dn = models.CharField(verbose_name=u'DN', max_length=100, default='', null=True, blank=True)
     expired = models.CharField(verbose_name=u'有效期', max_length=100, default='', null=True, blank=True)
     level = models.CharField(verbose_name=u'认证级别 *', max_length=100, default='', null=True, blank=True,
         choices=CHOICES_LEVEL)

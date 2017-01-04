@@ -81,7 +81,7 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
             body, user = process_verify(uri, data)
 
             # 保存数据
-            if body['errors'] == '0':
+            if body['errors'] == 0:
                 detail = json.dumps(body['detail']) if isinstance(body['detail'], dict) else body['detail']
                 data = {'extra': detail, 'signs': resp.content, 'type': body['detail']['type']}
 

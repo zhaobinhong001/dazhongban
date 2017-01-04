@@ -55,8 +55,10 @@ def iddentity_verify(param=None):
         item = ret.json()
         item['cardNo'] = param['cardNo']
         return item, True
+    elif ret.status_code == 500:
+        return ret.content, False
 
-    return u'认证服务器错误 %s' % ret.content.encode('utf-8'), False
+    return ret.json(), False
 
 
 def process_verify(uri, data):

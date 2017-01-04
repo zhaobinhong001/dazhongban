@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db import models
 from model_utils.models import TimeStampedModel
 
-from config.settings.apps import BANKID
+from config.settings.apps import BANKID, CONTRACT_TYPE
 from service.trade.models import CONTRACT_TYPE
 
 

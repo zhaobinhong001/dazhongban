@@ -1,30 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import time
+
+from constance import config
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from model_utils import Choices
 from model_utils.models import TimeStampedModel, StatusModel
 
+from config.settings.apps import CONSUMPTION_TYPE, CONTRACT_TYPE
 from service.kernel.utils.china.number import Number
-
-from constance import config
-
-CONSUMPTION_TYPE = (
-    ('transfer', '转账'),
-    ('receiver', '收款'),
-    ('thirty', '第三方'),
-)
-
-CONTRACT_TYPE = (
-    ('transfer', '转账'),
-    ('receiver', '收款'),
-    ('thirty', '第三方支付'),
-    ('receipt', '收据'),
-    ('borrow', '借条'),
-    ('owe', '欠条'),
-)
+from service.signature.models import Signature
 
 
 # 合约表
@@ -32,9 +20,11 @@ class Contract(TimeStampedModel, StatusModel):
     # STATUS = (('sender', '发送'), ('receiver', '接受'),)
     STATUS = Choices(('normal', '无状态'), ('agree', '同意'), ('reject', '拒绝'))
 
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='contract_sender')
-    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='contract_receiver', blank=True,
-                                 null=True)
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='contract_sender', blank=True)
+    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='contract_receiver', blank=True)
+
+    sender_sign = models.ForeignKey(Signature, related_name='contract_sender_sing', blank=True, default='')
+    receiver_sign = models.ForeignKey(Signature, related_name='contract_receiver_sign', blank=True, default='')
 
     type = models.CharField(verbose_name=u'类型', max_length=100, default=0, choices=CONTRACT_TYPE)
     mobile = models.CharField(verbose_name=u'手机号', max_length=100, default='')
@@ -42,8 +32,12 @@ class Contract(TimeStampedModel, StatusModel):
     summary = models.CharField(verbose_name=u'原因', max_length=300)
     make_date = models.DateTimeField(verbose_name=u'操作时间', blank=True, null=True)
 
+    orderid = models.CharField(verbose_name=u'单号', max_length=200, default='')
     payment = models.CharField(verbose_name=u'支付账户', max_length=100, default='')
     receipt = models.CharField(verbose_name=u'收款账户', max_length=100, default='')
+
+    payment_bank = models.CharField(verbose_name=u'支付银行', max_length=100, default='')
+    receipt_bank = models.CharField(verbose_name=u'收款银行', max_length=100, default='')
 
     @property
     def description(self):
@@ -70,6 +64,12 @@ class Contract(TimeStampedModel, StatusModel):
 
     def __str__(self):
         return self.__unicode__()
+
+    def save(self, *args, **kwargs):
+        if self.orderid == '':
+            self.orderid = str(int(time.time() * 1000)) + str(int(time.clock() * 1000000))
+
+        super(self.__class__, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = _(u'合约记录')

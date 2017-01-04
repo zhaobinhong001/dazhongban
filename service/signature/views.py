@@ -129,6 +129,12 @@ class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     model = Signature
 
+    # lookup_field = 'owner_id'
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
     def get_queryset(self):
         return self.request.user.signatures.all()
 

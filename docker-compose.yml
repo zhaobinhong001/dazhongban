@@ -68,3 +68,9 @@ services:
       - redis
     command: celery -A config.celery flower -l INFO    
 
+  verifysign:
+    build:
+      context: .
+      dockerfile: ./docker/verify/Dockerfile
+    ports:
+      - "0.0.0.0:9090:8080"

@@ -73,3 +73,4 @@ flower
 #pandas
 django-jsonfield
 django-constance
+honcho

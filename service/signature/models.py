@@ -3,13 +3,12 @@ from __future__ import unicode_literals
 
 import jsonfield
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.db import models
 from model_utils.models import TimeStampedModel
 
 from config.settings.apps import BANKID
 from service.trade.models import CONTRACT_TYPE
-from django.contrib.contenttypes.models import ContentType
+
 
 class Bankcard(TimeStampedModel):
     card = models.CharField(verbose_name=u'银行卡号', max_length=200, default='')
@@ -37,7 +36,7 @@ class Signature(TimeStampedModel):
     # object_id = models.PositiveIntegerField()
 
     def __unicode__(self):
-            return '%s - %s' % (self.created, self.type)
+        return '%s - %s' % (self.created, self.type)
 
     def __str__(self):
         return self.__unicode__()
@@ -77,7 +76,7 @@ class Identity(TimeStampedModel):
     cardNo = models.CharField(verbose_name=u'银行卡号', max_length=100, default='')
     bankID = models.CharField(verbose_name=u'银行ID', max_length=100, default='', choices=BANKID)
     cvn2 = models.CharField(verbose_name=u'信用卡背面的末3位数字', max_length=10, default='', null=True, blank=True)
-    dn = models.CharField(verbose_name=u'DN', max_length=100, default='', null=True, blank=True)
+    dn = models.CharField(verbose_name=u'DN', max_length=200, default='', null=True, blank=True)
     expired = models.CharField(verbose_name=u'有效期', max_length=100, default='', null=True, blank=True)
     level = models.CharField(verbose_name=u'认证级别 *', max_length=100, default='', null=True, blank=True,
         choices=CHOICES_LEVEL)

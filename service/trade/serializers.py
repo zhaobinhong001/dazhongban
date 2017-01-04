@@ -27,6 +27,9 @@ class ContractDetailSerializer(serializers.ModelSerializer):
     receiver_name = serializers.StringRelatedField(read_only=True, source='receiver.profile.name')
     description = serializers.CharField()
 
+    receiver_serial = serializers.StringRelatedField(read_only=True, source='receiver_sign.serial')
+    sender_serial = serializers.StringRelatedField(read_only=True, source='sender_sign.serial')
+
     class Meta:
         model = Contract
         fields = '__all__'

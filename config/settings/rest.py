@@ -28,9 +28,14 @@ REST_FRAMEWORK = {
         # 'rest_framework_xml.renderers.XMLRenderer',
         # 'rest_framework_yaml.renderers.YAMLRenderer',
     ),
-    'DEFAULT_FILTER_BACKENDS': [
-        'url_filter.integrations.drf.DjangoFilterBackend',
-    ],
+    # 'DEFAULT_FILTER_BACKENDS': [
+    #     'url_filter.integrations.drf.DjangoFilterBackend',
+    #     'django_filters.rest_framework.DjangoFilterBackend',
+    # ],
+
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework_filters.backends.DjangoFilterBackend',
+    ),
     # 'DEFAULT_PARSER_CLASSES': (
     #     'rest_framework.parsers.JSONParser',
     #     'rest_framework_xml.parsers.XMLParser',

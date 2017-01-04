@@ -53,7 +53,6 @@ class ContractViewSet(viewsets.ModelViewSet):
     # filter_fields = ('created', 'id')
     filter_class = ContractFilter
 
-
     filter_backends = (filters.OrderingFilter, filters.DjangoFilterBackend)
     # filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
     ordering_fields = ('created', 'id')
@@ -87,6 +86,9 @@ class ContractViewSet(viewsets.ModelViewSet):
         #         queryset = queryset.all()
         #
         #     return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(sender=self.request.user)
 
 
 class TransferViewSet(viewsets.ModelViewSet):

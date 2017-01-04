@@ -74,3 +74,10 @@ services:
       dockerfile: ./docker/verify/Dockerfile
     ports:
       - "0.0.0.0:9090:8080"
+
+  bankcard:
+    build:
+      context: .
+      dockerfile: ./docker/bankcard/Dockerfile
+    ports:
+      - "0.0.0.0:9050:5000"

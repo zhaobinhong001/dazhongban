@@ -1,12 +1,12 @@
 FROM python:2.7
 ENV PYTHONUNBUFFERED 1
 
-COPY ./pip.conf /root/.pip/pip.conf
+COPY ./docker/bankcard/pip.conf /root/.pip/pip.conf
+COPY ./docker/bankcard/app/requirements.txt /requirements.txt
 
-COPY ./app/requirements.txt /requirements.txt
 RUN pip install -r /requirements.txt
 
-COPY ./app /app
+COPY ./docker/bankcard/app /app
 
 WORKDIR /app
 

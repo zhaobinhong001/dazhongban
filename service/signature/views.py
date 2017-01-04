@@ -211,6 +211,8 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
         data['frontPhoto'] = request.data['frontPhoto']
         data['backPhoto'] = request.data['backPhoto']
+        data['bankID'] = request.data['bankID']
+        data['level'] = request.data['level']
 
         # 判断记录是否存在
         # 存在为更新

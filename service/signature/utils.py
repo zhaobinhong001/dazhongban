@@ -130,5 +130,4 @@ def process_verify(uri, data):
 
         res.save()
 
-    return {'errors': 0,
-        'detail': {'type': res.type, 'data': {'status': res.status, 'uri': uri, 'id': res.id}}}, token.user
+    return {'errors': 0, 'detail': {'type': res.type, 'data': {'status': res.status, 'uri': uri, 'id': res.id}}}, token.user

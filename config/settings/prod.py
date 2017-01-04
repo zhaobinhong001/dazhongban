@@ -10,28 +10,28 @@ except ImportError, e:
 
 DEBUG = False
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, '..', 'db.sqlite3'),
-    },
-}
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'surprise',
-#         'USER': 'surprise',
-#         'PASSWORD': 'secret',
-#         'HOST': '127.0.0.1',
-#         'PORT': '5432',
-#         'OPTIONS': {
-#             'isolation_level': ISOLATION_LEVEL_SERIALIZABLE,
-#             'client_encoding': 'UTF8',
-#         },
-#         'timezone': 'UTC',
-#     }
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, '..', 'db.sqlite3'),
+#     },
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': env('POSTGRES_USER',),
+        'USER': env('POSTGRES_USER',),
+        'PASSWORD': env('POSTGRES_PASSWORD',),
+        'HOST': 'postgres',
+        'PORT': '5432',
+        'OPTIONS': {
+            'isolation_level': ISOLATION_LEVEL_SERIALIZABLE,
+            'client_encoding': 'UTF8',
+        },
+        'timezone': 'UTC',
+    }
+}
 
 # CACHES = {
 #     'default': {

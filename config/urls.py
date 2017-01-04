@@ -6,11 +6,14 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from whitenoise import django
 
-from service.dashboard.sites import DashboardSite
+try:
+    from service.dashboard.sites import DashboardSite
 
-admin.site = DashboardSite()
-admin.sites.site = admin.site
-admin.autodiscover()
+    admin.site = DashboardSite()
+    admin.sites.site = admin.site
+    admin.autodiscover()
+except Exception:
+    pass
 
 urlpatterns = (
     url(r'^', include('service.frontend.urls')),

@@ -3,7 +3,10 @@ from __future__ import unicode_literals
 
 import os
 
-from .base import BASE_DIR
+try:
+    from .base import BASE_DIR
+except ImportError as e:
+    raise e
 
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'

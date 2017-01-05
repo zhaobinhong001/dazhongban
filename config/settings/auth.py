@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from .base import INSTALLED_APPS
-
-INSTALLED_APPS += (
-    # 'oauth_provider',
-    # 'allauth',
-)
-
 ANONYMOUS_USER_ID = -1
 
 AUTH_USER_MODEL = 'consumer.CustomUser'

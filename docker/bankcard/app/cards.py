@@ -26,8 +26,9 @@ def bankcard(num=None):
                 del vv['oldcard']
                 result.update(vv)
                 # return json.dumps(result)
-                return jsonify({'result': result})
-        return "未找到该类型卡信息,请确认卡号书写正确"
+                return jsonify({'result': result, 'status': 1})
+
+        return jsonify({'status': 0})
     else:
         result = {}
         df = pd.read_hdf('./resources/bankcard.h5')
@@ -40,9 +41,9 @@ def bankcard(num=None):
                 del vv['oldcard']
                 result.update(vv)
                 # return json.dumps(result)
-                return jsonify({'result': result})
+                return jsonify({'result': result, 'status': 1})
 
-        return "未找到该类型卡信息,请确认卡号书写正确"
+        return jsonify({'status': 0})
 
 
 @app.route('/')
@@ -51,4 +52,4 @@ def hello_world():
 
 
 if __name__ == '__main__':
-    app.run(port=000, debug=True)
+    app.run(port=5000, debug=True)

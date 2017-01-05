@@ -3,12 +3,12 @@
 
 from __future__ import unicode_literals
 
-import time
-
 import datetime
+
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
 from suit_dashboard.box import Box, Item
+
 from service.kernel.models.enterprise import EnterpriseUser
 
 # 用户信息
@@ -20,7 +20,7 @@ userTitle = '总用户数量'
 
 
 def userDate():
-    if (get_user_model().objects.all().count()):
+    if get_user_model().objects.all().count():
         userlen = get_user_model().objects.all().count()
         Yesterdaylen = get_user_model().objects.filter(date_joined__range=(yesterday, today)).count()
         weeklen = get_user_model().objects.filter(date_joined__range=(weekday, today)).count()
@@ -156,7 +156,7 @@ def userLineDate():
 # @ary   12个月对应数据 type：array
 
 def lineOption(title, ary, month=userLineDate()['data_year_month'], xAxis='时间', yAxis='数量', tooltipVal='人',
-               lineName='用户量'):
+        lineName='用户量'):
     data = {
         "title": {
             "text": _(title),
@@ -268,7 +268,7 @@ class User(Box):
 
         # Now create a chart to display CPU and RAM usage
         chart_options = pieOption(userTitle, 'data', userDate()['userlen'], userDate()['Yesterdaylen'],
-                                  userDate()['weeklen'])
+            userDate()['weeklen'])
 
         # Create the chart item
         item_chart = Item(
@@ -301,7 +301,7 @@ class BasicLine(Box):
 class Authentication(Box):
     def get_items(self):
         chart_options = pieOption('已认证用户量', 'aution', userDate()['userlen'], userDate()['Yesterdaylen'],
-                                  userDate()['weeklen'])
+            userDate()['weeklen'])
 
         # Create the chart item
         item_chart = Item(
@@ -352,7 +352,7 @@ enterpriseUserTitle = '总入驻企业数量'
 class SettledEnterprise(Box):
     def get_items(self):
         chart_options = pieOption(enterpriseUserTitle, 'seten', entDate()['entlen'], entDate()['yesterdayenlen'],
-                                  entDate()['weekenlen'])
+            entDate()['weekenlen'])
 
         # Create the chart item
         item_chart = Item(
@@ -404,7 +404,7 @@ class SetEnLine(Box):
 class Signatures(Box):
     def get_items(self):
         chart_options = pieOption('用户签名次数', 'sign', userDate()['userlen'], userDate()['Yesterdaylen'],
-                                  userDate()['weeklen'])
+            userDate()['weeklen'])
 
         # Create the chart item
         item_chart = Item(
@@ -439,7 +439,7 @@ class SignLine(Box):
 class Evidences(Box):
     def get_items(self):
         chart_options = pieOption('用户取证次数', 'evid', userDate()['userlen'], userDate()['Yesterdaylen'],
-                                  userDate()['weeklen'])
+            userDate()['weeklen'])
 
         # Create the chart item
         item_chart = Item(

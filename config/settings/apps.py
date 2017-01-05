@@ -341,3 +341,16 @@ CONSTANCE_CONFIG = {
     'RECEIPT': ('', '收据模板'),
     'OWE': ('', '欠条模板'),
 }
+CONSUMPTION_TYPE = (
+    ('transfer', '转账'),
+    ('receiver', '收款'),
+    ('thirty', '第三方'),
+)
+CONTRACT_TYPE = (
+    ('transfer', '转账'),
+    ('receiver', '收款'),
+    ('thirty', '第三方支付'),
+    ('receipt', '收据'),
+    ('borrow', '借条'),
+    ('owe', '欠条'),
+)

@@ -28,8 +28,8 @@ class TokenViewSet(GenericViewSet):
     permission_classes = (IsAuthenticated,)
 
     def list(self, request, *args, **kwargs):
-        nick = request.user.profile.nick if request.user.profile.nick else u'匿名'
-        avatar = request.user.profile.avatar.url if request.user.profile.avatar else u''
+        nick = request.user.profile.nick if hasattr(request.user, 'profile') else u'匿名'
+        avatar = request.user.profile.avatar.url if hasattr(request.user, 'profile') else u''
         avatar = request.build_absolute_uri(avatar) if avatar else ''
 
         user = client.User.getToken(userId=request.user.pk, name=nick, portraitUri=avatar)

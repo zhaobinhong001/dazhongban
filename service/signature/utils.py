@@ -74,8 +74,8 @@ def process_verify(uri, data):
     sign = Signature()
     sign.owner = token.user
     sign.type = data.get('type')
-    sign.expired = data.get('enddate')
-    sign.serial = data.get('serialID')
+    sign.expired = data.get('endDate')
+    sign.serial = data.get('serialNo')
     sign.save()
 
     if '/contract/' in uri:

@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from .base import INSTALLED_APPS
+try:
+    from .base import INSTALLED_APPS
+except ImportError as e:
+    raise e
 
 INSTALLED_APPS += (
     'service.frontend',
@@ -343,11 +346,13 @@ CONSTANCE_CONFIG = {
     'RECEIPT': ('', '收据模板'),
     'OWE': ('', '欠条模板'),
 }
+
 CONSUMPTION_TYPE = (
     ('transfer', '转账'),
     ('receiver', '收款'),
     ('thirty', '第三方'),
 )
+
 CONTRACT_TYPE = (
     ('transfer', '转账'),
     ('receiver', '收款'),

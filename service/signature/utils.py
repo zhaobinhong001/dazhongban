@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 
 from service.consumer.utils import md5
+from service.signature.models import Signature
 from service.trade.models import Contract
 
 data = {
@@ -68,17 +69,28 @@ def process_verify(uri, data):
     except Token.DoesNotExist:
         return {'errors': 1, 'detail': '用户不存在'}, False
 
+    # 记录签名数据
+
+    sign = Signature()
+    sign.owner = token.user
+    sign.type = data.get('type')
+    sign.expired = data.get('enddate')
+    sign.serial = data.get('serialID')
+    sign.save()
+
     if '/contract/' in uri:
         if data.get('id'):
             try:
                 res = Contract.objects.get(id=data.get('id'))
                 res.receiver = token.user
+                res.receiver_sign = sign
                 del data['id']
             except Contract.DoesNotExist:
                 return {'errors': 1, 'detail': '合约不存在'}, False
         else:
             res = Contract()
             res.sender_id = token.user.pk
+            res.sender_sign = sign
 
         for key, val in data.items():
             if hasattr(res, key):
@@ -121,8 +133,10 @@ def process_verify(uri, data):
             if type == 'transfer':
                 res.sender_id = token.user.pk
                 res.receiver_id = receiver_id
+                res.sender_sign = sign
             elif type == 'receiver':
                 res.sender_id = token.user.pk
+                res.sender_sign = sign
             elif type == 'thirty':
                 pass
 
@@ -132,4 +146,9 @@ def process_verify(uri, data):
 
         res.save()
 
-    return {'errors': 0, 'detail': {'type': res.type, 'data': {'status': res.status, 'uri': uri, 'id': res.id}}}, token.user
+    extra = {'type': data.get('type'), 'data': {'status': data.get('status'), 'uri': uri, 'id': res.id}}
+    sign.extra = json.dumps(extra)
+    sign.save()
+
+    return {'errors': 0,
+        'detail': {'type': res.type, 'data': {'status': res.status, 'uri': uri, 'id': res.id}}}, token.user

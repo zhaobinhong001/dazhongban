@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from .base import INSTALLED_APPS
+try:
+    from .base import INSTALLED_APPS
+except ImportError as e:
+    raise e
 
 INSTALLED_APPS += ('easy_thumbnails',)
 

@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from .base import *
+try:
+    from .base import INSTALLED_APPS
+except ImportError as e:
+    pass
 
 INSTALLED_APPS = ("suit",) + INSTALLED_APPS + (
-    # 'suit_redactor', 
     'mptt',
 )
 

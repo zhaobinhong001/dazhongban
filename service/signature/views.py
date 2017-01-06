@@ -78,19 +78,7 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
             # 处理数据
             uri = rest.get('uri')
             data = rest.get('data')
-            body, user = process_verify(uri, data)
-
-            # 保存数据
-            if body['errors'] == 0:
-                detail = json.dumps(body['detail']) if isinstance(body['detail'], dict) else body['detail']
-                data = {'extra': detail, 'signs': resp.content, 'type': body['detail']['type']}
-
-                serializer = self.get_serializer(data=data)
-                serializer.is_valid(raise_exception=True)
-
-                self.request.user = user
-                self.perform_create(serializer)
-
+            body, _ = process_verify(uri, data)
             body = json.dumps(body)
 
         # 服务签名

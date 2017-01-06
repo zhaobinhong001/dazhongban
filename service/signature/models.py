@@ -83,6 +83,9 @@ class Identity(TimeStampedModel):
     level = models.CharField(verbose_name=u'认证级别 *', max_length=100, default='', null=True, blank=True,
         choices=CHOICES_LEVEL)
 
+    serial = models.CharField(verbose_name=u'证书编号', max_length=100, default='', null=True, blank=True)
+    enddate = models.DateField(verbose_name=u'证书过期时间', blank=True, null=True)
+
     def __unicode__(self):
         return self.name
 

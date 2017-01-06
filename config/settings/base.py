@@ -13,7 +13,7 @@ env = environ.Env()
 
 SECRET_KEY = env('DJANGO_SECRET_KEY', default='s4lk7ni)@9n0+4a!2_$vss8hqks_0#f_ia%i8k!djc87y$@0x5')
 
-DEBUG = env.bool("DJANGO_DEBUG", True)
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -90,7 +90,7 @@ try:
     from .static import *
     from .celery import *
 
-    from .cache import *
+    # from .cache import *
     from .thumb import *
 
 except ImportError as e:

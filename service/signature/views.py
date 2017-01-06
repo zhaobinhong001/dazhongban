@@ -7,7 +7,6 @@ import re
 
 import requests
 from django.conf import settings
-from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from filters.mixins import FiltersMixin
@@ -127,7 +126,7 @@ class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
         return self.request.user.signatures.all()
 
 
-class IdentityViewSet(viewsets.ModelViewSet):
+class IdentityViewSet(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet):
     '''
     身份认证接口
     ----------
@@ -140,6 +139,12 @@ class IdentityViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = IdentitySerializer
     queryset = Identity.objects.all()
+
+    # def list(self, request, *args, **kwargs):
+    #     queryset = self.filter_queryset(self.get_queryset())
+    #     serializer = self.get_serializer(queryset)
+    #     print serializer.data.get('results')
+    #     return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         errors = {}
@@ -211,7 +216,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
         # 判断记录是否存在
         # 存在为更新
         try:
-            instance = self.get_queryset().get(owner=request.user)
+            instance = self.get_queryset()
             serializer = self.get_serializer(instance, data=data)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
@@ -230,12 +235,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def get_queryset(self):
-        queryset = self.queryset.filter(owner=self.request.user)
-
-        if isinstance(queryset, QuerySet):
-            queryset = queryset.all()
-
-        return queryset
+        return self.queryset.filter(owner=self.request.user)
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)

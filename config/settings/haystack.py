@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import os
 
 try:
-    from .base import INSTALLED_APPS
+    from .base import *
 except ImportError as e:
     raise e
 

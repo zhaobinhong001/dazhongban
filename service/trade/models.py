@@ -23,8 +23,8 @@ class Contract(TimeStampedModel, StatusModel):
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='contract_sender', blank=True)
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='contract_receiver', blank=True, null=True)
 
-    sender_sign = models.ForeignKey(Signature, related_name='contract_sender_sing', blank=True, null=True, default='')
-    receiver_sign = models.ForeignKey(Signature, related_name='contract_receiver_sign', blank=True, null=True,
+    sender_sign = models.ForeignKey(Signature, related_name='sender_sign', blank=True, null=True, default='')
+    receiver_sign = models.ForeignKey(Signature, related_name='receiver_sign', blank=True, null=True,
         default='')
 
     type = models.CharField(verbose_name=u'类型', max_length=100, default=0, choices=CONTRACT_TYPE)

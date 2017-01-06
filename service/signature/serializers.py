@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-# import pandas as pd
 import requests
 from django.conf import settings
 from rest_framework import serializers

@@ -14,6 +14,7 @@ router.register(r'bankcard', BankcardViewSet, base_name='bankcard')
 router.register(r'callback', CallbackViewSet, base_name='callback')
 router.register(r'validate', ValidateViewSet, base_name='validate')
 router.register(r'identity', IdentityViewSet, base_name='identity')
+
 router.register(r'certificate', CertificateViewSet, base_name='certificate')
 
 urlpatterns = (

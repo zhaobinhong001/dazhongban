@@ -3,19 +3,19 @@ ENV PYTHONUNBUFFERED 1
 
 # Requirements have to be pulled and installed here, otherwise caching won't work
 COPY ./requirements.txt /requirements.txt
+COPY ./docker/django/pip.conf /root/.pip/pip.conf
 
 RUN echo 'http://mirrors.aliyun.com/alpine/v3.4/main/' > /etc/apk/repositories
 RUN echo 'http://mirrors.aliyun.com/alpine/v3.4/community/' >> /etc/apk/repositories
 
 RUN apk update && apk add bash
 RUN apk add py-psycopg2 py-gunicorn py-pillow py-pip py-tornado libevent python-dev py-libxml2
-RUN pip install --upgrade pip setuptools wheel -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com 
+RUN pip install --upgrade pip setuptools wheel -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 
 RUN pip install -r /requirements.txt
 RUN addgroup -S django && adduser -S -G django django
 
 COPY . /app
-COPY ./docker/django/pip.conf /root/.pip/pip.conf
 
 RUN chown -R django /app
 #RUN DJANGO_SETTINGS_MODULE=config.settings.prod python /app/manage.py migrate

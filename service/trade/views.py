@@ -48,16 +48,15 @@ class ContractViewSet(viewsets.ModelViewSet):
 
     serializer_class = ContractSerializer
     permission_classes = (IsAuthenticated,)
-
     queryset = Contract.objects.all()
     # filter_fields = ('created', 'id')
-    filter_class = ContractFilter
+    # filter_class = ContractFilter
 
-    filter_backends = (filters.OrderingFilter, filters.DjangoFilterBackend)
+    # filter_backends = (filters.OrderingFilter, filters.DjangoFilterBackend)
     # filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    ordering_fields = ('created', 'id')
+    # ordering_fields = ('created', 'id')
     # ordering_fields = '__all__'
-    ordering = ('created', 'id')
+    # ordering = ('created', 'id')
 
     # ordering = ('username',)
 

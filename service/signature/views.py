@@ -71,12 +71,15 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
         else:
 
             # 解析数据
-            sign = resp.content.decode('hex')
-            rest = json.loads(sign)
+            sign = resp.json()
+            rest = json.loads(sign.get('source').decode('hex'))
 
             # 处理数据
             uri = rest.get('uri')
             data = rest.get('data')
+            data['serialNo'] = sign['serialNo']
+            data['endDate'] = sign['endDate']
+            data['startDate'] = sign['startDate']
             body, _ = process_verify(uri, data)
             body = json.dumps(body)
 
@@ -126,7 +129,7 @@ class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
         return self.request.user.signatures.all()
 
 
-class IdentityViewSet(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet):
+class IdentityViewSet(viewsets.ModelViewSet):
     '''
     身份认证接口
     ----------
@@ -203,8 +206,6 @@ class IdentityViewSet(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet):
 
         data, status_ = iddentity_verify(item)
 
-        print data
-
         if not status_:
             raise ValidationError(data)
 
@@ -213,29 +214,34 @@ class IdentityViewSet(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet):
         data['bankID'] = request.data['bankID']
         data['level'] = request.data['level']
 
+        # del data['serial']
+        # del data['enddate']
+
         # 判断记录是否存在
         # 存在为更新
-        try:
-            instance = self.get_queryset()
-            serializer = self.get_serializer(instance, data=data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-        except Identity.DoesNotExist:
-            # 不存在为创建
-            serializer = self.get_serializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
+        # try:
+        self.queryset.filter(owner=self.request.user).delete()
 
-            # 创建时，生成模拟银行卡号
-            Bankcard.objects.create(owner=request.user, bank=u'收付宝', card=bankcard(), suffix='', type=u'借记卡', flag='')
-            request.user.level = request.data.get('level')
-            request.user.credit = '50'
-            request.user.save()
+        # 不存在为创建
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        # 创建时，生成模拟银行卡号
+        Bankcard.objects.create(owner=request.user, bank=u'收付宝', card=bankcard(), suffix='', type=u'借记卡', flag='')
+        request.user.level = request.data.get('level')
+        request.user.credit = '50'
+        request.user.save()
 
         return Response(serializer.data)
 
-    def get_queryset(self):
-        return self.queryset.filter(owner=self.request.user)
+    # def get_queryset(self):
+    #     queryset = self.queryset.filter(owner=self.request.user)
+    #
+    #     if isinstance(queryset, QuerySet):
+    #         queryset = queryset.all()
+    #
+    #     return queryset
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)

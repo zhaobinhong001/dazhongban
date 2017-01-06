@@ -12,7 +12,8 @@ from PIL import Image
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from config.settings.static import MEDIA_ROOT
+from config.settings.static import MEDIA_ROOT, STATIC_URL
+from service.consumer.models import Profile
 from .models import QRToken
 from .utiils import logo_abb, merge_image
 
@@ -29,24 +30,34 @@ def generate_qrcode(data, size=11):
 def q(request, uid):
     uid = short_url.decode_url(uid)
     url = 'http://' + request.get_host() + '/api/users/%s/invite/' % uid
-    logo = MEDIA_ROOT + "/avatar/default.jpg"
-    white = MEDIA_ROOT + "/avatar/white.png"
+
+    white = "./service/frontend/static/frontend/images/white.png"
+
+    try:
+        obj = Profile.objects.filter(id=uid).get()
+    except Profile.DoesNotExist:
+        return HttpResponse('获取头像信息失败')
+
+    if obj.avatar.name != '':
+        logo = MEDIA_ROOT + '/' + obj.avatar.name
+    else:
+        logo = MEDIA_ROOT + "/avatar/default.jpg"
 
     random_list = range(1, 6)
     type = choice(random_list)
 
     if type == 1:
-        ground = Image.open(MEDIA_ROOT + "/avatar/ground1.jpg")
+        ground = Image.open("./service/frontend/static/frontend/images/ground1.jpg")
     elif type == 2:
-        ground = Image.open(MEDIA_ROOT + "/avatar/ground2.jpg")
+        ground = Image.open("./service/frontend/static/frontend/images/ground2.jpg")
     elif type == 3:
-        ground = Image.open(MEDIA_ROOT + "/avatar/ground3.jpg")
+        ground = Image.open("./service/frontend/static/frontend/images/ground3.jpg")
     elif type == 4:
-        ground = Image.open(MEDIA_ROOT + "/avatar/ground4.jpg")
+        ground = Image.open("./service/frontend/static/frontend/images/ground4.jpg")
     elif type == 5:
-        ground = Image.open(MEDIA_ROOT + "/avatar/ground5.jpg")
+        ground = Image.open("./service/frontend/static/frontend/images/ground5.jpg")
     else:
-        ground = Image.open(MEDIA_ROOT + "/avatar/ground1.jpg")
+        ground = Image.open("./service/frontend/static/frontend/images/ground1.jpg")
 
     img = generate_qrcode(url)
 
@@ -129,9 +140,6 @@ def q(request, uid):
     img.save(temp)
     stream = open(temp)
 
-    return HttpResponse(stream, content_type="image/jpeg")
-
-    stream = buf.getvalue()
     return HttpResponse(stream, content_type="image/jpeg")
 
 

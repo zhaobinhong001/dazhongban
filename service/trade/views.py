@@ -6,7 +6,7 @@ from django.db.models import QuerySet
 from rest_framework import filters, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from url_filter.integrations.drf import DjangoFilterBackend
+from rest_framework_filters import FilterSet, DateFromToRangeFilter
 
 from service.trade.models import Purchased
 from service.trade.serializers import PurchasedSerializer, ContractDetailSerializer
@@ -14,7 +14,19 @@ from .models import Contract, Transfer
 from .serializers import ContractSerializer, TransferSerializer
 
 
-class ContractViewSet(viewsets.ReadOnlyModelViewSet):
+class ContractFilterSet(FilterSet):
+    class Meta(object):
+        model = Contract
+
+
+class ContractFilter(FilterSet):
+    created = DateFromToRangeFilter()
+
+    class Meta:
+        model = Contract
+
+
+class ContractViewSet(viewsets.ModelViewSet):
     '''
     合约接口
     ----
@@ -34,14 +46,19 @@ class ContractViewSet(viewsets.ReadOnlyModelViewSet):
     例如: ?created__range=2010-01-01,2016-12-31
     '''
 
-    filter_backends = (DjangoFilterBackend, filters.OrderingFilter,)
-    filter_fields = ['created']
-
-    ordering_fields = ('created',)
-    ordering = ('id',)
-    queryset = Contract.objects.all()
     serializer_class = ContractSerializer
     permission_classes = (IsAuthenticated,)
+    queryset = Contract.objects.all()
+    # filter_fields = ('created', 'id')
+    # filter_class = ContractFilter
+
+    # filter_backends = (filters.OrderingFilter, filters.DjangoFilterBackend)
+    # filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    # ordering_fields = ('created', 'id')
+    # ordering_fields = '__all__'
+    # ordering = ('created', 'id')
+
+    # ordering = ('username',)
 
     def retrieve(self, request, *args, **kwargs):
         self.queryset = self.queryset
@@ -61,13 +78,16 @@ class ContractViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    def get_queryset(self):
-        queryset = self.queryset
+        # def get_queryset(self):
+        #     queryset = self.queryset
+        #
+        #     if isinstance(queryset, QuerySet):
+        #         queryset = queryset.all()
+        #
+        #     return queryset
 
-        if isinstance(queryset, QuerySet):
-            queryset = queryset.all()
-
-        return queryset
+    def perform_create(self, serializer):
+        serializer.save(sender=self.request.user)
 
 
 class TransferViewSet(viewsets.ModelViewSet):

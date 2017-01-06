@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from .base import INSTALLED_APPS
+try:
+    from .base import *
+except ImportError as e:
+    raise e
 
 INSTALLED_APPS += (
     'rest_framework',
     'rest_framework_word_filter',
     'rest_framework.authtoken',
     'rest_framework_swagger',
+
     'drf_multiple_model',
     'django_filters',
     'corsheaders',
@@ -28,9 +32,14 @@ REST_FRAMEWORK = {
         # 'rest_framework_xml.renderers.XMLRenderer',
         # 'rest_framework_yaml.renderers.YAMLRenderer',
     ),
-    'DEFAULT_FILTER_BACKENDS': [
-        'url_filter.integrations.drf.DjangoFilterBackend',
-    ],
+    # 'DEFAULT_FILTER_BACKENDS': [
+    #     'url_filter.integrations.drf.DjangoFilterBackend',
+    #     'django_filters.rest_framework.DjangoFilterBackend',
+    # ],
+
+    # 'DEFAULT_FILTER_BACKENDS': (
+    #     'rest_framework_filters.backends.DjangoFilterBackend',
+    # ),
     # 'DEFAULT_PARSER_CLASSES': (
     #     'rest_framework.parsers.JSONParser',
     #     'rest_framework_xml.parsers.XMLParser',

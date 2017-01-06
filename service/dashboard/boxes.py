@@ -3,24 +3,32 @@
 
 from __future__ import unicode_literals
 
-import time
-
 import datetime
+
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext as _
 from suit_dashboard.box import Box, Item
+
 from service.kernel.models.enterprise import EnterpriseUser
 
 # 用户信息
-userlen = get_user_model().objects.all().count()
+
 today = datetime.date.today()
 yesterday = today - datetime.timedelta(days=1)
 weekday = today - datetime.timedelta(days=7)
-
-Yesterdaylen = get_user_model().objects.filter(date_joined__range=(yesterday, today)).count()
-weeklen = get_user_model().objects.filter(date_joined__range=(weekday, today)).count()
-
 userTitle = '总用户数量'
+
+
+def userDate():
+    if get_user_model().objects.all().count():
+        userlen = get_user_model().objects.all().count()
+        Yesterdaylen = get_user_model().objects.filter(date_joined__range=(yesterday, today)).count()
+        weeklen = get_user_model().objects.filter(date_joined__range=(weekday, today)).count()
+    else:
+        userlen = 0
+        Yesterdaylen = 0
+        weeklen = 0
+    return {'userlen': userlen, 'Yesterdaylen': Yesterdaylen, 'weeklen': weeklen}
 
 
 # pie chart
@@ -109,40 +117,46 @@ def pieOption(title, href, hislen, yesterdaylen, weeklen):
 
 # line chart
 # user 用户信息
-now = datetime.datetime.now()
-today_year = now.year
-last_year = int(now.year) - 1
-today_year_months = range(1, now.month + 1)
-last_year_months = range(now.month + 1, 13)
-data_list_lasts = []
+def userLineDate():
+    now = datetime.datetime.now()
+    today_year = now.year
+    last_year = int(now.year) - 1
+    today_year_months = range(1, now.month + 1)
+    last_year_months = range(now.month + 1, 13)
+    data_list_lasts = []
 
-for last_year_month in last_year_months:
-    date_list = '%s-%s' % (last_year, last_year_month)
+    for last_year_month in last_year_months:
+        date_list = '%s-%s' % (last_year, last_year_month)
 
-    data_list_lasts.append(date_list)
+        data_list_lasts.append(date_list)
 
-data_list_todays = []
+    data_list_todays = []
 
-for today_year_month in today_year_months:
-    data_list = '%s-%s' % (today_year, today_year_month)
+    for today_year_month in today_year_months:
+        data_list = '%s-%s' % (today_year, today_year_month)
 
-    data_list_todays.append(data_list)
+        data_list_todays.append(data_list)
 
-data_year_month = data_list_lasts + data_list_todays
+    data_year_month = data_list_lasts + data_list_todays
 
-# ina = get_user_model().objects.filter(date_joined__year='2016', date_joined__month='12')
-ary = []
+    # ina = get_user_model().objects.filter(date_joined__year='2016', date_joined__month='12')
+    ary = []
+    if (get_user_model().objects):
+        for myd in data_year_month:
+            ye = myd.split('-')
+            ina = get_user_model().objects.filter(date_joined__year=ye[0], date_joined__month=ye[1]).count()
+            ary.append(ina)
+    else:
+        ary = []
 
-for myd in data_year_month:
-    ye = myd.split('-')
-    ina = get_user_model().objects.filter(date_joined__year=ye[0], date_joined__month=ye[1]).count()
-    ary.append(ina)
+    return {'ary': ary, 'data_year_month': data_year_month}
 
 
 # @title 线图标题
 # @ary   12个月对应数据 type：array
 
-def lineOption(title, ary, month=data_year_month, xAxis='时间', yAxis='数量', tooltipVal='人', lineName='用户量'):
+def lineOption(title, ary, month=userLineDate()['data_year_month'], xAxis='时间', yAxis='数量', tooltipVal='人',
+        lineName='用户量'):
     data = {
         "title": {
             "text": _(title),
@@ -253,7 +267,8 @@ class User(Box):
         #     cpu_color = orange
 
         # Now create a chart to display CPU and RAM usage
-        chart_options = pieOption(userTitle, 'data', userlen, Yesterdaylen, weeklen)
+        chart_options = pieOption(userTitle, 'data', userDate()['userlen'], userDate()['Yesterdaylen'],
+            userDate()['weeklen'])
 
         # Create the chart item
         item_chart = Item(
@@ -268,7 +283,7 @@ class User(Box):
 
 class BasicLine(Box):
     def get_items(self):
-        chart_options = lineOption('总用户', ary, data_year_month)
+        chart_options = lineOption('总用户', userLineDate()['ary'], userLineDate()['data_year_month'])
 
         # Create the chart item
         item_chart = Item(
@@ -285,7 +300,8 @@ class BasicLine(Box):
 # pieOption('已认证用户量','aution',userlen, Yesterdaylen, weeklen)
 class Authentication(Box):
     def get_items(self):
-        chart_options = pieOption('已认证用户量', 'aution', userlen, Yesterdaylen, weeklen)
+        chart_options = pieOption('已认证用户量', 'aution', userDate()['userlen'], userDate()['Yesterdaylen'],
+            userDate()['weeklen'])
 
         # Create the chart item
         item_chart = Item(
@@ -302,7 +318,7 @@ class Authentication(Box):
 # lineOption('已认证用户量', ary, data_year_month)
 class AutionLine(Box):
     def get_items(self):
-        chart_options = lineOption('已认证用户量', ary, data_year_month)
+        chart_options = lineOption('已认证用户量', userLineDate()['ary'], userLineDate()['data_year_month'])
 
         # Create the chart item
         item_chart = Item(
@@ -318,15 +334,25 @@ class AutionLine(Box):
 # 总入驻企业数量 chart date
 
 # 入驻企业信息
-entlen = EnterpriseUser.objects.all().count()
-yesterdayenlen = EnterpriseUser.objects.filter(settled_date__range=(yesterday, today)).count()
-weekenlen = EnterpriseUser.objects.filter(settled_date__range=(weekday, today)).count()
+def entDate():
+    if (EnterpriseUser.objects.all().count()):
+        entlen = EnterpriseUser.objects.all().count()
+        yesterdayenlen = EnterpriseUser.objects.filter(settled_date__range=(yesterday, today)).count()
+        weekenlen = EnterpriseUser.objects.filter(settled_date__range=(weekday, today)).count()
+    else:
+        entlen = 0
+        yesterdayenlen = 0
+        weekenlen = 0
+    return {'entlen': entlen, 'yesterdayenlen': yesterdayenlen, 'weekenlen': weekenlen}
+
+
 enterpriseUserTitle = '总入驻企业数量'
 
 
 class SettledEnterprise(Box):
     def get_items(self):
-        chart_options = pieOption(enterpriseUserTitle, 'seten', entlen, yesterdayenlen, weekenlen)
+        chart_options = pieOption(enterpriseUserTitle, 'seten', entDate()['entlen'], entDate()['yesterdayenlen'],
+            entDate()['weekenlen'])
 
         # Create the chart item
         item_chart = Item(
@@ -342,17 +368,24 @@ class SettledEnterprise(Box):
 # 入驻企业数量 line data
 
 setenTitle = '总入驻企业数量'
-setenAry = []
-for seten in data_year_month:
-    seten = seten.split('-')
-    setA = EnterpriseUser.objects.filter(settled_date__year=seten[0], settled_date__month=seten[1]).count()
-    setenAry.append(setA)
+
+
+def setLineDate():
+    setenAry = []
+    if (EnterpriseUser.objects):
+        for seten in userLineDate()['data_year_month']:
+            seten = seten.split('-')
+            setA = EnterpriseUser.objects.filter(settled_date__year=seten[0], settled_date__month=seten[1]).count()
+            setenAry.append(setA)
+    else:
+        setenAry = []
+    return {'setenAry': setenAry}
 
 
 # create 入驻企业数量 line
 class SetEnLine(Box):
     def get_items(self):
-        chart_options = lineOption(setenTitle, setenAry, data_year_month)
+        chart_options = lineOption(setenTitle, setLineDate()['setenAry'], userLineDate()['data_year_month'])
 
         # Create the chart item
         item_chart = Item(
@@ -370,7 +403,8 @@ class SetEnLine(Box):
 
 class Signatures(Box):
     def get_items(self):
-        chart_options = pieOption('用户签名次数', 'sign', userlen, Yesterdaylen, weeklen)
+        chart_options = pieOption('用户签名次数', 'sign', userDate()['userlen'], userDate()['Yesterdaylen'],
+            userDate()['weeklen'])
 
         # Create the chart item
         item_chart = Item(
@@ -387,7 +421,7 @@ class Signatures(Box):
 # lineOption('用户签名次数', setenAry, data_year_month,  yAxis='次')
 class SignLine(Box):
     def get_items(self):
-        chart_options = lineOption('用户签名次数', setenAry, data_year_month, yAxis='次')
+        chart_options = lineOption('用户签名次数', setLineDate()['setenAry'], userLineDate()['data_year_month'], yAxis='次')
 
         # Create the chart item
         item_chart = Item(
@@ -404,7 +438,8 @@ class SignLine(Box):
 # pieOption('用户取证次数', 'evid', userlen, Yesterdaylen, weeklen)
 class Evidences(Box):
     def get_items(self):
-        chart_options = pieOption('用户取证次数', 'evid', userlen, Yesterdaylen, weeklen)
+        chart_options = pieOption('用户取证次数', 'evid', userDate()['userlen'], userDate()['Yesterdaylen'],
+            userDate()['weeklen'])
 
         # Create the chart item
         item_chart = Item(
@@ -421,7 +456,7 @@ class Evidences(Box):
 # lineOption('用户取证次数', setenAry, data_year_month,  yAxis='次')
 class EvidLine(Box):
     def get_items(self):
-        chart_options = lineOption('用户取证次数', setenAry, data_year_month, yAxis='次')
+        chart_options = lineOption('用户取证次数', setLineDate()['setenAry'], userLineDate()['data_year_month'], yAxis='次')
 
         # Create the chart item
         item_chart = Item(

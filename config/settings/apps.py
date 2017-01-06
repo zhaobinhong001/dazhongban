@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from .base import INSTALLED_APPS
+try:
+    from .base import *
+except ImportError as e:
+    raise e
 
 INSTALLED_APPS += (
     'service.frontend',
@@ -33,6 +36,8 @@ IDDENTITY_APPKEY = '69tx91g3kpzlqkndszzofj38fr'
 IDDENTITY_GATEWAY = 'https://10.7.7.71:3002/api/register'
 
 VERIFY_GATEWAY = 'http://10.7.7.22:9090'
+
+BANK_CARD = 'http://10.7.7.152:5000/bank'
 
 BANKID = (
     # ('542', u'重庆三峡银行'),
@@ -341,3 +346,18 @@ CONSTANCE_CONFIG = {
     'RECEIPT': ('', '收据模板'),
     'OWE': ('', '欠条模板'),
 }
+
+CONSUMPTION_TYPE = (
+    ('transfer', '转账'),
+    ('receiver', '收款'),
+    ('thirty', '第三方'),
+)
+
+CONTRACT_TYPE = (
+    ('transfer', '转账'),
+    ('receiver', '收款'),
+    ('thirty', '第三方支付'),
+    ('receipt', '收据'),
+    ('borrow', '借条'),
+    ('owe', '欠条'),
+)

@@ -8,7 +8,6 @@ from service.kernel.models.enterprise import EnterpriseUser
 
 class EnterpriseUserAdmin(VersionAdmin):
     list_display = ('enterprise_name', 'yesterday_income', 'platform_income', 'settled_date')
-    pass
 
 
 admin.site.register(EnterpriseUser, EnterpriseUserAdmin)

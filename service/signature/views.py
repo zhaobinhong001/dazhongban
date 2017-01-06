@@ -7,7 +7,6 @@ import re
 
 import requests
 from django.conf import settings
-from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from filters.mixins import FiltersMixin
@@ -78,19 +77,7 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
             # 处理数据
             uri = rest.get('uri')
             data = rest.get('data')
-            body, user = process_verify(uri, data)
-
-            # 保存数据
-            if body['errors'] == '0':
-                detail = json.dumps(body['detail']) if isinstance(body['detail'], dict) else body['detail']
-                data = {'extra': detail, 'signs': resp.content, 'type': body['detail']['type']}
-
-                serializer = self.get_serializer(data=data)
-                serializer.is_valid(raise_exception=True)
-
-                self.request.user = user
-                self.perform_create(serializer)
-
+            body, _ = process_verify(uri, data)
             body = json.dumps(body)
 
         # 服务签名
@@ -129,11 +116,17 @@ class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     model = Signature
 
+    # lookup_field = 'owner_id'
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
     def get_queryset(self):
         return self.request.user.signatures.all()
 
 
-class IdentityViewSet(viewsets.ModelViewSet):
+class IdentityViewSet(mixins.CreateModelMixin, viewsets.ReadOnlyModelViewSet):
     '''
     身份认证接口
     ----------
@@ -146,6 +139,12 @@ class IdentityViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = IdentitySerializer
     queryset = Identity.objects.all()
+
+    # def list(self, request, *args, **kwargs):
+    #     queryset = self.filter_queryset(self.get_queryset())
+    #     serializer = self.get_serializer(queryset)
+    #     print serializer.data.get('results')
+    #     return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         errors = {}
@@ -211,11 +210,13 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
         data['frontPhoto'] = request.data['frontPhoto']
         data['backPhoto'] = request.data['backPhoto']
+        data['bankID'] = request.data['bankID']
+        data['level'] = request.data['level']
 
         # 判断记录是否存在
         # 存在为更新
         try:
-            instance = self.get_queryset().get(owner=request.user)
+            instance = self.get_queryset()
             serializer = self.get_serializer(instance, data=data)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
@@ -234,12 +235,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def get_queryset(self):
-        queryset = self.queryset.filter(owner=self.request.user)
-
-        if isinstance(queryset, QuerySet):
-            queryset = queryset.all()
-
-        return queryset
+        return self.queryset.filter(owner=self.request.user)
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)

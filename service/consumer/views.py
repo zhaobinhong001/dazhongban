@@ -91,7 +91,7 @@ class AddressViewSet(viewsets.ModelViewSet):
 
 
 class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin,
-                     mixins.ListModelMixin, GenericViewSet):
+    mixins.ListModelMixin, GenericViewSet):
     '''
     联系人接口
     --------

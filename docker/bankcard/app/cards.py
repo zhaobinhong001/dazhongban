@@ -22,7 +22,7 @@ def bankcard(num=None):
             vv = df.loc[df['card'] == request.form['card'][:x]]
             if len(vv):
                 vv = vv.iloc[0]
-                del vv['card']
+                # del vv['card']
                 del vv['oldcard']
                 result.update(vv)
                 # return json.dumps(result)
@@ -37,7 +37,7 @@ def bankcard(num=None):
             vv = df.loc[df['card'] == num[:x]]
             if len(vv):
                 vv = vv.iloc[0]
-                del vv['card']
+                # del vv['card']
                 del vv['oldcard']
                 result.update(vv)
                 # return json.dumps(result)

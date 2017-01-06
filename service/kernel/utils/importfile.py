@@ -19,6 +19,7 @@ def impotrbank():
     # 增加一列数据
     df['oldcard'] = '*'
     df['bankID'] = '*'
+    df = df.drop_duplicates(['card'])
     # 遍历需要的银行卡
     alist = [x[1] for x in BANKID]
 

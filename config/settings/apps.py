@@ -37,7 +37,7 @@ IDDENTITY_GATEWAY = 'https://10.7.7.71:3002/api/register'
 
 VERIFY_GATEWAY = 'http://10.7.7.22:9090'
 
-BANK_CARD = 'http://10.7.7.152:5000/bank'
+BANK_CARD = 'http://10.7.7.22:9050/bank'
 
 BANKID = (
     # ('542', u'重庆三峡银行'),

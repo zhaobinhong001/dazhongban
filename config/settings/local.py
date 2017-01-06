@@ -23,7 +23,8 @@ if DEBUG:
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     DEBUG_TOOLBAR_CONFIG = {'JQUERY_URL': '//cdn.bootcss.com/jquery/2.1.4/jquery.min.js'}
 
-    try:
-        from .sentry import *
-    except ImportError as e:
-        pass
+    # try:
+    #     from .sentry import *
+    # except ImportError as e:
+    #     pass
+

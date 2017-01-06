@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 try:
-    from .base import MIDDLEWARE_CLASSES,DEBUG
+    from .base import *
 except ImportError as e:
     raise e
 

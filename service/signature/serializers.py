@@ -19,8 +19,7 @@ class BankcardSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         # 验证银行卡号
-        url = BANK_CARD
-        resp = requests.post(url=url, data=attrs)
+        resp = requests.post(url=BANK_CARD, data=attrs)
         data = resp.json()
 
         if data['status'] == 0:

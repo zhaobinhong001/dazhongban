@@ -19,8 +19,7 @@ class BankcardSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         # 验证银行卡号
-        url = BANK_CARD
-        resp = requests.post(url=url, data=attrs)
+        resp = requests.post(url=BANK_CARD, data=attrs)
         data = resp.json()
 
         if data['status'] == 0:
@@ -30,10 +29,12 @@ class BankcardSerializer(serializers.Serializer):
 
 
 class IdentitySerializer(serializers.ModelSerializer):
+    credit = serializers.StringRelatedField(source='owner.credit')
+
     class Meta:
         model = Identity
-        exclude = ('owner', 'certType', 'originType',)
-        # read_only_fields = ('dn',)
+        exclude = ('owner',)
+        read_only_fields = ('dn', 'serial', 'enddate')
 
 
 class SignatureSerializer(serializers.ModelSerializer):

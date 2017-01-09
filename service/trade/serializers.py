@@ -1,36 +1,45 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from service.trade.models import Purchased
 from .models import Contract, Transfer
 
 
+class SenderSerializer(serializers.ModelSerializer):
+    nick = serializers.StringRelatedField(read_only=True, source='profile.nick')
+    originType = serializers.StringRelatedField(source='identity.originType')
+    certType = serializers.StringRelatedField(source='identity.certType')
+    enddate = serializers.StringRelatedField(source='identity.enddate')
+    certId = serializers.StringRelatedField(source='identity.certId')
+    serial = serializers.StringRelatedField(source='identity.serial')
+    name = serializers.StringRelatedField(source='identity.name')
+
+    class Meta:
+        model = get_user_model()
+        fields = (
+        'id', 'name', 'nick', 'level', 'credit', 'certId', 'enddate', 'serial', 'originType', 'certType', 'identity')
+
+
+class ReceiverSerializer(SenderSerializer):
+    pass
+
+
 class ContractSerializer(serializers.ModelSerializer):
-    # sender_nick = serializers.StringRelatedField(read_only=True, source='sender.profile.nick')
-    # sender_name = serializers.StringRelatedField(read_only=True, source='sender.profile.name')
-
-    # receiver_nick = serializers.StringRelatedField(read_only=True, source='receiver.profile.nick')
-    # receiver_name = serializers.StringRelatedField(read_only=True, source='receiver.profile.name')
-
     class Meta:
         model = Contract
         exclude = ('sender', 'receiver')
 
 
 class ContractDetailSerializer(serializers.ModelSerializer):
-    sender_nick = serializers.StringRelatedField(read_only=True, source='sender.profile.nick')
-    sender_name = serializers.StringRelatedField(read_only=True, source='sender.profile.name')
-
-    receiver_nick = serializers.StringRelatedField(read_only=True, source='receiver.profile.nick')
-    receiver_name = serializers.StringRelatedField(read_only=True, source='receiver.profile.name')
     description = serializers.CharField()
-
-    receiver_serial = serializers.StringRelatedField(read_only=True, source='receiver_sign.serial')
-    sender_serial = serializers.StringRelatedField(read_only=True, source='sender_sign.serial')
+    receiver = ReceiverSerializer()
+    sender = SenderSerializer()
 
     class Meta:
+        depth = 1
         model = Contract
         fields = '__all__'
 

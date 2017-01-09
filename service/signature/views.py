@@ -245,6 +245,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
         # 存在为更新
         # try:
         self.queryset.filter(owner=self.request.user).delete()
+        print data
 
         # 不存在为创建
         serializer = self.get_serializer(data=data)

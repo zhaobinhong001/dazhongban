@@ -34,7 +34,7 @@ class IdentitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Identity
         exclude = ('owner',)
-        read_only_fields = ('dn', 'serial', 'enddate')
+        read_only_fields = ('serial', 'enddate')
 
 
 class SignatureSerializer(serializers.ModelSerializer):

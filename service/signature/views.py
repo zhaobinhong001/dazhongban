@@ -7,6 +7,7 @@ import re
 
 import requests
 from django.conf import settings
+from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from filters.mixins import FiltersMixin
@@ -143,11 +144,16 @@ class IdentityViewSet(viewsets.ModelViewSet):
     serializer_class = IdentitySerializer
     queryset = Identity.objects.all()
 
-    # def list(self, request, *args, **kwargs):
-    #     queryset = self.filter_queryset(self.get_queryset())
-    #     serializer = self.get_serializer(queryset)
-    #     print serializer.data.get('results')
-    #     return Response(serializer.data)
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+
+        try:
+            data = serializer.data[0]
+        except Exception as e:
+            data = serializer.data
+
+        return Response(data)
 
     def create(self, request, *args, **kwargs):
         errors = {}
@@ -235,13 +241,13 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
-    # def get_queryset(self):
-    #     queryset = self.queryset.filter(owner=self.request.user)
-    #
-    #     if isinstance(queryset, QuerySet):
-    #         queryset = queryset.all()
-    #
-    #     return queryset
+    def get_queryset(self):
+        queryset = self.queryset.filter(owner=self.request.user)
+
+        if isinstance(queryset, QuerySet):
+            queryset = queryset.all()
+
+        return queryset
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)

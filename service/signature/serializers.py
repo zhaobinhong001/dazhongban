@@ -29,9 +29,11 @@ class BankcardSerializer(serializers.Serializer):
 
 
 class IdentitySerializer(serializers.ModelSerializer):
+    credit = serializers.StringRelatedField(source='owner.credit')
+
     class Meta:
         model = Identity
-        exclude = ('owner', 'certType', 'originType',)
+        exclude = ('owner',)
         read_only_fields = ('dn', 'serial', 'enddate')
 
 

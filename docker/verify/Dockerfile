@@ -1,6 +1,6 @@
-FROM java:alpine
+FROM tomcat:9-alpine
 
-COPY ./docker/verify/gs-rest-service-0.1.0.jar /app/gs-rest-service-0.1.0.jar
+COPY ./docker/verify/standard/gs-rest-service-0.1.0.jar /app/gs-rest-service-0.1.0.jar
 
 WORKDIR /app
 

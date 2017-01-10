@@ -1,0 +1,3 @@
+recursive-include cards/resources *
+recursive-include cards/templates *
+recursive-include cards/static *

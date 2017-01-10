@@ -2,7 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 
 from celery import shared_task
-from service.kernel.utils.jpush_audience import jpush_push, jpush_all
+from .utils.jpush_audience import jpush_push, jpush_all
 
 
 @shared_task

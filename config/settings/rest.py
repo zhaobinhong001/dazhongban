@@ -32,10 +32,10 @@ REST_FRAMEWORK = {
         # 'rest_framework_xml.renderers.XMLRenderer',
         # 'rest_framework_yaml.renderers.YAMLRenderer',
     ),
-    # 'DEFAULT_FILTER_BACKENDS': [
-    #     'url_filter.integrations.drf.DjangoFilterBackend',
-    #     'django_filters.rest_framework.DjangoFilterBackend',
-    # ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'url_filter.integrations.drf.DjangoFilterBackend',
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
 
     # 'DEFAULT_FILTER_BACKENDS': (
     #     'rest_framework_filters.backends.DjangoFilterBackend',

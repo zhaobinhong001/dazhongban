@@ -37,7 +37,7 @@ IDDENTITY_GATEWAY = 'https://10.7.7.71:3002/api/register'
 
 VERIFY_GATEWAY = 'http://10.7.7.22:9090'
 
-BANK_CARD = 'http://10.7.7.152:5000/bank'
+BANK_CARD = 'http://127.0.0.1:5000/bank'
 
 BANKID = (
     # ('542', u'重庆三峡银行'),
@@ -83,6 +83,7 @@ BANKID = (
     # ('1565', u'颖淮农商行'),
     # ('1513', u'重庆农村商业银行'),
 
+    ('CCB', u'中国建设银行'),
     ('AEON', u'AEON信贷'),
     ('ABC', u'中国农业银行'),
     ('AHNX', u'安徽省农村信用社联合社'),
@@ -167,7 +168,6 @@ BANKID = (
     ('BXCCB', u'本溪市商业银行'),
     ('CBD', u'迪拜商业银行'),
     ('CBHB', u'渤海银行'),
-    ('CCB', u'中国建设银行'),
     ('CDB', u'承德银行'),
     ('CDRCB', u'成都农村商业银行'),
     ('CEB', u'中国光大银行'),

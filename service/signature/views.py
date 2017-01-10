@@ -7,9 +7,9 @@ import re
 
 import requests
 from django.conf import settings
+from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
-from filters.mixins import FiltersMixin
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -17,11 +17,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
-from url_filter.integrations.drf import DjangoFilterBackend
+from url_filter.integrations.drf import DjangoFilterBackend as drfDjangoFilterBackend
 
-from service.consumer.models import Bankcard
 from service.kernel.contrib.utils.hashlib import md5
-from service.kernel.utils.bank_random import bankcard
 from service.signature.tasks import query_sign
 from service.signature.utils import iddentity_verify, fields, process_verify
 from .models import Signature, Identity, Validate
@@ -102,32 +100,38 @@ class BankcardViewSet(viewsets.GenericViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
+class HistoryViewSet(ReadOnlyModelViewSet):
     '''
     验签记录历史
     ----------
+
     时间过滤规则：
-    在 url 后面加 ?created__range=<start_date>,<end_date>
-    例如: ?created__range=2010-01-01,2016-12-31
+    在 url 后面加 ?created__range={start_date},{end_date}
+    例如: ```?created__range=2010-01-01,2016-12-31```
     '''
-    filter_backends = (DjangoFilterBackend, filters.OrderingFilter,)
-    filter_fields = ['created']
+    filter_backends = (filters.OrderingFilter, filters.DjangoFilterBackend, drfDjangoFilterBackend)
+    filter_fields = ('created',)
 
     ordering_fields = ('created',)
-    ordering = ('id',)
+    ordering = ('-created',)
 
     serializer_class = SignatureSerializer
     permission_classes = (IsAuthenticated,)
-    model = Signature
+    queryset = Signature.objects.all()
 
     # lookup_field = 'owner_id'
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+    # def retrieve(self, request, *args, **kwargs):
+    #     instance = self.get_object()
+    #     serializer = self.get_serializer(instance)
+    #     return Response(serializer.data)
 
     def get_queryset(self):
-        return self.request.user.signatures.all()
+        queryset = self.queryset.filter(owner=self.request.user)
+
+        if isinstance(queryset, QuerySet):
+            queryset = queryset.all()
+
+        return queryset
 
 
 class IdentityViewSet(viewsets.ModelViewSet):
@@ -252,8 +256,6 @@ class IdentityViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-
-
 
         query_sign.delay(dn=data['dn'])
         return Response(serializer.data)

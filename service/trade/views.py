@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db.models import Q
 from django.db.models import QuerySet
 from rest_framework import filters, viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -65,8 +64,9 @@ class ContractViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.queryset.filter(Q(sender=self.request.user) & ~Q(status='normal'))
-        # queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.queryset.filter(sender=self.request.user).filter(status='normal')
+        queryset = self.filter_queryset(queryset)
+
         page = self.paginate_queryset(queryset)
 
         if page is not None:

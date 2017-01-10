@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
+import arrow
 import requests
 from celery import shared_task
 from django.conf import settings
 
+from service.consumer.models import Bankcard
 from service.kernel.utils.bank_random import bankcard
 from service.signature.models import Identity
-from service.consumer.models import Bankcard
 
 
 @shared_task
@@ -22,7 +23,7 @@ def query_sign(dn, *args, **kwargs):
             identity.serial = result.get('serialNo')
 
             if result.get('endDate'):
-                identity.enddate = result.get('endDate')
+                identity.enddate = arrow.get(result.get('endDate')).format('YYYY-MM-DD')
 
             identity.save()
 

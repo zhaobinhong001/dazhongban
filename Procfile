@@ -1,2 +1,2 @@
-django: python manage.py runserver 0.0.0.0:9000
-redis: redis-server
+worker: celery -A config worker -l info
+flower: celery -A config flower -l info

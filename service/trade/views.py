@@ -7,6 +7,7 @@ from rest_framework import filters, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_filters import FilterSet, DateFromToRangeFilter
+from url_filter.integrations.drf import DjangoFilterBackend as drfDjangoFilterBackend
 
 from service.trade.models import Purchased
 from service.trade.serializers import PurchasedSerializer, ContractDetailSerializer
@@ -49,16 +50,12 @@ class ContractViewSet(viewsets.ModelViewSet):
     serializer_class = ContractSerializer
     permission_classes = (IsAuthenticated,)
     queryset = Contract.objects.all()
-    # filter_fields = ('created', 'id')
-    # filter_class = ContractFilter
 
-    # filter_backends = (filters.OrderingFilter, filters.DjangoFilterBackend)
-    # filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
-    # ordering_fields = ('created', 'id')
-    # ordering_fields = '__all__'
-    # ordering = ('created', 'id')
+    filter_backends = (filters.OrderingFilter, filters.DjangoFilterBackend, drfDjangoFilterBackend)
+    filter_fields = ('created',)
 
-    # ordering = ('username',)
+    ordering_fields = ('created',)
+    ordering = ('-created',)
 
     def retrieve(self, request, *args, **kwargs):
         self.queryset = self.queryset
@@ -68,7 +65,8 @@ class ContractViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.queryset.filter(Q(sender=self.request.user) | ~Q(status='normal'))
+        queryset = self.queryset.filter(Q(sender=self.request.user) & ~Q(status='normal'))
+        # queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
 
         if page is not None:

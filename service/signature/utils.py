@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import json
 
+import arrow
 import requests as req
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -74,7 +75,7 @@ def process_verify(uri, data):
     sign = Signature()
     sign.owner = token.user
     sign.type = data.get('type')
-    sign.expired = data.get('endDate')
+    sign.expired = arrow.get(data.get('endDate')).format('YYYY-MM-DD')
     sign.serial = data.get('serialNo')
     sign.save()
 

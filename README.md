@@ -21,9 +21,13 @@ docker-compose up --build
 
 # <pwd> 为你当前运行的目录
 # 初始化数据
-docker exec <pwd>_django_1 manage.py migrate
+docker exec $(basename `pwd`)_django_1 python manage.py migrate
 
 # 创建高级管理员，根据提示输入用户名密码即可
-docker exec <pwd>_django_1 manage.py createsuperuser
+docker exec $(basename `pwd`)_django_1 python manage.py createsuperuser
 ```
+
+## 数据备份与维护
+待续
+
 

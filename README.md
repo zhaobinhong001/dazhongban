@@ -19,7 +19,6 @@
 # 第一次执行可以不加 `--build`
 docker-compose up --build 
 
-# <pwd> 为你当前运行的目录
 # 初始化数据
 docker exec $(basename `pwd`)_django_1 python manage.py migrate
 

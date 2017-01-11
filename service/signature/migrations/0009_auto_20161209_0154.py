@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='identity',
             name='expired',
-            field=models.DateField(blank=True, default='', max_length=100, null=True, verbose_name='\u6709\u6548\u671f'),
+            field=models.DateField(blank=True, null=True, verbose_name='\u6709\u6548\u671f'),
         ),
         migrations.AlterField(
             model_name='identity',

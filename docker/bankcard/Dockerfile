@@ -1,4 +1,4 @@
-FROM python:2.7
+FROM bankcard
 ENV PYTHONUNBUFFERED 1
 
 COPY ./docker/bankcard/standard/pip.conf /root/.pip/pip.conf

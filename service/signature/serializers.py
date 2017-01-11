@@ -21,8 +21,11 @@ class BankcardSerializer(serializers.Serializer):
         # 验证银行卡号
         resp = requests.post(url=BANK_CARD, data=attrs)
         data = resp.json()
-
-        if data['status'] == 0:
+        if data['status'] == -1:
+            raise serializers.ValidationError('银行卡不能为空.')
+        elif data['status'] == -2:
+            raise serializers.ValidationError('输入的银行卡位数不正确.')
+        elif data['status'] == 0:
             raise serializers.ValidationError('未找到该类型卡信息,请确认卡号书写正确.')
         else:
             return data['result']

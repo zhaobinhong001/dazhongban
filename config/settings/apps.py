@@ -26,18 +26,20 @@ INSTALLED_APPS += (
     'constance',
 )
 
-RONGCLOUD_APPKEY = 'ik1qhw09ifflp'
-RONGCLOUD_SECRET = 'kfx3v7mffJeaJt'
+RONGCLOUD_APPKEY = env('RONGCLOUD_APPKEY', default='ik1qhw09ifflp')
+RONGCLOUD_SECRET = env('RONGCLOUD_SECRET', default='kfx3v7mffJeaJt')
 
-JPUSH_APPKEY = u'496daf24808978b12e4e0505'
-JPUSH_SECRET = u'6e449bd8dd4dd2e5dff00c02'
 
-IDDENTITY_APPKEY = '69tx91g3kpzlqkndszzofj38fr'
-IDDENTITY_GATEWAY = 'https://10.7.7.71:3002/api/register'
+JPUSH_APPKEY = env('JPUSH_APPKEY', default='496daf24808978b12e4e0505')
+JPUSH_SECRET = env('JPUSH_SECRET', default='6e449bd8dd4dd2e5dff00c02')
 
-VERIFY_GATEWAY = 'http://10.7.7.22:9090'
+IDDENTITY_APPKEY = env('IDDENTITY_APPKEY', default='69tx91g3kpzlqkndszzofj38fr')
+IDDENTITY_GATEWAY = env('IDDENTITY_GATEWAY', default='https://10.7.7.71:3002/api/register')
 
-BANK_CARD = 'http://127.0.0.1:5000/bank'
+VERIFY_GATEWAY = env('VERIFY_GATEWAY', default='http://127.0.0.1:8080')
+BANK_CARD = env('BANK_CARD', default='http://127.0.0.1:5000/bank')
+
+CONSTANCE_REDIS_CONNECTION = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
 
 BANKID = (
     # ('542', u'重庆三峡银行'),

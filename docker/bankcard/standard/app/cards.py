@@ -18,6 +18,13 @@ def bankcard(num=None):
         result = {}
         df = pd.read_hdf('./resources/bankcard.h5')
 
+        # 判断银行卡号是否为空
+        if request.form['card'] == '':
+            return jsonify({'status': -1})
+        # 判断银行卡位数
+        elif len(request.form['card']) < 15 or len(request.form['card']) > 21:
+            return jsonify({'status': -2})
+
         for x in [8, 6, 5]:
             vv = df.loc[df['card'] == request.form['card'][:x]]
             if len(vv):
@@ -32,6 +39,13 @@ def bankcard(num=None):
     else:
         result = {}
         df = pd.read_hdf('./resources/bankcard.h5')
+
+        # 判断银行卡号是否为空
+        if request.form['card'] == '':
+            return jsonify({'status': -1})
+        # 判断银行卡位数
+        elif len(request.form['card']) < 15 or len(request.form['card']) > 21:
+            return jsonify({'status': -2})
 
         for x in [8, 6, 5]:
             vv = df.loc[df['card'] == num[:x]]

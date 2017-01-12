@@ -1,15 +1,13 @@
-/runtime/*
-/assets/media/*
-/assets/static/
-/.idea
-
+/assets/**/**
+/runtime/**/**
 *.sql
 *.pyc
 *.pyo
 *.db
 *~
 .*
-
+db.sqlite3
+__pycache__
 /htmlcov/
 /coverage/
 /build/
@@ -17,10 +15,7 @@
 MANIFEST
 
 !.gitignore
-!.travis.yml
 !.isort.cfg
-assets/**
-frontend/static/frontend/lib/
-restful/contrib/restauth/tests/__pycache__/
-runtime/**
-tests/__pycache__/
+!.travis.yml
+!.gitlab-ci.yml
+!/assets/media/avatar/default.jpg

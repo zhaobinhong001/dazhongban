@@ -2,16 +2,16 @@
 from __future__ import unicode_literals
 
 try:
-    from .base import MIDDLEWARE_CLASSES
+    from .base import *
 except ImportError as e:
     raise e
 
-
-# MIDDLEWARE_CLASSES += (
-#     'django.middleware.cache.CacheMiddleware',
-#     'django.middleware.cache.UpdateCacheMiddleware',
-#     'django.middleware.cache.FetchFromCacheMiddleware',
-# )
+if DEBUG is False:
+    MIDDLEWARE_CLASSES += (
+        'django.middleware.cache.CacheMiddleware',
+        'django.middleware.cache.UpdateCacheMiddleware',
+        'django.middleware.cache.FetchFromCacheMiddleware',
+    )
 
 CACHES = {
     'default': {
@@ -50,5 +50,6 @@ CACHES = {
 }
 
 REDIS_TIMEOUT = 7 * 24 * 60 * 60
+
 CUBES_REDIS_TIMEOUT = 60 * 60
 NEVER_REDIS_TIMEOUT = 365 * 24 * 60 * 60

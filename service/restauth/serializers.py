@@ -9,8 +9,8 @@ from rest_framework import exceptions, serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import ValidationError
 
+from service.kernel.utils.sms import check_verify_code
 from .forms import PasswordResetForm
-from service.kernel.helpers import check_verify_code
 
 
 class VerifyMobileSerializer(serializers.Serializer):
@@ -19,15 +19,7 @@ class VerifyMobileSerializer(serializers.Serializer):
 
 class RegisterSerializer(serializers.Serializer):
     mobile = serializers.CharField(label=_(u'手机号'), required=True, allow_blank=True)
-
-    # password1 = serializers.CharField(label=_(u'登录密码'), style={'input_type': 'password'})
-    # password2 = serializers.CharField(label=_(u'确认密码'), style={'input_type': 'password'})
-
     verify = serializers.CharField(label=_(u'验证码'), required=True, allow_blank=True)
-    # device = serializers.CharField(label=_(u'设备号'), required=True, allow_blank=True, help_text=_('隐藏字段,设备自动获取'))
-
-    # jpush_registration_id = serializers.CharField(style={'input_type': 'text'}, required=False,
-        # label=u'jpush_registration_id', help_text=_('极光推送的registration_id'))
 
 
 class LoginSerializer(serializers.Serializer):

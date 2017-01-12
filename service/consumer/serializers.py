@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from rest_framework import serializers
 
-from .models import Address, Profile, Contact, Affairs
+from .models import Address, Profile, Contact, Bankcard, Contains
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -15,21 +15,32 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
-class UserSerializer(serializers.ModelSerializer):
-    # groups = GroupSerializer(many=True)
-    # phone = serializers.CharField(source='profile.phone', read_only=True)
-    # name = serializers.CharField(source='profile.name', read_only=True)
-
-    # menus = serializers.SerializerMethodField()
-    # is_active = serializers.BooleanField(source='profile.is_cms_active')
-
-    # def get_menus(self, user):
-    #     return get_menus(user)
+class ProfileSerializer(serializers.ModelSerializer):
+    level = serializers.StringRelatedField(source='owner.level')
+    credit = serializers.StringRelatedField(source='owner.credit')
+    mobile = serializers.StringRelatedField(source='owner.mobile')
 
     class Meta:
-        depth = 1
+        model = Profile
+        read_only_fields = ("name", "phone", "qr", "level", 'bankcard', 'idcard', 'credit')
+        fields = (
+            "name", "nick", "phone", "mobile", "gender", "birthday", "qr", 'level', 'idcard', 'bankcard', 'avatar', 'credit')
+
+
+class UserSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='profile.name', label=u'姓名')
+    nick = serializers.CharField(source='profile.nick', label=u'昵称')
+    avatar = serializers.ImageField(source='profile.avatar', label=u'头像')
+
+    class Meta:
         model = get_user_model()
-        # fields = ('id', 'username', 'name', 'email', 'phone', 'groups', 'is_active')
+        fields = ('id', 'name', 'nick', 'avatar', 'mobile', 'level', 'avatar')
+
+
+class NickSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ("nick",)
 
 
 class AvatarSerializer(serializers.ModelSerializer):
@@ -38,57 +49,61 @@ class AvatarSerializer(serializers.ModelSerializer):
         fields = ("avatar",)
 
 
+class AddFriendSerializer(serializers.Serializer):
+    userid = serializers.IntegerField(label='用户id')
+
+
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = ('city', 'area', 'address', 'default')
+        fields = ('id', 'city', 'area', 'address', 'name', 'mobile')
+        # exclude = ('owner',)
 
 
 class ContactSerializer(serializers.ModelSerializer):
-    friends = serializers.StringRelatedField(source='friend.username')
-    avatar = serializers.StringRelatedField(source='friend.profile.avatar')
+    name = serializers.StringRelatedField(source='friend.profile.name')
+    nick = serializers.StringRelatedField(source='friend.profile.nick')
+    level = serializers.StringRelatedField(source='friend.level')
+    avatar = serializers.ImageField(source='friend.profile.avatar', read_only=True)
+    userid = serializers.IntegerField(source='friend_id', read_only=True)
 
     class Meta:
         model = Contact
-        fields = '__all__'
+        fields = ('userid', 'nick', 'name', 'alias', 'black', 'avatar', 'hide', 'status', 'level')
 
 
-# class BestsProfileSerializer(serializers.ModelSerializer):
-#     avatar = AvatarRelatedField(many=False, read_only=True, source='profile.avatar')
-#     nick = serializers.StringRelatedField(many=False, read_only=True, source='profile.nick')
-#     name = serializers.StringRelatedField(many=False, read_only=True, source='profile.name')
-#
-#     class Meta:
-#         depth = 1
-#         model = get_user_model()
-#         fields = ("id", "avatar", "nick", "name", "avatar")
-
-# class BestsProfileSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = UserProfile
-#         fields = ("name", "nick", "avatar", 'owner')
-
-
-class ProfileSerializer(serializers.ModelSerializer):
-    # qrcode = serializers.URLField(read_only=True)
-    # jpush_registration_id = serializers.CharField(source='owner.jpush_registration_id', read_only=True)
-    #
+class ContainsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Profile
-        read_only_fields = ("payment", "balance", "total",)
-        fields = (
-            "name", "nick", "phone", "avatar", "gender", "birthday", "payment", "balance", "total",)
+        model = Contains
+        fields = ('contains',)
+
+
+class ContactDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ('hide', 'black', 'alias')
+
+
+class ContactHideSerializer(serializers.Serializer):
+    userid = serializers.CharField(label='用户ID')
+
+    class Meta:
+        fields = ('userid',)
+
+
+class ContactBlackSerializer(serializers.ModelSerializer):
+    userid = serializers.CharField(label='用户ID')
+
+    class Meta:
+        fields = ('userid',)
 
 
 class AccountDetailsSerializer(serializers.ModelSerializer):
     avatar = serializers.ReadOnlyField(source='profile.avatar')
-    # zodiac = serializers.ReadOnlyField(source='profile.zodiac')
     birthday = serializers.ReadOnlyField(source='profile.birthday')
     nick = serializers.ReadOnlyField(source='profile.nick')
     name = serializers.ReadOnlyField(source='profile.name')
     gender = serializers.ReadOnlyField(source='profile.gender')
-
-    # chinese_zodiac = serializers.ReadOnlyField(source='profile.chinese_zodiac')
 
     class Meta:
         # depth = 1
@@ -102,7 +117,14 @@ class AccountDetailsSerializer(serializers.ModelSerializer):
         }
 
 
-class AffairsSerializer(serializers.ModelSerializer):
+class BankcardSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Affairs
-        fields = '__all__'
+        model = Bankcard
+        exclude = ('owner',)
+        read_only_fields = ('cover',)
+
+
+class SettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('friend_verify', 'mobile_verify', 'name_public')

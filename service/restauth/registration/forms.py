@@ -5,15 +5,15 @@ import re
 import unicodedata
 
 from django import forms
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
+from service.consumer.models import Profile
+from service.kernel.utils.sms import check_verify_code
 from .adapter import get_adapter
 from .utils import user_email, user_field, user_username
-from .. import app_settings
 
 
 class PasswordField(forms.CharField):
@@ -35,18 +35,9 @@ class SetPasswordField(PasswordField):
 class SignupForm(forms.Form):
     mobile = forms.CharField(label=_(u"手机号"), max_length=20, required=True)
     verify = forms.CharField(label=_(u"验证码"), max_length=10, required=False)
-    # device = forms.CharField(label=_(u"设备号"), max_length=200, required=True)
-
-    # password1 = SetPasswordField(label=_(u"登陆密码"), required=True)
-    # password2 = PasswordField(label=_(u"确认密码"), required=True)
-
-    # jpush_registration_id = forms.CharField(label=_(u"jpush_registration_id"), max_length=200, required=False)
 
     def __init__(self, *args, **kwargs):
         super(SignupForm, self).__init__(*args, **kwargs)
-
-        # if not app_settings.SIGNUP_PASSWORD_VERIFICATION:
-        #     del self.fields["password2"]
 
     def clean(self):
         super(forms.Form, self).clean()
@@ -54,21 +45,19 @@ class SignupForm(forms.Form):
         if not self.cleaned_data.get("mobile", None):
             raise ValidationError({'mobile': _("手机号码不能为空.")})
 
-        # if app_settings.SIGNUP_PASSWORD_VERIFICATION and "password1" in self.cleaned_data and "password2" in self.cleaned_data:
-        #     if self.cleaned_data["password1"] != self.cleaned_data["password2"]:
-        #         raise ValidationError({'password': _("两次密码不一致.")})
+        if not self.cleaned_data.get("verify", None):
+            raise ValidationError({'verify': _("验证码不能为空.")})
 
-        # if not self.cleaned_data.get("verify", None):
-        #     raise ValidationError({'verify': _("验证码不能为空.")})
+        # 判断手机是否匹配规格
+        if not re.match(r'^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$',
+                self.cleaned_data.get("mobile")):
+            raise ValidationError({'mobile': "手机号码格式不匹配."})
 
         # 判断验证码
-        # verify_status, verify_message = check_verify_code(self.cleaned_data["mobile"], self.cleaned_data["verify"])
-        #
-        # if not verify_status:
-        #     raise ValidationError({'verify': verify_message})
+        verify_status = check_verify_code(self.cleaned_data["mobile"], self.cleaned_data["verify"])
 
-        # if not self.cleaned_data.get("device", None):
-            # raise ValidationError({'device': _("设备号码不能为空.")})
+        if not verify_status:
+            raise ValidationError(_(u'验证码错误'))
 
         # 判断手机是否注册过
         # if get_user_model()._default_manager.filter(mobile=self.cleaned_data['mobile']).exists():
@@ -77,14 +66,9 @@ class SignupForm(forms.Form):
         return self.cleaned_data
 
     def save(self, request):
-        user = get_user_model()()
-        # nums = get_user_model().objects.filter(device=self.cleaned_data.get("device")).count()
-        # print nums, user, self.cleaned_data.get("device")
-
-        # if nums >= settings.DEVICE_MAX_REG_NUMS:
-            # raise ValidationError(_("该设备超出最大注册数."))
-
+        user, _ = get_user_model().objects.get_or_create(mobile=self.cleaned_data.get('mobile'))
         self.save_user(request, user, self)
+
         return user
 
     def save_user(self, request, user, form, commit=True):
@@ -96,30 +80,22 @@ class SignupForm(forms.Form):
 
         mobile = data.get('mobile')
         verify = data.get('verify')
-        # device = data.get('device')
-        # jpush_registration_id = data.get('jpush_registration_id')
 
         if verify:
             user_field(user, 'verify', verify)
 
-        # if device:
-            # user_field(user, 'device', device)
-
         if mobile:
             user_field(user, 'mobile', mobile)
-
-        # if jpush_registration_id:
-            # user_field(user, 'jpush_registration_id', jpush_registration_id)
-
-        if 'password1' in data:
-            user.set_password(data["password1"])
-        else:
-            user.set_unusable_password()
 
         self.populate_username(request, user)
 
         if commit:
             user.save()
+
+        profile, _ = Profile.objects.get_or_create(owner=user)
+        profile.nick = user.mobile.replace(user.mobile[3:7], '****')
+        # profile.avatar = 'avatar/default.jpg'
+        profile.save()
 
         return user
 
@@ -129,13 +105,9 @@ class SignupForm(forms.Form):
         username is already present it is assumed to be valid
         (unique).
         """
-        # from .utils import user_username, user_email, user_field
         mobile = user_field(user, 'mobile')
-        # last_name = user_field(user, 'last_name')
         email = user_email(user)
         username = user_username(user)
-
-        # if app_app_settings.USER_MODEL_USERNAME_FIELD:
         user_username(user, username or self.generate_unique_username([mobile, email, 'user']))
 
     def generate_unique_username(self, txts, regex=None):
@@ -151,34 +123,33 @@ def _generate_unique_username_base(txts, regex=None):
         username = unicodedata.normalize('NFKD', force_text(txt))
         username = username.encode('ascii', 'ignore').decode('ascii')
         username = force_text(re.sub(regex, '', username).lower())
-        # Django allows for '@' in usernames in order to accomodate for
-        # project wanting to use e-mail for username. In allauth we don't
-        # use this, we already have a proper place for putting e-mail
-        # addresses (EmailAddress), so let's not use the full e-mail
-        # address and only take the part leading up to the '@'.
         username = username.split('@')[0]
         username = username.strip()
         username = re.sub('\s+', '_', username)
+
         if username:
             break
+
     return username or 'user'
 
 
 def generate_unique_username(txts, regex=None):
-    # from .account.app_settings import USER_MODEL_USERNAME_FIELD
     username = _generate_unique_username_base(txts, regex)
     User = get_user_model()
     max_length = 20
     i = 0
+
     while True:
         try:
             if i:
                 pfx = str(i + 1)
             else:
                 pfx = ''
+
             ret = username[0:max_length - len(pfx)] + pfx
             query = {'username' + '__iexact': ret}
             User.objects.get(**query)
+
             i += 1
         except User.DoesNotExist:
             return ret

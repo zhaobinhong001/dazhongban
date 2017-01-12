@@ -18,7 +18,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")
 # PRODUCTION_HOSTS = env('PRODUCTION_HOSTS', None)
 # django.settings_module('config.settings.local')
 
-env.hosts = ['root@10.7.7.88']
+env.hosts = ['root@10.7.7.22']
 
 env.excludes = (
     "*.pyc", "*.db", ".DS_Store", ".coverage", ".git", ".hg", ".tox", ".idea/",
@@ -94,6 +94,18 @@ def static():
 def rsync(static=None):
     local_dir = os.getcwd() + os.sep
     return project.rsync_project(remote_dir=env.remote_dir, local_dir=local_dir, exclude=env.excludes, delete=True)
+
+
+@task
+def pull():
+    with prefix('workon bankeys'), cd(env.remote_dir):
+        run('git pull')
+        run('pip install -r requirements.txt')
+
+    migrate()
+
+    run('/usr/bin/supervisorctl stop bankeys')
+    run('/usr/bin/supervisorctl start bankeys')
 
 
 @task
@@ -335,3 +347,16 @@ def check():
 def init():
     setup()
     loaddata()
+
+
+@task
+def start(name):
+    local('git flow feature start %s' % name)
+
+@task
+def publish(name):
+    local('git flow feature publish %s' % name)
+
+@task
+def finish(name):
+    local('git flow feature finish %s' % name)

@@ -1,0 +1,16 @@
+{% extends "suit_dashboard/base.html" %}
+{% load i18n admin_static %}
+
+{% block title %}
+    API 内容管理
+{% endblock %}
+
+{% block dashboard_css %}
+    <link href="//cdn.bootcss.com/highcharts/5.0.4/css/highcharts.css" rel="stylesheet">
+{% endblock %}
+
+{# Load local Highcharts, default from Highcharts' CDN #}
+{% block dashboard_highcharts_js %}
+    <script src="//cdn.bootcss.com/highcharts/5.0.4/highcharts.js"></script>
+    <script src="//cdn.bootcss.com/highcharts/5.0.4/highcharts-more.js"></script>
+{% endblock %}

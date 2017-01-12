@@ -1,26 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import djcelery
-
-from .base import INSTALLED_APPS
-
-CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
-CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
-
-djcelery.setup_loader()
-# CELERY_ALWAYS_EAGER = True
+try:
+    from .base import *
+except ImportError as e:
+    raise e
 
 INSTALLED_APPS += (
-    'djcelery',
-    'kombu.transport.django',
-    # 'common.tasks.celery.Config',
+    "django_celery_results",
+    'django_celery_beat',
 )
 
-# BROKER_URL = 'django://'
-BROKER_URL = "redis://127.0.0.1:6379/0"
-# BROKER_HOST = "localhost"
-# BROKER_PORT = 5672
-# BROKER_USER = "root"
-# BROKER_PASSWORD = "root"
-# BROKER_VHOST = "/"
+DEBUG = False
+CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'

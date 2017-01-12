@@ -17,7 +17,7 @@ from rest_framework.reverse import reverse
 from rest_framework.viewsets import GenericViewSet
 from django.conf import settings
 
-from service.consumer.models import Contact
+from service.consumer.models import Contact, Profile
 from service.consumer.models import CustomUser
 from .serializers import (
     AddressSerializer, ProfileSerializer, AvatarSerializer, ContactSerializer, BankcardSerializer,
@@ -33,6 +33,7 @@ class ProfileViewSet(RetrieveUpdateAPIView):
     '''
     serializer_class = ProfileSerializer
     permission_classes = (IsAuthenticated,)
+    queryset = Profile.objects.all()
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -57,6 +58,7 @@ class NickViewSet(RetrieveUpdateAPIView):
     '''
     serializer_class = NickSerializer
     permission_classes = (IsAuthenticated,)
+    queryset = Profile.objects.all()
 
     def get_object(self):
         return get_user_profile(self.request.user)
@@ -72,6 +74,7 @@ class AvatarViewSet(RetrieveUpdateAPIView):
     '''
     serializer_class = AvatarSerializer
     permission_classes = (IsAuthenticated,)
+    queryset = Profile.objects.all()
 
     def get_object(self):
         return get_user_profile(self.request.user)
@@ -285,6 +288,7 @@ class SettingsViewSet(RetrieveUpdateAPIView):
     '''
     serializer_class = SettingsSerializer
     permission_classes = (IsAuthenticated,)
+    queryset = Profile.objects.all()
 
     def get_object(self):
         return get_user_settings(self.request.user)

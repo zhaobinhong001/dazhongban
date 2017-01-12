@@ -8,16 +8,15 @@ try:
 except ImportError, e:
     raise e
 
-DEBUG = False
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env('POSTGRES_USER', 'bankeys'),
-        'USER': env('POSTGRES_USER', 'postgres'),
-        'PASSWORD': env('POSTGRES_PASSWORD', 'secret'),
-        'HOST': env('POSTGRES_HOST', 'localhost'),
-        'PORT': env('POSTGRES_PORT', '5432'),
+        'NAME': env('POSTGRES_USER', default='bankeys'),
+        'USER': env('POSTGRES_USER', default='bankeys'),
+        'PASSWORD': env('POSTGRES_PASSWORD', default='secret'),
+        'HOST': env('POSTGRES_HOST', default='localhost'),
+        'PORT': env('POSTGRES_PORT', default='5432'),
         'OPTIONS': {
             'isolation_level': ISOLATION_LEVEL_SERIALIZABLE,
             'client_encoding': 'UTF8',
@@ -26,10 +25,12 @@ DATABASES = {
     }
 }
 
+DATABASES['default'] = env.db('DATABASE_URL', default=DATABASES['default'])
+
 CACHES = {
     'default': {
         'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': '127.0.0.1:6379',
+        'LOCATION': env('CELERY_BROKER_URL', default='127.0.0.1:6379'),
         'OPTIONS': {
             'DB': 0,
             'PASSWORD': '',
@@ -41,3 +42,12 @@ CACHES = {
         },
     },
 }
+
+
+DEBUG = True
+
+
+
+
+
+

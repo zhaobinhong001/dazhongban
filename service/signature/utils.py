@@ -71,7 +71,6 @@ def process_verify(uri, data):
         return {'errors': 1, 'detail': '用户不存在'}, False
 
     # 记录签名数据
-
     sign = Signature()
     sign.owner = token.user
     sign.type = data.get('type')
@@ -140,12 +139,16 @@ def process_verify(uri, data):
                 res.sender_sign = sign
             elif type == 'thirty':
                 pass
+            else:
+                return {'errors': 1, 'detail': '无法识别该类型(type)'}, False
 
         for key, val in data.items():
             if hasattr(res, key):
                 setattr(res, key, val)
 
         res.save()
+    else:
+        return {'errors': 1, 'detail': '参数错误 (uri)'}, False
 
     extra = {'type': data.get('type'), 'data': {'status': data.get('status'), 'uri': uri, 'id': res.id}}
     sign.extra = json.dumps(extra)

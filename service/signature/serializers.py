@@ -5,7 +5,6 @@ import requests
 from django.conf import settings
 from rest_framework import serializers
 
-from config.settings.apps import BANK_CARD
 from service.kernel.contrib.utils.hashlib import md5
 from .models import Signature, Validate, Identity
 
@@ -19,7 +18,7 @@ class BankcardSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         # 验证银行卡号
-        resp = requests.post(url=BANK_CARD, data=attrs)
+        resp = requests.post(url=settings.BANK_CARD, data=attrs)
         data = resp.json()
         if data['status'] == -1:
             raise serializers.ValidationError('银行卡不能为空.')

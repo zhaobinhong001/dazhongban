@@ -39,6 +39,8 @@ IDDENTITY_GATEWAY = env('IDDENTITY_GATEWAY', default='https://10.7.7.71:3002/api
 VERIFY_GATEWAY = env('VERIFY_GATEWAY', default='http://127.0.0.1:8080')
 BANK_CARD = env('BANK_CARD', default='http://127.0.0.1:5000/bank')
 
+CONSTANCE_REDIS_CONNECTION = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+
 BANKID = (
     # ('542', u'重庆三峡银行'),
     # ('100', u'邮政储蓄银行'),

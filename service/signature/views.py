@@ -3,13 +3,11 @@ from __future__ import unicode_literals
 
 import base64
 import json
-import re
 
 import requests
 from django.conf import settings
 from django.db.models import QuerySet
 from django.http import HttpResponse
-from django.utils.translation import ugettext_lazy as _
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -179,32 +177,32 @@ class IdentityViewSet(viewsets.ModelViewSet):
         return Response(data)
 
     def create(self, request, *args, **kwargs):
-        errors = {}
+        # errors = {}
 
-        if not request.data.get('certId'):
-            errors['certId'] = _('身份证不能为空')
+        # if not request.data.get('certId'):
+        #     errors['certId'] = _('身份证不能为空')
+        #
+        # if not request.data.get('name'):
+        #     errors['name'] = _('姓名不能为空')
+        #
+        # if not request.data.get('phone'):
+        #     errors['phone'] = _('电话不能为空')
+        #
+        # if not request.data.get('cardNo'):
+        #     errors['cardNo'] = _('银行卡不能为空')
+        #
+        # certId = re.compile(r'^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$')
+        #
+        # if not certId.match(request.data.get('certId')):
+        #     errors['certId'] = _('证件号码格式错误')
+        #
+        # mobile_re = re.compile(r'^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$')
+        #
+        # if not mobile_re.match(request.data.get('phone')):
+        #     errors['phone'] = _('电话格式不正确')
 
-        if not request.data.get('name'):
-            errors['name'] = _('姓名不能为空')
-
-        if not request.data.get('phone'):
-            errors['phone'] = _('电话不能为空')
-
-        if not request.data.get('cardNo'):
-            errors['cardNo'] = _('银行卡不能为空')
-
-        certId = re.compile(r'^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$')
-
-        if not certId.match(request.data.get('certId')):
-            errors['certId'] = _('证件号码格式错误')
-
-        mobile_re = re.compile(r'^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$')
-
-        if not mobile_re.match(request.data.get('phone')):
-            errors['phone'] = _('电话格式不正确')
-
-        if len(errors):
-            return Response({'detail': errors}, status=status.HTTP_400_BAD_REQUEST)
+        # if len(errors):
+        #     return Response({'detail': errors}, status=status.HTTP_400_BAD_REQUEST)
 
         item = {}
         items = request.data
@@ -249,13 +247,20 @@ class IdentityViewSet(viewsets.ModelViewSet):
         # 判断记录是否存在
         # 存在为更新
         # try:
-        self.queryset.filter(owner=self.request.user).delete()
-        print data
+        # self.queryset.filter(owner=self.request.user).delete()
 
-        # 不存在为创建
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        # 不存在为创建id
+        identity = Identity.objects.get_or_create(owner=request.user)
+
+        for k, v in data.items():
+            if hasattr(identity, k):
+                setattr(identity, k, v)
+
+        identity.save()
+
+        # serializer = self.get_serializer(data=data)
+        # serializer.is_valid(raise_exception=True)
+        # self.perform_create(serializer)
 
         query_sign.delay(dn=data['dn'])
         return Response(serializer.data)

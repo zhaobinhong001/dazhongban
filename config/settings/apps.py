@@ -16,6 +16,7 @@ INSTALLED_APPS += (
     'service.signature',
     'service.restauth.registration',
     'service.dashboard',
+    'service.passport',
 
     'filters',
     'imagekit',

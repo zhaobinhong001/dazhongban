@@ -16,7 +16,7 @@ def query_sign(dn, *args, **kwargs):
     result = requests.post(settings.VERIFY_GATEWAY + '/Query', data=dn)
     result = result.json()
 
-    if result.get('status') == '3':
+    if result.get('status') == '4':
         identity = Identity.objects.get(dn=dn)
 
         if identity:

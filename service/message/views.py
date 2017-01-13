@@ -13,7 +13,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 from rongcloud import RongCloud
 
 from service.consumer.serializers import UserSerializer
-from .models import Groups
+from .models import Groups, Token
 from .serializers import GroupsSerializer
 
 
@@ -26,6 +26,7 @@ client = RongCloud(settings.RONGCLOUD_APPKEY, settings.RONGCLOUD_SECRET)
 
 class TokenViewSet(GenericViewSet):
     permission_classes = (IsAuthenticated,)
+    queryset = Token.objects.all()
 
     def list(self, request, *args, **kwargs):
         nick = request.user.profile.nick if hasattr(request.user, 'profile') else u'匿名'

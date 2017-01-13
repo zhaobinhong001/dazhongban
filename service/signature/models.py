@@ -66,7 +66,7 @@ class Validate(TimeStampedModel):
 
 class Identity(TimeStampedModel):
     CHOICES_LEVEL = (('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D'),)
-    owner = models.OneToOneField(settings.AUTH_USER_MODEL)
+    owner = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='identity')
     certId = models.CharField(verbose_name=u'证件号 *', max_length=100, default='')
     certType = models.IntegerField(verbose_name=u'证件类型', default='1')
     name = models.CharField(verbose_name=u'姓名 *', max_length=50, default='')
@@ -82,6 +82,9 @@ class Identity(TimeStampedModel):
     expired = models.CharField(verbose_name=u'有效期', max_length=100, default='', null=True, blank=True)
     level = models.CharField(verbose_name=u'认证级别 *', max_length=100, default='', null=True, blank=True,
         choices=CHOICES_LEVEL)
+
+    serial = models.CharField(verbose_name=u'证书编号', max_length=100, default='', null=True, blank=True)
+    enddate = models.DateField(verbose_name=u'证书过期时间', blank=True, null=True)
 
     def __unicode__(self):
         return self.name

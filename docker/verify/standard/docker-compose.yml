@@ -1,0 +1,7 @@
+version: '2'
+
+services:
+  verify:
+    build: .
+    ports:
+      - "9090:8080"

@@ -54,6 +54,7 @@ urlpatterns = (
     url(r'^im/', include('service.message.urls')),
     url(r'^sign/', include('service.signature.urls')),
     url(r'^trade/', include('service.trade.urls')),
+    url(r'^passport/', include('service.passport.urls')),
 
     url(r'^auth/', include('service.restauth.urls')),
     url(r'^user/', include('rest_framework.urls', namespace='rest_framework')),

@@ -64,7 +64,7 @@ django_celery_results
 django_celery_beat
 qrcode
 
-https://github.com/rongcloud/server-sdk-python/archive/master.zip
+# https://github.com/rongcloud/server-sdk-python/archive/master.zip
 
 drf-url-filters
 django-url-filter
@@ -74,3 +74,4 @@ flower
 django-jsonfield
 django-constance
 honcho
+arrow

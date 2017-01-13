@@ -10,7 +10,6 @@ from django.conf import settings
 from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
-from filters.mixins import FiltersMixin
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -18,11 +17,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
-from url_filter.integrations.drf import DjangoFilterBackend
+from url_filter.integrations.drf import DjangoFilterBackend as drfDjangoFilterBackend
 
-from service.consumer.models import Bankcard
 from service.kernel.contrib.utils.hashlib import md5
-from service.kernel.utils.bank_random import bankcard
+from service.signature.tasks import query_sign
 from service.signature.utils import iddentity_verify, fields, process_verify
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
@@ -72,25 +70,16 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
         else:
 
             # 解析数据
-            sign = resp.content.decode('hex')
-            rest = json.loads(sign)
+            sign = resp.json()
+            rest = json.loads(sign.get('source').decode('hex'))
 
             # 处理数据
             uri = rest.get('uri')
             data = rest.get('data')
-            body, user = process_verify(uri, data)
-
-            # 保存数据
-            if body['errors'] == 0:
-                detail = json.dumps(body['detail']) if isinstance(body['detail'], dict) else body['detail']
-                data = {'extra': detail, 'signs': resp.content, 'type': body['detail']['type']}
-
-                serializer = self.get_serializer(data=data)
-                serializer.is_valid(raise_exception=True)
-
-                self.request.user = user
-                self.perform_create(serializer)
-
+            data['serialNo'] = sign['serialNo']
+            data['endDate'] = sign['endDate']
+            data['startDate'] = sign['startDate']
+            body, _ = process_verify(uri, data)
             body = json.dumps(body)
 
         # 服务签名
@@ -111,32 +100,38 @@ class BankcardViewSet(viewsets.GenericViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class HistoryViewSet(FiltersMixin, ReadOnlyModelViewSet):
+class HistoryViewSet(ReadOnlyModelViewSet):
     '''
     验签记录历史
     ----------
+
     时间过滤规则：
-    在 url 后面加 ?created__range=<start_date>,<end_date>
-    例如: ?created__range=2010-01-01,2016-12-31
+    在 url 后面加 ?created__range={start_date},{end_date}
+    例如: ```?created__range=2010-01-01,2016-12-31```
     '''
-    filter_backends = (DjangoFilterBackend, filters.OrderingFilter,)
-    filter_fields = ['created']
+    filter_backends = (filters.OrderingFilter, filters.DjangoFilterBackend, drfDjangoFilterBackend)
+    filter_fields = ('created',)
 
     ordering_fields = ('created',)
-    ordering = ('id',)
+    ordering = ('-created',)
 
     serializer_class = SignatureSerializer
     permission_classes = (IsAuthenticated,)
-    model = Signature
+    queryset = Signature.objects.all()
 
     # lookup_field = 'owner_id'
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+    # def retrieve(self, request, *args, **kwargs):
+    #     instance = self.get_object()
+    #     serializer = self.get_serializer(instance)
+    #     return Response(serializer.data)
 
     def get_queryset(self):
-        return self.request.user.signatures.all()
+        queryset = self.queryset.filter(owner=self.request.user)
+
+        if isinstance(queryset, QuerySet):
+            queryset = queryset.all()
+
+        return queryset
 
 
 class IdentityViewSet(viewsets.ModelViewSet):
@@ -152,6 +147,36 @@ class IdentityViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = IdentitySerializer
     queryset = Identity.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.queryset.filter(owner=self.request.user))
+        serializer = self.get_serializer(queryset, many=True)
+
+        try:
+            data = serializer.data[0]
+            del data['dn']
+            del data['expired']
+            del data['frontPhoto']
+            del data['backPhoto']
+        except Exception as e:
+            data = serializer.data
+
+        return Response(data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
+        try:
+            data = serializer.data
+            del data['dn']
+            del data['expired']
+            del data['frontPhoto']
+            del data['backPhoto']
+        except Exception as e:
+            data = serializer.data
+
+        return Response(data)
 
     def create(self, request, *args, **kwargs):
         errors = {}
@@ -210,8 +235,6 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
         data, status_ = iddentity_verify(item)
 
-        print data
-
         if not status_:
             raise ValidationError(data)
 
@@ -220,34 +243,22 @@ class IdentityViewSet(viewsets.ModelViewSet):
         data['bankID'] = request.data['bankID']
         data['level'] = request.data['level']
 
+        # del data['serial']
+        # del data['enddate']
+
         # 判断记录是否存在
         # 存在为更新
-        try:
-            instance = self.get_queryset().get(owner=request.user)
-            serializer = self.get_serializer(instance, data=data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-        except Identity.DoesNotExist:
-            # 不存在为创建
-            serializer = self.get_serializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
+        # try:
+        self.queryset.filter(owner=self.request.user).delete()
+        print data
 
-            # 创建时，生成模拟银行卡号
-            Bankcard.objects.create(owner=request.user, bank=u'收付宝', card=bankcard(), suffix='', type=u'借记卡', flag='')
-            request.user.level = request.data.get('level')
-            request.user.credit = '50'
-            request.user.save()
+        # 不存在为创建
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
 
+        query_sign.delay(dn=data['dn'])
         return Response(serializer.data)
-
-    def get_queryset(self):
-        queryset = self.queryset.filter(owner=self.request.user)
-
-        if isinstance(queryset, QuerySet):
-            queryset = queryset.all()
-
-        return queryset
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)

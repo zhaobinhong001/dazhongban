@@ -1,6 +1,5 @@
-/runtime/**/**
 /assets/**/**
-/.idea/
+/runtime/**/**
 *.sql
 *.pyc
 *.pyo
@@ -16,7 +15,7 @@ __pycache__
 MANIFEST
 
 !.gitignore
+!.isort.cfg
 !.travis.yml
 !.gitlab-ci.yml
-!.isort.cfg
 !/assets/media/avatar/default.jpg

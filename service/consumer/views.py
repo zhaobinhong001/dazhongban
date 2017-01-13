@@ -15,8 +15,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.viewsets import GenericViewSet
+from django.conf import settings
 
-from service.consumer.models import Contact
+from service.consumer.models import Contact, Profile
 from service.consumer.models import CustomUser
 from .serializers import (
     AddressSerializer, ProfileSerializer, AvatarSerializer, ContactSerializer, BankcardSerializer,
@@ -32,6 +33,7 @@ class ProfileViewSet(RetrieveUpdateAPIView):
     '''
     serializer_class = ProfileSerializer
     permission_classes = (IsAuthenticated,)
+    queryset = Profile.objects.all()
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -56,6 +58,7 @@ class NickViewSet(RetrieveUpdateAPIView):
     '''
     serializer_class = NickSerializer
     permission_classes = (IsAuthenticated,)
+    queryset = Profile.objects.all()
 
     def get_object(self):
         return get_user_profile(self.request.user)
@@ -71,6 +74,7 @@ class AvatarViewSet(RetrieveUpdateAPIView):
     '''
     serializer_class = AvatarSerializer
     permission_classes = (IsAuthenticated,)
+    queryset = Profile.objects.all()
 
     def get_object(self):
         return get_user_profile(self.request.user)
@@ -91,7 +95,7 @@ class AddressViewSet(viewsets.ModelViewSet):
 
 
 class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin,
-                     mixins.ListModelMixin, GenericViewSet):
+    mixins.ListModelMixin, GenericViewSet):
     '''
     联系人接口
     --------
@@ -225,7 +229,13 @@ class BankcardViewSet(viewsets.ModelViewSet):
         return self.request.user.bankcard_set.all()
 
     def perform_create(self, serializer):
-        return serializer.save(owner=self.request.user)
+        bank = self.request.data['bank']
+
+        for name in settings.BANKID:
+            if name[0] == self.request.data['bank']:
+                bank = name[1]
+
+        return serializer.save(owner=self.request.user, bank=bank)
 
 
 class BlacklistViewSet(viewsets.ModelViewSet):
@@ -278,6 +288,7 @@ class SettingsViewSet(RetrieveUpdateAPIView):
     '''
     serializer_class = SettingsSerializer
     permission_classes = (IsAuthenticated,)
+    queryset = Profile.objects.all()
 
     def get_object(self):
         return get_user_settings(self.request.user)

@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-# import pandas as pd
 import requests
 from django.conf import settings
 from rest_framework import serializers
 
-from config.settings.apps import BANK_CARD
 from service.kernel.contrib.utils.hashlib import md5
 from .models import Signature, Validate, Identity
 
@@ -20,21 +18,25 @@ class BankcardSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         # 验证银行卡号
-        url = BANK_CARD
-        resp = requests.post(url=url, data=attrs)
+        resp = requests.post(url=settings.BANK_CARD, data=attrs)
         data = resp.json()
-
-        if data['status'] == 0:
+        if data['status'] == -1:
+            raise serializers.ValidationError('银行卡不能为空.')
+        elif data['status'] == -2:
+            raise serializers.ValidationError('输入的银行卡位数不正确.')
+        elif data['status'] == 0:
             raise serializers.ValidationError('未找到该类型卡信息,请确认卡号书写正确.')
         else:
             return data['result']
 
 
 class IdentitySerializer(serializers.ModelSerializer):
+    credit = serializers.StringRelatedField(source='owner.credit')
+
     class Meta:
         model = Identity
-        exclude = ('owner', 'certType', 'originType',)
-        # read_only_fields = ('dn',)
+        exclude = ('owner',)
+        read_only_fields = ('serial', 'enddate')
 
 
 class SignatureSerializer(serializers.ModelSerializer):

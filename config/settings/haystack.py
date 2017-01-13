@@ -3,7 +3,10 @@ from __future__ import unicode_literals
 
 import os
 
-from .base import INSTALLED_APPS
+try:
+    from .base import *
+except ImportError as e:
+    raise e
 
 INSTALLED_APPS += ('haystack',)
 

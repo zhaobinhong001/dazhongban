@@ -3,12 +3,14 @@ from __future__ import unicode_literals
 
 import json
 
+import arrow
 import requests as req
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 
 from service.consumer.utils import md5
+from service.signature.models import Signature
 from service.trade.models import Contract
 
 data = {
@@ -68,17 +70,27 @@ def process_verify(uri, data):
     except Token.DoesNotExist:
         return {'errors': 1, 'detail': '用户不存在'}, False
 
+    # 记录签名数据
+    sign = Signature()
+    sign.owner = token.user
+    sign.type = data.get('type')
+    sign.expired = arrow.get(data.get('endDate')).format('YYYY-MM-DD')
+    sign.serial = data.get('serialNo')
+    sign.save()
+
     if '/contract/' in uri:
         if data.get('id'):
             try:
                 res = Contract.objects.get(id=data.get('id'))
                 res.receiver = token.user
+                res.receiver_sign = sign
                 del data['id']
             except Contract.DoesNotExist:
                 return {'errors': 1, 'detail': '合约不存在'}, False
         else:
             res = Contract()
             res.sender_id = token.user.pk
+            res.sender_sign = sign
 
         for key, val in data.items():
             if hasattr(res, key):
@@ -121,15 +133,26 @@ def process_verify(uri, data):
             if type == 'transfer':
                 res.sender_id = token.user.pk
                 res.receiver_id = receiver_id
+                res.sender_sign = sign
             elif type == 'receiver':
                 res.sender_id = token.user.pk
+                res.sender_sign = sign
             elif type == 'thirty':
                 pass
+            else:
+                return {'errors': 1, 'detail': '无法识别该类型(type)'}, False
 
         for key, val in data.items():
             if hasattr(res, key):
                 setattr(res, key, val)
 
         res.save()
+    else:
+        return {'errors': 1, 'detail': '参数错误 (uri)'}, False
 
-    return {'errors': 0, 'detail': {'type': res.type, 'data': {'status': res.status, 'uri': uri, 'id': res.id}}}, token.user
+    extra = {'type': data.get('type'), 'data': {'status': data.get('status'), 'uri': uri, 'id': res.id}}
+    sign.extra = json.dumps(extra)
+    sign.save()
+
+    return {'errors': 0,
+        'detail': {'type': res.type, 'data': {'status': res.status, 'uri': uri, 'id': res.id}}}, token.user

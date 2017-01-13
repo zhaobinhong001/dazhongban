@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from .base import INSTALLED_APPS
+try:
+    from .base import *
+except ImportError as e:
+    raise e
 
 INSTALLED_APPS += (
     'service.frontend',
@@ -13,6 +16,7 @@ INSTALLED_APPS += (
     'service.signature',
     'service.restauth.registration',
     'service.dashboard',
+    'service.passport',
 
     'filters',
     'imagekit',
@@ -23,18 +27,20 @@ INSTALLED_APPS += (
     'constance',
 )
 
-RONGCLOUD_APPKEY = 'ik1qhw09ifflp'
-RONGCLOUD_SECRET = 'kfx3v7mffJeaJt'
+RONGCLOUD_APPKEY = env('RONGCLOUD_APPKEY', default='ik1qhw09ifflp')
+RONGCLOUD_SECRET = env('RONGCLOUD_SECRET', default='kfx3v7mffJeaJt')
 
-JPUSH_APPKEY = u'496daf24808978b12e4e0505'
-JPUSH_SECRET = u'6e449bd8dd4dd2e5dff00c02'
 
-IDDENTITY_APPKEY = '69tx91g3kpzlqkndszzofj38fr'
-IDDENTITY_GATEWAY = 'https://10.7.7.71:3002/api/register'
+JPUSH_APPKEY = env('JPUSH_APPKEY', default='496daf24808978b12e4e0505')
+JPUSH_SECRET = env('JPUSH_SECRET', default='6e449bd8dd4dd2e5dff00c02')
 
-VERIFY_GATEWAY = 'http://10.7.7.22:9090'
+IDDENTITY_APPKEY = env('IDDENTITY_APPKEY', default='69tx91g3kpzlqkndszzofj38fr')
+IDDENTITY_GATEWAY = env('IDDENTITY_GATEWAY', default='https://10.7.7.71:3002/api/register')
 
-BANK_CARD = 'http://10.7.7.152:5000/bank'
+VERIFY_GATEWAY = env('VERIFY_GATEWAY', default='http://127.0.0.1:8080')
+BANK_CARD = env('BANK_CARD', default='http://127.0.0.1:5000/bank')
+
+CONSTANCE_REDIS_CONNECTION = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
 
 BANKID = (
     # ('542', u'重庆三峡银行'),
@@ -80,6 +86,7 @@ BANKID = (
     # ('1565', u'颖淮农商行'),
     # ('1513', u'重庆农村商业银行'),
 
+    ('CCB', u'中国建设银行'),
     ('AEON', u'AEON信贷'),
     ('ABC', u'中国农业银行'),
     ('AHNX', u'安徽省农村信用社联合社'),
@@ -164,7 +171,6 @@ BANKID = (
     ('BXCCB', u'本溪市商业银行'),
     ('CBD', u'迪拜商业银行'),
     ('CBHB', u'渤海银行'),
-    ('CCB', u'中国建设银行'),
     ('CDB', u'承德银行'),
     ('CDRCB', u'成都农村商业银行'),
     ('CEB', u'中国光大银行'),
@@ -343,11 +349,13 @@ CONSTANCE_CONFIG = {
     'RECEIPT': ('', '收据模板'),
     'OWE': ('', '欠条模板'),
 }
+
 CONSUMPTION_TYPE = (
     ('transfer', '转账'),
     ('receiver', '收款'),
     ('thirty', '第三方'),
 )
+
 CONTRACT_TYPE = (
     ('transfer', '转账'),
     ('receiver', '收款'),

@@ -3,11 +3,13 @@ from __future__ import unicode_literals
 
 import base64
 import json
+import re
 
 import requests
 from django.conf import settings
 from django.db.models import QuerySet
 from django.http import HttpResponse
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -247,20 +249,10 @@ class IdentityViewSet(viewsets.ModelViewSet):
         # 判断记录是否存在
         # 存在为更新
         # try:
-        # self.queryset.filter(owner=self.request.user).delete()
-
-        # 不存在为创建id
-        identity = Identity.objects.get_or_create(owner=request.user)
-
-        for k, v in data.items():
-            if hasattr(identity, k):
-                setattr(identity, k, v)
-
-        identity.save()
-
-        # serializer = self.get_serializer(data=data)
-        # serializer.is_valid(raise_exception=True)
-        # self.perform_create(serializer)
+        self.queryset.filter(owner=self.request.user).delete()
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
 
         query_sign.delay(dn=data['dn'])
         return Response(serializer.data)

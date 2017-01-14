@@ -7,7 +7,6 @@ import json
 import requests
 from django.conf import settings
 from django.db.models import QuerySet
-from django.http import HttpResponse
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -18,6 +17,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 from url_filter.integrations.drf import DjangoFilterBackend as drfDjangoFilterBackend
 
 from service.kernel.contrib.utils.hashlib import md5
+from service.signature.utils import verify_data, signature_data
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
     CallbackSerializer, CertificateSerializer
@@ -61,28 +61,17 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
 
     def create(self, request, *args, **kwargs):
         # 验签数据
-        resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=request.body)
+        uri, data = verify_data(request)
 
-        if (resp.status_code != 200) and (resp.status_code != 500):
-            body = resp.content
-        else:
-
-            # 解析数据
-            sign = resp.json()
-            rest = json.loads(sign.get('source').decode('hex'))
-
+        if uri:
             # 处理数据
-            uri = rest.get('uri')
-            data = rest.get('data')
-            data['serialNo'] = sign['serialNo']
-            data['endDate'] = sign['endDate']
-            data['startDate'] = sign['startDate']
-            body, _ = process_verify(uri, data)
+            body = process_verify(uri, data)
             body = json.dumps(body)
+        else:
+            body = data
 
         # 服务签名
-        resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=body)
-        return HttpResponse(resp.content)
+        return signature_data(body)
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)

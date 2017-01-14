@@ -4,9 +4,11 @@ from __future__ import unicode_literals
 import json
 
 import arrow
+import requests
 import requests as req
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.http import HttpResponse
 from rest_framework.authtoken.models import Token
 
 from service.consumer.utils import md5
@@ -68,10 +70,10 @@ def process_verify(uri, data):
         token = Token.objects.filter(key=data.get('token')).get()
         del data['token']
     except Token.DoesNotExist:
-        return {'errors': 1, 'detail': '用户不存在'}, False
+        return {'errors': 1, 'detail': '用户不存在'}
 
     if not hasattr(token.user, 'identity'):
-        return {'errors': 1, 'detail': '您是未认证用户'}, False
+        return {'errors': 1, 'detail': '您是未认证用户'}
 
     # 记录签名数据
     sign = Signature()
@@ -89,11 +91,11 @@ def process_verify(uri, data):
                 res.receiver_sign = sign
 
                 if not hasattr(res.receiver, 'identity'):
-                    return {'errors': 1, 'detail': '接受方是未认证用户'}, False
+                    return {'errors': 1, 'detail': '接受方是未认证用户'}
 
                 del data['id']
             except Contract.DoesNotExist:
-                return {'errors': 1, 'detail': '合约不存在'}, False
+                return {'errors': 1, 'detail': '合约不存在'}
         else:
             res = Contract()
             res.sender_id = token.user.pk
@@ -111,10 +113,10 @@ def process_verify(uri, data):
         status = data.get('status')
 
         if not type:
-            return {'errors': 1, 'detail': 'type 不能为空'}, False
+            return {'errors': 1, 'detail': 'type 不能为空'}
 
         if not status:
-            return {'errors': 1, 'detail': 'status 不能为空'}, False
+            return {'errors': 1, 'detail': 'status 不能为空'}
 
         # 转账时收款方不能为空
         receiver_id = None
@@ -126,12 +128,12 @@ def process_verify(uri, data):
                     receiver_id = receiver.pk
 
                     if not hasattr(receiver, 'identity'):
-                        return {'errors': 1, 'detail': '收款方是未认证用户'}, False
+                        return {'errors': 1, 'detail': '收款方是未认证用户'}
 
                 except get_user_model().DoesNotExist:
-                    return {'errors': 1, 'detail': '收款方不存在'}, False
+                    return {'errors': 1, 'detail': '收款方不存在'}
             else:
-                return {'errors': 1, 'detail': '收款方不能为空'}, False
+                return {'errors': 1, 'detail': '收款方不能为空'}
 
         if data.get('id'):
             try:
@@ -139,7 +141,7 @@ def process_verify(uri, data):
                 res.receiver = token.user
                 del data['id']
             except Contract.DoesNotExist:
-                return {'errors': 1, 'detail': '交易订单不存在'}, False
+                return {'errors': 1, 'detail': '交易订单不存在'}
         else:
             res = Contract()
 
@@ -153,7 +155,7 @@ def process_verify(uri, data):
             elif type == 'thirty':
                 pass
             else:
-                return {'errors': 1, 'detail': '无法识别该类型(type)'}, False
+                return {'errors': 1, 'detail': '无法识别该类型(type)'}
 
         for key, val in data.items():
             if hasattr(res, key):
@@ -161,20 +163,48 @@ def process_verify(uri, data):
 
         res.save()
     else:
-        return {'errors': 1, 'detail': '参数错误 (uri)'}, False
+        return {'errors': 1, 'detail': '参数错误 (uri)'}
 
     extra = {'type': data.get('type'), 'data': {'status': data.get('status'), 'uri': uri, 'id': res.id}}
-    sign.extra = json.dumps(extra)
+
+    sign.extra = extra
     sign.save()
 
-    return {
-        'errors': 0,
-        'detail': {
-            'type': res.type,
-            'data': {
-                'status': res.status,
-                'uri': uri,
-                'id': res.id
-            }
-        }
-    }, token.user
+    return {'errors': 0, 'detail': extra}
+
+
+def verify_data(request):
+    '''
+    验签数据函数
+
+    :param request: views 里的 request 上下文
+    :return: uri, data
+    '''
+    resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=request)
+
+    if (resp.status_code != 200) and (resp.status_code != 500):
+        return False, resp.content
+
+    # 解析数据
+    sign = resp.json()
+    rest = json.loads(sign.get('source').decode('hex'))
+
+    uri = rest.get('uri')
+    data = rest.get('data')
+
+    data['startDate'] = sign['startDate']
+    data['serialNo'] = sign['serialNo']
+    data['endDate'] = sign['endDate']
+
+    return uri, data
+
+
+def signature_data(data=None):
+    '''
+    数据签名函数
+
+    :param data: 字符串
+    :return: HttpResponse 对象
+    '''
+    resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=data)
+    return HttpResponse(resp.content)

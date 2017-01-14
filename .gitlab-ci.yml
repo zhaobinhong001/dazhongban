@@ -1,12 +1,11 @@
 before_script:
-  - python manage.py migrate
+  - virtualenv venv && source venv/activate
+  - pip install -r requirements.txt
 
-rspec:
+migrate:
   script:
-    - python manage.py runserver
+    - python manage.py migrate
+
+tests:
+  script:
     - python manage.py test
-
-
-rubocop:
-  script:
-    - bundle exec rubocop

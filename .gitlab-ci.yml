@@ -1,6 +1,4 @@
-before_script:
-  - virtualenv venv && source venv/activate
-  - pip install -r requirements.txt
+
 
 migrate:
   script:

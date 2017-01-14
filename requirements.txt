@@ -75,3 +75,4 @@ django-jsonfield
 django-constance
 honcho
 arrow
+raven

@@ -292,12 +292,7 @@ class Notice(TimeStampedModel):
         verbose_name_plural = _(u'用户消息')
 
 
-def template_push(type, vars):
-    return 'template_push'
-
-
 @receiver(signals.post_save, sender=Notice)
 def post_notice_push(instance, created, **kwargs):
     if created:
-        message = template_push(type='', vars=[])
-        return send_verify_push.delay(message=message, alias=instance.owner.mobile)
+        return send_verify_push.delay(message=instance.subject, alias=instance.owner.mobile, extra=[])

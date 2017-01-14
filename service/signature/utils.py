@@ -70,6 +70,9 @@ def process_verify(uri, data):
     except Token.DoesNotExist:
         return {'errors': 1, 'detail': '用户不存在'}, False
 
+    if not hasattr(token.user, 'identity'):
+        return {'errors': 1, 'detail': '您是未认证用户'}, False
+
     # 记录签名数据
     sign = Signature()
     sign.owner = token.user
@@ -84,6 +87,10 @@ def process_verify(uri, data):
                 res = Contract.objects.get(id=data.get('id'))
                 res.receiver = token.user
                 res.receiver_sign = sign
+
+                if not hasattr(res.receiver, 'identity'):
+                    return {'errors': 1, 'detail': '接受方是未认证用户'}, False
+
                 del data['id']
             except Contract.DoesNotExist:
                 return {'errors': 1, 'detail': '合约不存在'}, False
@@ -110,11 +117,17 @@ def process_verify(uri, data):
             return {'errors': 1, 'detail': 'status 不能为空'}, False
 
         # 转账时收款方不能为空
+        receiver_id = None
+
         if (data.get('type') == 'transfer') and (data.get('status') == 'normal'):
             if data.get('receiver_id'):
                 try:
                     receiver = get_user_model().objects.get(id=data.get('receiver_id'))
                     receiver_id = receiver.pk
+
+                    if not hasattr(receiver, 'identity'):
+                        return {'errors': 1, 'detail': '收款方是未认证用户'}, False
+
                 except get_user_model().DoesNotExist:
                     return {'errors': 1, 'detail': '收款方不存在'}, False
             else:
@@ -154,5 +167,14 @@ def process_verify(uri, data):
     sign.extra = json.dumps(extra)
     sign.save()
 
-    return {'errors': 0,
-        'detail': {'type': res.type, 'data': {'status': res.status, 'uri': uri, 'id': res.id}}}, token.user
+    return {
+        'errors': 0,
+        'detail': {
+            'type': res.type,
+            'data': {
+                'status': res.status,
+                'uri': uri,
+                'id': res.id
+            }
+        }
+    }, token.user

@@ -3,13 +3,11 @@ from __future__ import unicode_literals
 
 import base64
 import json
-import re
 
 import requests
 from django.conf import settings
 from django.db.models import QuerySet
 from django.http import HttpResponse
-from django.utils.translation import ugettext_lazy as _
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -20,11 +18,11 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 from url_filter.integrations.drf import DjangoFilterBackend as drfDjangoFilterBackend
 
 from service.kernel.contrib.utils.hashlib import md5
-from service.signature.tasks import query_sign
-from service.signature.utils import iddentity_verify, fields, process_verify
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
     CallbackSerializer, CertificateSerializer
+from .tasks import query_sign_task
+from .utils import iddentity_verify, fields, process_verify
 
 
 class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
@@ -119,12 +117,6 @@ class HistoryViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = Signature.objects.all()
 
-    # lookup_field = 'owner_id'
-    # def retrieve(self, request, *args, **kwargs):
-    #     instance = self.get_object()
-    #     serializer = self.get_serializer(instance)
-    #     return Response(serializer.data)
-
     def get_queryset(self):
         queryset = self.queryset.filter(owner=self.request.user)
 
@@ -209,22 +201,13 @@ class IdentityViewSet(viewsets.ModelViewSet):
         item = {}
         items = request.data
 
-        # for k in fields:
-        #     if k in ['backPhoto', 'frontPhoto']:
-        #         if hasattr(items[k], 'file'):
-        #             item[k] = base64.b64encode(items[k].file.getvalue())
-        #     else:
-        #         if items[k].strip():
-        #             item[k] = items.get(k).strip()
-
         for k, v in items.items():
             if k in fields:
                 if k in ['backPhoto', 'frontPhoto']:
                     if hasattr(v, 'file'):
                         item[k] = base64.b64encode(v.file.getvalue())
                 else:
-                    # if v.strip():
-                    item[k] = v
+                    item[k] = v.strip()
 
         if request.data.get('expired'):
             expired = request.data.get('expired')
@@ -246,15 +229,13 @@ class IdentityViewSet(viewsets.ModelViewSet):
         # del data['serial']
         # del data['enddate']
 
-        # 判断记录是否存在
-        # 存在为更新
-        # try:
         self.queryset.filter(owner=self.request.user).delete()
+
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
 
-        query_sign.delay(dn=data['dn'])
+        query_sign_task.delay(dn=data['dn'], owner=self.request.user)
         return Response(serializer.data)
 
     def perform_create(self, serializer):

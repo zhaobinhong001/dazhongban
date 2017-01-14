@@ -3,6 +3,7 @@ FROM bankeys:alpine
 ENV PYTHONUNBUFFERED 1
 
 COPY . /app
+COPY ./app/env.docker /app/.env
 COPY ./docker/django/pip.conf /root/.pip/pip.conf
 
 RUN echo 'http://mirrors.aliyun.com/alpine/v3.4/main/' > /etc/apk/repositories

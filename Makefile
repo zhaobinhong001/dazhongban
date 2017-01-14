@@ -24,8 +24,6 @@ help:
 	@echo "install - install the package to the active Python's site-packages"
 
 
-
-
 clean: clean-build clean-others clean-pyc clean-test clean-runtime
 distclean: clean-build clean-others clean-pyc clean-test clean-runtime clean-database
 
@@ -85,8 +83,6 @@ docs:
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html
-	
-req.all: req.base req.local req.test req.docs req.scrapy
 
 req:
 	@$(PIP) install -r requirements.txt

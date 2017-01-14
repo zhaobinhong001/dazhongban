@@ -20,6 +20,7 @@ class BankcardSerializer(serializers.Serializer):
         # 验证银行卡号
         resp = requests.post(url=settings.BANK_CARD, data=attrs)
         data = resp.json()
+
         if data['status'] == -1:
             raise serializers.ValidationError('银行卡不能为空.')
         elif data['status'] == -2:

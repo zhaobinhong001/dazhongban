@@ -23,8 +23,19 @@ class SenderSerializer(serializers.ModelSerializer):
         'id', 'name', 'nick', 'level', 'credit', 'certId', 'enddate', 'serial', 'originType', 'certType', 'identity')
 
 
-class ReceiverSerializer(SenderSerializer):
-    pass
+class ReceiverSerializer(serializers.ModelSerializer):
+    nick = serializers.StringRelatedField(read_only=True, source='profile.nick')
+    originType = serializers.StringRelatedField(source='identity.originType')
+    certType = serializers.StringRelatedField(source='identity.certType')
+    enddate = serializers.StringRelatedField(source='identity.enddate')
+    certId = serializers.StringRelatedField(source='identity.certId')
+    serial = serializers.StringRelatedField(source='identity.serial')
+    name = serializers.StringRelatedField(source='identity.name')
+
+    class Meta:
+        model = get_user_model()
+        fields = (
+        'id', 'name', 'nick', 'level', 'credit', 'certId', 'enddate', 'serial', 'originType', 'certType', 'identity')
 
 
 class ContractSerializer(serializers.ModelSerializer):

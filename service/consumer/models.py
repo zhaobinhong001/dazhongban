@@ -7,6 +7,8 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.contenttypes import fields as generic
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.db.models import signals
+from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from imagekit.models import ProcessedImageField
@@ -16,6 +18,7 @@ from pilkit.processors import ResizeToFill
 from rest_framework.serializers import ValidationError
 
 from config.settings.apps import BANKID
+from service.kernel.tasks import send_verify_push
 
 
 class AbstractActionType(TimeStampedModel):
@@ -264,3 +267,32 @@ class Settings(models.Model):
     class Meta:
         verbose_name = _(u'settings')
         verbose_name_plural = _(u'settings')
+
+
+class Notice(TimeStampedModel):
+    '''
+    用户消息
+    '''
+    NOTICE_CHOICE = (('identity', '认证'), ('contract', '合约'), ('payment', '支付'), ('receive', '收货'), ('refunds', '退货'),)
+
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, verbose_name=_(u'推送给用户'))
+    type = models.CharField(verbose_name=_(u'消息类型'), max_length=100, choices=NOTICE_CHOICE)
+    subject = models.CharField(verbose_name=_(u'消息主题'), max_length=255, default='')
+    content = models.TextField(verbose_name=_(u'消息正文'), default='')
+
+    def __unicode__(self):
+        return '%s: %s' % (self.owner, self.subject)
+
+    def __str__(self):
+        return self.__unicode__()
+
+    class Meta:
+        ordering = ('pk',)
+        verbose_name = _(u'用户消息')
+        verbose_name_plural = _(u'用户消息')
+
+
+@receiver(signals.post_save, sender=Notice)
+def post_notice_push(instance, created, **kwargs):
+    if created:
+        return send_verify_push.delay(message=instance.subject, alias=instance.owner.mobile, extra=[])

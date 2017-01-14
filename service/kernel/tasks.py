@@ -2,12 +2,13 @@
 from __future__ import absolute_import, unicode_literals
 
 from celery import shared_task
+
 from .utils.jpush_audience import jpush_all, jpush_alias, jpush_extras
 
 
 @shared_task
-def send_verify_push(message, alias):
-    status = jpush_alias(message, alias)
+def send_verify_push(message, *args, **kwargs):
+    status = jpush_alias(message, *args, **kwargs)
     return status
 
 

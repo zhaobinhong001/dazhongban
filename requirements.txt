@@ -64,7 +64,7 @@ django_celery_results
 django_celery_beat
 qrcode
 
-# https://github.com/rongcloud/server-sdk-python/archive/master.zip
+rongcloud.zip
 
 drf-url-filters
 django-url-filter

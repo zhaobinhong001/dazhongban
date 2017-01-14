@@ -1,5 +1,3 @@
-
-
 migrate:
   script:
     - python manage.py migrate

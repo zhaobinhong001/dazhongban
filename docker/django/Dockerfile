@@ -5,6 +5,7 @@ ENV PYTHONUNBUFFERED 1
 COPY . /app
 COPY ./env.docker /app/.env
 COPY ./docker/django/pip.conf /root/.pip/pip.conf
+COPY ./docker/django/Procfile /app/Procfile
 
 RUN echo 'http://mirrors.aliyun.com/alpine/v3.4/main/' > /etc/apk/repositories
 RUN echo 'http://mirrors.aliyun.com/alpine/v3.4/community/' >> /etc/apk/repositories

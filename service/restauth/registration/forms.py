@@ -43,7 +43,7 @@ class SignupForm(forms.Form):
         super(forms.Form, self).clean()
 
         if not self.cleaned_data.get("mobile", None):
-            raise ValidationError({'mobile': _("手机号码不能为空.")})
+            raise ValidationError({'detail': _("手机号码不能为空.")})
 
         if not self.cleaned_data.get("verify", None):
             raise ValidationError({'detail': _("验证码不能为空.")})

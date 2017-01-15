@@ -1,11 +1,10 @@
 import json
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client, MULTIPART_CONTENT
 from django.utils.encoding import force_text
-from rest_framework import status
+from rest_framework.authtoken.models import Token
 
 
 class APIClient(Client):
@@ -22,6 +21,17 @@ class BaseAPITestCase(TestCase):
         * easy request calls, f.e.: self.post(url, data), self.get(url)
         * easy status check, f.e.: self.post(url, data, status_code=200)
     """
+
+    def _generate_uid_and_token(self, user):
+
+        result = {}
+
+        self.token, created = Token.objects.get_or_create(user=user)
+
+        result['uid'] = user.pk
+        result['token'] = self.token
+
+        return result
 
     def send_request(self, request_method, *args, **kwargs):
         request_func = getattr(self.client, request_method)
@@ -65,14 +75,13 @@ class BaseAPITestCase(TestCase):
 
     def init(self):
         settings.DEBUG = True
-        self.client = APIClient()
 
-        self.login_url = reverse('rest_login')
-        self.logout_url = reverse('rest_logout')
+        # self.login_url = reverse('rest_login')
+        # self.logout_url = reverse('rest_logout')
 
-    def _login(self):
-        payload = {"username": self.USERNAME, "password": self.PASS}
-        self.post(self.login_url, data=payload, status_code=status.HTTP_200_OK)
-
-    def _logout(self):
-        self.post(self.logout_url, status=status.HTTP_200_OK)
+        # def _login(self):
+        #     payload = {"username": self.USERNAME, "password": self.PASS}
+        #     self.post(self.login_url, data=payload, status_code=status.HTTP_200_OK)
+        #
+        # def _logout(self):
+        #     self.post(self.logout_url, status=status.HTTP_200_OK)

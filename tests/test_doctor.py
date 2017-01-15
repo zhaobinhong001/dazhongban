@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import requests
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
@@ -25,10 +26,12 @@ class APITestDoctor(BaseAPITestCase):
     def test_bankcard_validation(self):
         payload = {"card": "6227000014150347510"}
 
-        self.post('/api/sign/bankcard/', data=payload, status_code=201)
+        resp = requests.post(settings.BANK_CARD, data=payload)
+        self.assertEquals(resp.status_code, 200)
 
     def test_verify_signature_validation(self):
         payload = "6227000014150347510"
 
-        resp = self.post('%s/Sign' % settings.VERIFY_GATEWAY, data=payload, status_code=200)
-        self.post('%s/Verify' % settings.VERIFY_GATEWAY, data=resp, status_code=200)
+        resp = requests.post('%s/Sign' % settings.VERIFY_GATEWAY, data=payload)
+        self.assertEquals(resp.status_code,200)
+        # requests.post('%s/Verify' % settings.VERIFY_GATEWAY, data=resp)

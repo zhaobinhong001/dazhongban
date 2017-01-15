@@ -3,7 +3,7 @@ FROM bankeys:alpine
 ENV PYTHONUNBUFFERED 1
 
 COPY . /app
-COPY ./app/env.docker /app/.env
+COPY ./env.docker /app/.env
 COPY ./docker/django/pip.conf /root/.pip/pip.conf
 
 RUN echo 'http://mirrors.aliyun.com/alpine/v3.4/main/' > /etc/apk/repositories
@@ -14,9 +14,14 @@ RUN apk add py-psycopg2 py-gunicorn py-pillow py-pip py-tornado libevent python-
 
 RUN pip install --upgrade pip setuptools wheel
 RUN pip install -r /app/requirements.txt
+RUN pip install /app/rongcloud.zip
 
 RUN addgroup -S django && adduser -S -G django django
 RUN chown -R django /app
+
+RUN python /app/manage.py migrate
+RUN python /app/manage.py runscript create_admin
+RUN python /app/manage.py collectstatic --noinput
 
 #RUN DJANGO_SETTINGS_MODULE=config.settings.prod python /app/manage.py migrate
 

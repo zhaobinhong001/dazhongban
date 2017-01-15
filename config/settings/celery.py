@@ -11,7 +11,7 @@ INSTALLED_APPS += (
     'django_celery_beat',
 )
 
-# DEBUG = False
+DEBUG = False
 CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
 
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL

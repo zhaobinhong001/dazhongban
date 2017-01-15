@@ -4,7 +4,7 @@ import os
 
 from celery import Celery
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.celery')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.worker')
 
 app = Celery('config')
 app.config_from_object('django.conf:settings', namespace='CELERY')

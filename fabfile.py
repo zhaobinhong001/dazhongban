@@ -30,6 +30,11 @@ env.database = 'bankeys'
 
 
 @task
+def doctor():
+    local('manage.py test tests.test_doctor --traceback -v2')
+
+
+@task
 def venv():
     with prefix('source /usr/local/bin/virtualenvwrapper.sh'):
         run('mkvirtualenv bankeys')
@@ -353,9 +358,11 @@ def init():
 def start(name):
     local('git flow feature start %s' % name)
 
+
 @task
 def publish(name):
     local('git flow feature publish %s' % name)
+
 
 @task
 def finish(name):

@@ -29,7 +29,16 @@ def generate_qrcode(data, size=11):
 
 def q(request, uid):
     uid = short_url.decode_url(uid)
-    url = 'http://' + request.get_host() + '/api/users/%s/invite/' % uid
+    url = {
+        'type': 'invite',
+        'data': {
+            'uri': '/api/users/%s/invite/' % uid
+        }
+    }
+
+    url = json.dumps(url)
+
+    # url = 'http://' + request.get_host() + '/api/users/%s/invite/' % uid
 
     white = "./service/frontend/static/frontend/images/white.png"
 

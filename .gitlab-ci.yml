@@ -1,9 +1,8 @@
 before_script:
+  - virtualenv venv && source venv/bin/activate
   - pip install -r requirements.txt
-
-migrate:
-  script:
-    - python manage.py migrate
+  - cp env.server .env
+  - python manage.py migrate
 
 tests:
   script:

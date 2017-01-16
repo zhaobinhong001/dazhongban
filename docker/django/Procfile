@@ -1,0 +1,4 @@
+server: /usr/bin/gunicorn config.wsgi --worker-class=tornado -w 4 -b 0.0.0.0:5000 --chdir=/app
+worker: /usr/bin/celery -A config worker -l info
+beater: /usr/bin/celery -A config beat -l info
+flower: /usr/bin/celery -A config flower

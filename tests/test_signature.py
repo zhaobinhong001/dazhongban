@@ -23,14 +23,14 @@ class APITestSignature(BaseAPITestCase):
 
         self._generate_uid_and_token(user=owenr)
 
-    # def test_identity_validation(self):
-    #     payload = {
-    #         "certId": "230221198902203010",
-    #         "name": "刘鹏",
-    #         "phone": "13141039522",
-    #         "cardNo": "6227000014150347510",
-    #         "bankID": "CCB",
-    #         "level": "D",
-    #     }
-    #
-    #     resp = self.post('/api/sign/identity/', data=payload, status_code=200)
+    def test_identity_validation(self):
+        payload = {
+            "certId": "230221198902203010",
+            "name": "刘鹏",
+            "phone": "13141039522",
+            "cardNo": "6227000014150347510",
+            "bankID": "CCB",
+            "level": "D",
+        }
+    
+        resp = self.post('/api/sign/identity/', data=payload, status_code=200)

@@ -73,6 +73,12 @@ class BaseAPITestCase(TestCase):
     def patch(self, *args, **kwargs):
         return self.send_request('patch', *args, **kwargs)
 
+    def put(self, *args, **kwargs):
+        return self.send_request('put', *args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        return self.send_request('delete', *args, **kwargs)
+
     def init(self):
         settings.DEBUG = True
 

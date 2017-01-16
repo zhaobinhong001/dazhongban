@@ -35,6 +35,11 @@ def doctor():
 
 
 @task
+def up():
+    local('honcho start')
+
+
+@task
 def venv():
     with prefix('source /usr/local/bin/virtualenvwrapper.sh'):
         run('mkvirtualenv bankeys')

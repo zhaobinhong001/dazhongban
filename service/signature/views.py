@@ -222,9 +222,9 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
 
-        query_sign_task.delay(dn=data['dn'], owner=self.request.user)
+        self.perform_create(serializer)
+        # query_sign_task.delay(dn=data['dn'], owner=self.request.user)
         return Response(serializer.data)
 
     def perform_create(self, serializer):

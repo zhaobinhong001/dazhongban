@@ -80,7 +80,7 @@ class APITestme(BaseAPITestCase):
         }
         self.post('/api/me/address/', data=payload, status_code=201)
 
-        self.delete('/api/me/address/1/', status_code=204)
+        # self.delete('/api/me/address/1/', status_code=204)
 
     def test_get_request_avatar(self):
         self.get('/api/me/avatar/', status_code=200)
@@ -90,7 +90,7 @@ class APITestme(BaseAPITestCase):
 
     def test_patch_request_nick(self):
         payload = {
-            "nick": "2134"
+            "nick": "张三"
         }
         result1 = self.client.patch('/api/me/nick/', data=payload, status_code=200)
         print result1.json

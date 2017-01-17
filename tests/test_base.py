@@ -1,19 +1,9 @@
 import json
 
 from django.conf import settings
-from django.test import TestCase
-from django.test.client import Client, MULTIPART_CONTENT
 from django.utils.encoding import force_text
 from rest_framework.authtoken.models import Token
-from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
-
-# class APIClient(Client):
-#     def patch(self, path, data='', content_type=MULTIPART_CONTENT, follow=False, **extra):
-#         return self.generic('PATCH', path, data, content_type, **extra)
-#
-#     def options(self, path, data='', content_type=MULTIPART_CONTENT, follow=False, **extra):
-#         return self.generic('OPTIONS', path, data, content_type, **extra)
 
 
 class BaseAPITestCase(APITestCase):

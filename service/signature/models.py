@@ -88,6 +88,9 @@ class Identity(TimeStampedModel):
     serial = models.CharField(verbose_name=u'证书编号', max_length=100, default='', null=True, blank=True)
     enddate = models.DateField(verbose_name=u'证书过期时间', blank=True, null=True)
 
+    secret = models.CharField(verbose_name=u'授权码', max_length=100, default='', null=True, blank=True)
+    verify = models.CharField(verbose_name=u'验证码', max_length=100, default='', null=True, blank=True)
+
     def __unicode__(self):
         return self.name
 

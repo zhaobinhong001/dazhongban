@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth import get_user_model
-from rest_framework.authtoken.models import Token
 
 from .test_base import BaseAPITestCase
 
@@ -30,7 +29,17 @@ class APITestSignature(BaseAPITestCase):
             "phone": "13141039522",
             "cardNo": "6227000014150347510",
             "bankID": "CCB",
-            "level": "D",
+            "level": "A",
+            "frontPhoto": open('assets/media/avatar/default.jpg', 'rb'),
+            "backPhoto": open('assets/media/avatar/default.jpg', 'rb'),
+            'secret': '123456',
+            'verify': '33',
         }
-    
-        resp = self.post('/api/sign/identity/', data=payload, status_code=200)
+
+        self.client.credentials(HTTP_AUTHORIZATION='Token %s' % self.token)
+        resp = self.client.post('/api/sign/identity/', data=payload, format='multipart')
+        print self.token
+
+        self.assertEquals(resp.status_code, 200, msg=resp)
+
+        print resp.content

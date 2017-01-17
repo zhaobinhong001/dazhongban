@@ -1,3 +1,6 @@
+before_script:
+  - cp env.server .env
+
 tests:
   script:
     - /var/local/gitlab-runner/venv/bin/python manage.py test -v2

@@ -38,6 +38,7 @@ class EnterpriseUser(models.Model):
 
     appkey = models.CharField(verbose_name=u'APPKEY', max_length=100, blank=True, null=True)
     secret = models.CharField(verbose_name=u'SECRET', max_length=200, blank=True, null=True)
+    callback = models.URLField(verbose_name=u'回调URL', blank=True, null=True)
 
     def __unicode__(self):
         return self.enterprise_name

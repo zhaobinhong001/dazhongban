@@ -18,16 +18,17 @@ DATABASES = {
 if DEBUG:
     INSTALLED_APPS += (
         'debug_toolbar',
+        'raven.contrib.django.raven_compat',
     )
 
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     DEBUG_TOOLBAR_CONFIG = {'JQUERY_URL': '//cdn.bootcss.com/jquery/2.1.4/jquery.min.js'}
     DJANGO_SENTRY_DSN = env('DJANGO_SENTRY_DSN', default=None)
 
-    # if DJANGO_SENTRY_DSN:
-    #     import raven
-    #
-    #     RAVEN_CONFIG = {
-    #         'dsn': DJANGO_SENTRY_DSN,
-    #     }
+    if DJANGO_SENTRY_DSN:
+        import raven
+
+        RAVEN_CONFIG = {
+            'dsn': DJANGO_SENTRY_DSN,
+        }
 

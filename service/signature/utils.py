@@ -180,7 +180,7 @@ def verify_data(request):
     :param request: views 里的 request 上下文
     :return: uri, data
     '''
-    resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=request)
+    resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=request.data)
 
     if (resp.status_code != 200) and (resp.status_code != 500):
         return False, resp.content

@@ -183,10 +183,14 @@ def verify_data(request):
     resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=request.data)
 
     if (resp.status_code != 200) and (resp.status_code != 500):
-        return False, resp.content
+        return False, {'errors': 1, 'detail': resp.content}
 
     # 解析数据
+
     sign = resp.json()
+    if sign.get('respCode') != '0000':
+        return False, {'errors': 1, 'detail': sign.get('respMsg')}
+
     rest = json.loads(sign.get('source').decode('hex'))
 
     uri = rest.get('uri')
@@ -207,4 +211,4 @@ def signature_data(data=None):
     :return: HttpResponse 对象
     '''
     resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=data)
-    return HttpResponse(resp.content)
+    return HttpResponse(resp.text)

@@ -68,7 +68,7 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
             body = process_verify(uri, data)
             body = json.dumps(body)
         else:
-            body = data
+            body = json.dumps(data)
 
         # 服务签名
         return signature_data(body)

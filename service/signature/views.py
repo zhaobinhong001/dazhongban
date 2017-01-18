@@ -21,8 +21,23 @@ from service.signature.utils import verify_data, signature_data
 from .models import Signature, Identity, Validate
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
     CallbackSerializer, CertificateSerializer
-from .tasks import query_sign_task
 from .utils import iddentity_verify, fields, process_verify
+
+
+class StreamParser(object):
+    """
+    All parsers should extend `BaseParser`, specifying a `media_type`
+    attribute, and overriding the `.parse()` method.
+    """
+    media_type = '*/*'
+
+    def parse(self, stream, media_type=None, parser_context=None):
+        """
+        Given a stream to read from, return the parsed representation.
+        Should return parsed data, or a `DataAndFiles` object consisting of the
+        parsed data and files.
+        """
+        return stream
 
 
 class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
@@ -54,6 +69,7 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
 
     '''
     serializer_class = SignatureSerializer
+    parser_classes = (StreamParser,)
     model = Signature
 
     def get_queryset(self):

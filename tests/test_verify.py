@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import requests
 from django.contrib.auth import get_user_model
 
 from .test_base import BaseAPITestCase
@@ -26,4 +27,6 @@ class APITestVerify(BaseAPITestCase):
         data = open('/Users/bopo/tmp/verify.txt').read()
         resp = self.post('/api/sign/signature/', data=data, content_type='application/x-www-form-urlencoded', status_code=200)
         resp = self.post('/api/sign/signature/', data=data, content_type='application/octet-stream', status_code=200)
-        # self.assertEquals(resp.status_code, 200, msg=resp)
+        resp = requests.post('http://10.7.7.22:9090/Verify', data=resp.content.decode('hex'))
+
+        print resp.content

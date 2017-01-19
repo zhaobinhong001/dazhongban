@@ -167,7 +167,7 @@ def process_verify(uri, data):
 
     extra = {'type': data.get('type'), 'data': {'status': data.get('status'), 'uri': uri, 'id': res.id}}
 
-    sign.extra = extra
+    sign.extra = json.dumps(extra)
     sign.save()
 
     return {'errors': 0, 'detail': extra}

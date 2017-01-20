@@ -11,6 +11,7 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from service.kernel.models.enterprise import EnterpriseUser
+from service.kernel.utils.jpush_audience import jpush_extras
 from service.signature.models import Signature
 from service.signature.serializers import SignatureSerializer
 
@@ -225,3 +226,66 @@ class RefundsViewSet(viewsets.GenericViewSet):
         content = json.dumps({'errors': 1, 'detail': '异常错误'})
         third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=content)
         return HttpResponse(third.content)
+
+
+from rest_framework.parsers import JSONParser
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+
+class PushView(APIView):
+    """
+    A view that can accept POST requests with JSON content.
+    """
+    parser_classes = (JSONParser,)
+
+    def post(self, request, format=None):
+        push = jpush_extras(message='hello', alias=['15711412157'], extras=json.loads(request.data))
+        content = json.dumps({'errors': 0, 'detail': '发送成功'})
+        return Response(json.loads(request.data))
+
+
+class PushViewSet(viewsets.GenericViewSet):
+    parser_classes = (StreamParser,)
+
+    def create(self, request, *args, **kwargs):
+        # try:
+        extras = {
+            'type': 'receive',
+            'data': {
+                'req_id': '请求唯一的id, 发起方随机生成',
+                'appkey': '系统分配给商家的唯一标示',
+                'uri': '/api/passport/receive/',
+                'orders': {
+                    'goods': {
+                        'title': '',
+                        'amount': '',
+                        'quantity': '',
+                    },
+                    'users': {
+                        'name': '',
+                        'mobile': '',
+                        'address': '',
+                    },
+                    'orderid': '',
+                    'created': '',
+                    'fee': '',
+                    'discount': '',
+                    'paymend': '',
+                }
+            }
+        }
+
+        # extras = json.loads(str(request.data))
+        # print request.data
+        # push = jpush_extras(message='hello', alias=['15711412157'], extras=extras)
+        # content = json.dumps({'errors': 0, 'detail': '发送成功'})
+        # except Exception:
+        #     content = json.dumps({'errors': 1, 'detail': '异常错误'})
+        # data = request.data
+
+        # print (request.data)
+
+
+
+        return Response(request.data)

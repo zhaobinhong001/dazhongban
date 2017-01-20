@@ -77,8 +77,8 @@ def jpush_extras(message, alias, extras, *args, **kwargs):
 
     push.platform = jpush.all_
 
-    ios_msg = jpush.ios(alert=message, sound="default", extras=extras)
-    android_msg = jpush.android(alert=message, extras=extras)
+    ios_msg = jpush.ios(alert=str(message), sound="default", extras=extras)
+    android_msg = jpush.android(alert=str(message), extras=extras)
 
     push.audience = jpush.audience({"alias": alias})
     push.notification = jpush.notification(alert="Hello, JPush!", ios=ios_msg, android=android_msg)
@@ -93,3 +93,5 @@ def jpush_extras(message, alias, extras, *args, **kwargs):
         raise e
     except Exception as e:
         raise e
+
+

@@ -240,7 +240,7 @@ class PushView(APIView):
     parser_classes = (JSONParser,)
 
     def post(self, request, format=None):
-        push = jpush_extras(message='hello', alias=['15711412157'], extras=json.loads(request.data))
+        push = jpush_extras(message='hello', alias=['15711412157', '18511345772'], extras=json.loads(request.data))
         content = json.dumps({'errors': 0, 'detail': '发送成功'})
         return Response(json.loads(request.data))
 

@@ -18,9 +18,9 @@ from url_filter.integrations.drf import DjangoFilterBackend as drfDjangoFilterBa
 
 from service.kernel.contrib.utils.hashlib import md5
 from service.signature.utils import verify_data, signature_data
-from .models import Signature, Identity, Validate
+from .models import Signature, Identity, Validate, Counter
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
-    CallbackSerializer, CertificateSerializer
+    CallbackSerializer, CertificateSerializer, CounterSerializer
 from .utils import iddentity_verify, fields, process_verify
 
 
@@ -231,6 +231,12 @@ class IdentityViewSet(viewsets.ModelViewSet):
         data['bankID'] = request.data['bankID']
         data['level'] = request.data['level']
 
+        if data['level'] == 'A':
+            counter, _ = Counter.objects.get_or_create(owner_id=self.request.user.pk)
+            counter.secret = '123456'
+            counter.verify = '654321'
+            counter.save()
+
         # del data['serial']
         # del data['enddate']
 
@@ -284,7 +290,7 @@ class CallbackViewSet(mixins.CreateModelMixin, GenericViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class ValidateViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
+class ValidateViewSet(GenericViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = ValidateSerializer
     queryset = Validate.objects.all()
@@ -298,3 +304,22 @@ class ValidateViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericV
         serializer = self.get_serializer(instance)
 
         return Response(serializer.data)
+
+
+class CounterViewSet(mixins.CreateModelMixin, GenericViewSet):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = CounterSerializer
+    queryset = Counter.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            instance = Counter.objects.get(owner=self.request.user)
+            if instance.secret != request.data.get('secret'):
+                return Response({'detail': '授权码不正确'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if instance.verify != request.data.get('verify'):
+                return Response({'verify': '验证码不正确'}, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({'detail': '验证成功'}, status=status.HTTP_200_OK)
+        except Counter.DoesNotExist:
+            return Response({'detail': '用户不存在'}, status=status.HTTP_400_BAD_REQUEST)

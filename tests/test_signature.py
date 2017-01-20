@@ -38,8 +38,9 @@ class APITestSignature(BaseAPITestCase):
 
         self.client.credentials(HTTP_AUTHORIZATION='Token %s' % self.token)
         resp = self.client.post('/api/sign/identity/', data=payload, format='multipart')
-        print self.token
-
         self.assertEquals(resp.status_code, 200, msg=resp)
+        print resp.content
 
+        resp = self.client.post('/api/sign/counter/', data={'secret': '123456', 'verify': '654321'})
+        self.assertEquals(resp.status_code, 200, msg=resp)
         print resp.content

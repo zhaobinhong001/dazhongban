@@ -6,7 +6,7 @@ from django.conf import settings
 from rest_framework import serializers
 
 from service.kernel.contrib.utils.hashlib import md5
-from .models import Signature, Validate, Identity
+from .models import Signature, Validate, Identity, Counter
 
 
 class BankcardSerializer(serializers.Serializer):
@@ -33,6 +33,7 @@ class BankcardSerializer(serializers.Serializer):
 
 class IdentitySerializer(serializers.ModelSerializer):
     credit = serializers.StringRelatedField(source='owner.credit')
+
     # secret = serializers.CharField(label='授权码', allow_blank=True)
     # verify = serializers.CharField(label='验证码', allow_blank=True)
     #
@@ -50,6 +51,12 @@ class IdentitySerializer(serializers.ModelSerializer):
         model = Identity
         exclude = ('owner',)
         read_only_fields = ('serial', 'enddate',)
+
+
+class CounterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Counter
+        exclude = ('owner',)
 
 
 class SignatureSerializer(serializers.ModelSerializer):

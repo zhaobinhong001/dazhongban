@@ -4,7 +4,9 @@ from __future__ import unicode_literals
 import json
 
 import short_url
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.db.models import QuerySet
 from rest_framework import mixins
 from rest_framework import status
@@ -15,7 +17,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.viewsets import GenericViewSet
-from django.conf import settings
 
 from service.consumer.models import Contact, Profile
 from service.consumer.models import CustomUser
@@ -108,6 +109,8 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
 
     `hide 和 black 接口 psot 参数 userid 为多个 id 用 "," 隔开`
 
+    status 三种状态: new 手机通讯录用户 invite 邀请用户 confirm 确认状态
+
 
     '''
     serializer_class = ContactSerializer
@@ -117,7 +120,10 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
 
     def get_queryset(self):
 
-        queryset = self.queryset.filter(owner=self.request.user).filter(black=False)
+        queryset = self.queryset.filter(
+            Q(owner=self.request.user, status='confirm') | Q(owner=self.request.user, status='new') | Q(
+                friend=self.request.user, status='invite')).exclude(
+            black=True)
 
         if isinstance(queryset, QuerySet):
             queryset = queryset.all()

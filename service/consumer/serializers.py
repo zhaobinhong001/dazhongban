@@ -125,6 +125,16 @@ class AccountDetailsSerializer(serializers.ModelSerializer):
 
 
 class BankcardSerializer(serializers.ModelSerializer):
+
+    # def validate(self, attrs):
+    #     raise serializers.ValidationError("银行卡已存在")
+
+    #     try:
+    #         Bankcard.objects.filter(card=attrs.get('card'))
+    #         raise serializers.ValidationError("银行卡已存在")
+    #     except Bankcard.DoesNotExist:
+    #         return attrs
+
     class Meta:
         model = Bankcard
         exclude = ('owner',)

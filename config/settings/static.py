@@ -8,7 +8,7 @@ try:
 except ImportError as e:
     raise e
 
-MEDIA_URL = '/media/'
+MEDIA_URL = env(), '/media/'
 STATIC_URL = '/static/'
 
 ADMIN_MEDIA_PREFIX = '/media/'

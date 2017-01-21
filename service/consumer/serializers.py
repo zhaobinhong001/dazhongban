@@ -22,10 +22,11 @@ class ProfileSerializer(serializers.ModelSerializer):
     name = serializers.StringRelatedField(source='owner.identity.name')
     idcard = serializers.StringRelatedField(source='owner.identity.certId')
     bankcard = serializers.StringRelatedField(source='owner.identity.cardNo')
+    certType = serializers.StringRelatedField(source='owner.identity.certType')
 
     class Meta:
         model = Profile
-        read_only_fields = ("name", "phone", "qr", "level", 'bankcard', 'idcard', 'credit')
+        read_only_fields = ("name", "phone", "qr", "level", 'bankcard', 'idcard', 'credit', 'certType')
         fields = (
             "name", "nick", "phone", "mobile", "gender", "birthday", "qr", 'level', 'idcard', 'bankcard', 'avatar',
             'credit')

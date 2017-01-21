@@ -96,11 +96,11 @@ class Profile(models.Model):
     female:女
     提交的数据要用英文.获取时候api也是英文, 要客户端自己做下转换.
     '''
-    GENDER_CHOICES = (('male', '男'), ('female', '女'))
+    GENDER_CHOICES = (('', '未知'), ('male', '男'), ('female', '女'))
 
     owner = models.OneToOneField(settings.AUTH_USER_MODEL, unique=True, db_index=True, related_name='profile')
     name = models.CharField(verbose_name=_(u'姓名'), blank=True, max_length=100, db_index=True)
-    nick = models.CharField(verbose_name=_(u'昵称'), blank=True, null=True, max_length=100, db_index=True)
+    nick = models.CharField(verbose_name=_(u'昵称'), blank=True, null=True, max_length=100, db_index=True, default='')
     phone = models.CharField(verbose_name=_(u'银行预留电话'), default='', blank=True, max_length=64)
     gender = models.CharField(verbose_name=_(u'性别'), max_length=10, choices=GENDER_CHOICES, default=u'male')
     idcard = models.CharField(verbose_name=_(u'身份证'), max_length=100, default='')

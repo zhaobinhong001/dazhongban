@@ -32,12 +32,27 @@ def query_sign(dn, *args, **kwargs):
     if result.get('endDate'):
         identity.enddate = arrow.get(result.get('endDate')).format('YYYY-MM-DD')
 
+    print identity.enddate
+
     identity.save()
 
     # 创建时，生成模拟银行卡号
     vcard, _ = Bankcard.objects.get_or_create(owner=identity.owner, bank=u'收付宝')
     vcard.card = bankcard()
-    vcard.type = u'借记卡'
+    vcard.type = u'虚拟卡'
+    vcard.suffix = vcard.card[-4:]
+    vcard.save()
+
+    bcard = requests.get(url='%s/%s' % (settings.BANK_CARD, identity.cardNo))
+    bcard = bcard.json()
+    bcard = bcard.get('result')
+    vcard = Bankcard.objects.create(owner=identity.owner)
+    vcard.card = identity.cardNo
+
+    vcard.bank = bcard.get('bank')
+    vcard.type = bcard.get('type')
+
+    vcard.suffix = identity.cardNo[-4:]
     vcard.save()
 
     # 更新用户等级
@@ -45,8 +60,9 @@ def query_sign(dn, *args, **kwargs):
     identity.owner.credit = '50'
     identity.owner.save()
 
-    # 更新真实姓名
+    # 更新真实姓名 'male', '男'), ('female', '女'))
     identity.owner.profile.name = identity.name
+    identity.owner.profile.gender = 'male' if (int(identity.certId[-2:-1]) % 2) == 1 else 'female'
     identity.owner.profile.save()
 
     return result

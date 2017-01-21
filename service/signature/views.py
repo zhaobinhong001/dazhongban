@@ -21,7 +21,7 @@ from service.signature.utils import verify_data, signature_data
 from .models import Signature, Identity, Validate, Counter
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
     CallbackSerializer, CertificateSerializer, CounterSerializer
-from .tasks import query_sign_task, query_sign
+from .tasks import query_sign
 from .utils import iddentity_verify, fields, process_verify
 
 
@@ -234,14 +234,14 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
         if data['level'] == 'A':
             counter, _ = Counter.objects.get_or_create(owner_id=self.request.user.pk)
-            counter.secret = '123456'
+            counter.secret = '1234567890'
             counter.verify = '654321'
             counter.save()
 
         self.queryset.filter(owner=self.request.user).delete()
 
         serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid()
 
         self.perform_create(serializer)
 

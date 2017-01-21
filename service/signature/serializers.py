@@ -34,19 +34,6 @@ class BankcardSerializer(serializers.Serializer):
 class IdentitySerializer(serializers.ModelSerializer):
     credit = serializers.StringRelatedField(source='owner.credit')
 
-    # secret = serializers.CharField(label='授权码', allow_blank=True)
-    # verify = serializers.CharField(label='验证码', allow_blank=True)
-    #
-    # def validate(self, attrs):
-    #     if attrs.get('level') == 'A':
-    #         if attrs.get('secret') == '123456':
-    #             if attrs.get('verify') != '123456':
-    #                 raise serializers.ValidationError("验证码错误")
-    #             else:
-    #                 raise serializers.ValidationError("授权码错误")
-    #
-    #     return attrs
-
     class Meta:
         model = Identity
         exclude = ('owner',)

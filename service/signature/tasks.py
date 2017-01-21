@@ -37,10 +37,12 @@ def query_sign(dn, *args, **kwargs):
     identity.save()
 
     # 创建时，生成模拟银行卡号
-    try:
-        Bankcard.objects.filter(owner=identity.owner, bank=u'收付宝')
-    except Bankcard.DoesNotExist:
+    nums = Bankcard.objects.filter(owner=identity.owner, bank=u'收付宝').count()
+
+    if nums == 0:
         vcard = Bankcard()
+        vcard.owner = identity.owner
+        vcard.bank = u'收付宝'
         vcard.card = bankcard()
         vcard.type = u'虚拟卡'
         vcard.suffix = vcard.card[-4:]
@@ -51,9 +53,7 @@ def query_sign(dn, *args, **kwargs):
         bcard = bcard.json()
         bcard = bcard.get('result')
 
-        scard = Bankcard.objects.create(owner=identity.owner)
-        scard.card = identity.cardNo
-
+        scard = Bankcard(owner=identity.owner, card=identity.cardNo)
         scard.bank = bcard.get('bank')
         scard.type = bcard.get('type')
 

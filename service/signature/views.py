@@ -225,7 +225,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
         data, status_ = iddentity_verify(item)
 
         if not status_:
-            raise ValidationError({'detail': data['message']})
+            raise ValidationError({'detail': data.get('messages')})
 
         data['frontPhoto'] = request.data['frontPhoto']
         data['backPhoto'] = request.data['backPhoto']

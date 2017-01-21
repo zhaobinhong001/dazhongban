@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.core.exceptions import PermissionDenied
-from django.http import Http404
-from django.utils import six
-from django.utils.translation import ugettext_lazy as _
-from rest_framework import exceptions, status
+from rest_framework import exceptions
 from rest_framework.compat import set_rollback
 from rest_framework.response import Response
 from rest_framework.utils.serializer_helpers import ReturnDict
@@ -37,7 +33,9 @@ def get_exception_handler(exc, context):
 
         if isinstance(exc.detail, dict):
             if exc.detail.get('card'):
-                data = exc.detail = {'detail':'卡号已存在'}
+                data = {'detail': '卡号已存在'}
+            else:
+                data = {'detail': exc.detail}
         else:
             data = exc.detail
 
@@ -67,28 +65,28 @@ def custom_exception_handler(exc, context):
     response = get_exception_handler(exc, context)
 
     # Now add the HTTP status code to the response.
-    # if response:
-    #     if response.data.get('detail'):
-    #         data = None
-    #         detail = response.data.get('detail')
-    #
-    #         del response.data['detail']
-    #
-    #         if isinstance(detail, ReturnDict):
-    #             data = [v[0] for k, v in detail.items()]
-    #             msgs = {}
-    #
-    #             # for k, v in detail.items():
-    #             #     msgs[k] = k + v[0]
-    #             #     msgs[k] = v[0]
-    #         else:
-    #             msgs = detail
-    #
-    #         if data:
-    #             msgs = str(data[0])
-    #
-    #         response.data['detail'] = msgs
-    # else:
-    #     print exc, 'exc'
+    if response:
+        if response.data.get('detail'):
+            data = None
+            detail = response.data.get('detail')
+
+            del response.data['detail']
+
+            if isinstance(detail, ReturnDict):
+                data = [v[0] for k, v in detail.items()]
+                msgs = {}
+
+                # for k, v in detail.items():
+                #     msgs[k] = k + v[0]
+                #     msgs[k] = v[0]
+            else:
+                msgs = detail
+
+            if data:
+                msgs = str(data[0])
+
+            response.data['detail'] = msgs
+    else:
+        print exc, 'exc'
 
     return response

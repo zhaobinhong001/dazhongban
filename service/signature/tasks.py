@@ -37,11 +37,14 @@ def query_sign(dn, *args, **kwargs):
     identity.save()
 
     # 创建时，生成模拟银行卡号
-    vcard, _ = Bankcard.objects.get_or_create(owner=identity.owner, bank=u'收付宝')
-    vcard.card = bankcard()
-    vcard.type = u'虚拟卡'
-    vcard.suffix = vcard.card[-4:]
-    vcard.save()
+    try:
+        Bankcard.objects.filter(owner=identity.owner, bank=u'收付宝')
+    except Bankcard.DoesNotExist:
+        vcard = Bankcard()
+        vcard.card = bankcard()
+        vcard.type = u'虚拟卡'
+        vcard.suffix = vcard.card[-4:]
+        vcard.save()
 
     try:
         bcard = requests.get(url='%s/%s' % (settings.BANK_CARD, identity.cardNo))

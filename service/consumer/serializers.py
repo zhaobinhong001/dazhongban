@@ -29,7 +29,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ("name", "phone", "qr", "level", 'bankcard', 'idcard', 'credit', 'certType')
         fields = (
             "name", "nick", "phone", "mobile", "gender", "birthday", "qr", 'level', 'idcard', 'bankcard', 'avatar',
-            'credit')
+            'credit', 'certType')
 
 
 class UserSerializer(serializers.ModelSerializer):

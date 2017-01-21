@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from rest_framework import exceptions
 from rest_framework.compat import set_rollback
 from rest_framework.response import Response
-from rest_framework.utils.serializer_helpers import ReturnDict
 
 errors = {
     'PermissionDenied': '',
@@ -35,12 +34,11 @@ def get_exception_handler(exc, context):
             if exc.detail.get('card'):
                 data = {'detail': '卡号已存在'}
             else:
-                detail = exc.detail
-
-                if isinstance(detail, ReturnDict):
-                    data = [v[0] for k, v in detail.items()]
-
-                data = {'detail': data[0]}
+                data = [v[0] for k, v in exc.detail.items()]
+                data = {'detail': ','.join(data)}
+                print data
+        elif isinstance(exc.detail, list):
+            data = {'detail': ''.join(exc.detail)}
         else:
             data = {'detail': exc.detail}
 

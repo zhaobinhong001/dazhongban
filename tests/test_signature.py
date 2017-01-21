@@ -32,8 +32,8 @@ class APITestSignature(BaseAPITestCase):
         self.assertEqual(resp.json['detail'], u'验证码已经成功发送')
 
         code = VerifyCode.objects.get(mobile=payload['mobile'])
-        payload["verify"] = code.code
 
+        payload["verify"] = code.code
         resp = self.post('/api/auth/registration/', data=payload, status_code=201)
         self.assertTrue(bool(resp.json.get('key')))
         self.token = resp.json.get('key')
@@ -47,8 +47,6 @@ class APITestSignature(BaseAPITestCase):
             "level": "A",
             "frontPhoto": open('assets/media/avatar/default.jpg', 'rb'),
             "backPhoto": open('assets/media/avatar/default.jpg', 'rb'),
-            'secret': '123456',
-            'verify': '33',
         }
 
         self.client.credentials(HTTP_AUTHORIZATION='Token %s' % self.token)
@@ -56,10 +54,15 @@ class APITestSignature(BaseAPITestCase):
         self.assertEquals(resp.status_code, 200, msg=resp)
         print resp.content
 
-        resp = self.client.post('/api/sign/counter/', data={'secret': '123456', 'verify': '654321'})
+        self.client.credentials(HTTP_AUTHORIZATION='Token %s' % self.token)
+        resp = self.client.post('/api/sign/counter/', data={'secret': '1234567890', 'verify': '654321'})
         self.assertEquals(resp.status_code, 200, msg=resp)
         print resp.content
 
         resp = self.get('/api/me/profile/', status_code=200)
         self.assertEquals(resp.json['level'], 'A')
+        self.assertIsNotNone(resp.json['gender'], msg=resp.json['gender'])
         print resp.content
+
+        resp = self.get('/api/me/bankcard/', status_code=200)
+        self.assertTrue(resp.json['results'])

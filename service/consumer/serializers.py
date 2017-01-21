@@ -16,13 +16,15 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    level = serializers.StringRelatedField(source='owner.level')
-    credit = serializers.StringRelatedField(source='owner.credit')
-    mobile = serializers.StringRelatedField(source='owner.mobile')
-    name = serializers.StringRelatedField(source='owner.identity.name')
-    idcard = serializers.StringRelatedField(source='owner.identity.certId')
-    bankcard = serializers.StringRelatedField(source='owner.identity.cardNo')
-    certType = serializers.StringRelatedField(source='owner.identity.certType')
+    level = serializers.StringRelatedField(source='owner.level', default='')
+    credit = serializers.StringRelatedField(source='owner.credit', default='')
+    mobile = serializers.StringRelatedField(source='owner.mobile', default='')
+    name = serializers.StringRelatedField(source='owner.identity.name', default='')
+    idcard = serializers.StringRelatedField(source='owner.identity.certId', default='')
+    bankcard = serializers.StringRelatedField(source='owner.identity.cardNo', default='')
+    certType = serializers.StringRelatedField(source='owner.identity.certType', default='')
+
+    birthday = serializers.DateField(default='')
 
     class Meta:
         model = Profile

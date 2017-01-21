@@ -46,14 +46,15 @@ def query_sign(dn, *args, **kwargs):
     bcard = requests.get(url='%s/%s' % (settings.BANK_CARD, identity.cardNo))
     bcard = bcard.json()
     bcard = bcard.get('result')
-    vcard = Bankcard.objects.create(owner=identity.owner)
-    vcard.card = identity.cardNo
 
-    vcard.bank = bcard.get('bank')
-    vcard.type = bcard.get('type')
+    scard = Bankcard.objects.create(owner=identity.owner)
+    scard.card = identity.cardNo
 
-    vcard.suffix = identity.cardNo[-4:]
-    vcard.save()
+    scard.bank = bcard.get('bank')
+    scard.type = bcard.get('type')
+
+    scard.suffix = identity.cardNo[-4:]
+    scard.save()
 
     # 更新用户等级
     identity.owner.level = identity.level

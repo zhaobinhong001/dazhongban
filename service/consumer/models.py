@@ -19,7 +19,7 @@ from rest_framework.serializers import ValidationError
 
 from config.settings.apps import BANKID
 from service.kernel.tasks import send_verify_push
-
+import requests
 
 class AbstractActionType(TimeStampedModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
@@ -207,7 +207,7 @@ class Bankcard(TimeStampedModel):
     cover = ProcessedImageField(verbose_name=_(u'银行logo'), upload_to='bank', processors=[ResizeToFill(320, 320)],
         format='JPEG', null=True, default='banks/default.jpg')
     bank = models.CharField(verbose_name=_(u'所属银行'), blank=True, max_length=50, default='', choices=BANKID, )
-    card = models.CharField(verbose_name=_(u'银行卡号'), blank=True, max_length=50, default='')
+    card = models.CharField(verbose_name=_(u'银行卡号'), blank=True, max_length=50, default='', unique=True)
     suffix = models.CharField(verbose_name=_(u'卡号后缀'), max_length=10, default='')
     type = models.CharField(verbose_name=_('卡片类型'), max_length=10, choices=TYPE_CHOICES, default='')
     flag = models.CharField(verbose_name=_('卡片用途'), max_length=10, choices=FLAG_CHOICES, default='')
@@ -217,6 +217,17 @@ class Bankcard(TimeStampedModel):
 
     def __str__(self):
         return self.__unicode__()
+
+    def save(self, *args, **kwargs):
+        # bcard = requests.get(url='%s/%s' % (settings.BANK_CARD, self.card))
+        # bcard = bcard.json()
+        # bcard = bcard.get('result')
+        #
+        # self.bank = bcard.get('bank')
+        # self.type = bcard.get('type')
+        self.suffix = self.card[-4:]
+
+        super(Bankcard, self).save()
 
     class Meta:
         verbose_name = _(u'用户银行卡')

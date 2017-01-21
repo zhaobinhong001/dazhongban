@@ -18,7 +18,7 @@ INSTALLED_APPS += (
 )
 
 REST_FRAMEWORK = {
-    # 'EXCEPTION_HANDLER': 'service.exception.custom_exception_handler',
+    'EXCEPTION_HANDLER': 'service.kernel.exception.custom_exception_handler',
     # 'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
     # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'DEFAULT_AUTHENTICATION_CLASSES': (

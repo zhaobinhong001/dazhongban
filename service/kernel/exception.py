@@ -28,32 +28,35 @@ def get_exception_handler(exc, context):
     """
     if isinstance(exc, exceptions.APIException):
         headers = {}
+
         if getattr(exc, 'auth_header', None):
             headers['WWW-Authenticate'] = exc.auth_header
+
         if getattr(exc, 'wait', None):
             headers['Retry-After'] = '%d' % exc.wait
 
-        if isinstance(exc.detail, (list, dict)):
-            data = {'detail': exc.detail}
+        if isinstance(exc.detail, dict):
+            if exc.detail.get('card'):
+                data = exc.detail = {'detail':'卡号已存在'}
         else:
-            data = {'detail': exc.detail}
+            data = exc.detail
 
         set_rollback()
         return Response(data, status=exc.status_code, headers=headers)
 
-    elif isinstance(exc, Http404):
-        msg = _('Not found.')
-        data = {'msgs': six.text_type(msg)}
+    # elif isinstance(exc, Http404):
+    #     msg = _('Not found.')
+    #     data = {'msgs': six.text_type(msg)}
+    #
+    #     set_rollback()
+    #     return Response(data, status=status.HTTP_404_NOT_FOUND)
 
-        set_rollback()
-        return Response(data, status=status.HTTP_404_NOT_FOUND)
-
-    elif isinstance(exc, PermissionDenied):
-        msg = _('Permission denied.')
-        data = {'msgs': six.text_type(msg)}
-
-        set_rollback()
-        return Response(data, status=status.HTTP_403_FORBIDDEN)
+    # elif isinstance(exc, PermissionDenied):
+    #     msg = _('Permission denied.')
+    #     data = {'msgs': six.text_type(msg)}
+    #
+    #     set_rollback()
+    #     return Response(data, status=status.HTTP_403_FORBIDDEN)
 
     # Note: Unhandled exceptions will raise a 500 error.
     return None
@@ -64,28 +67,28 @@ def custom_exception_handler(exc, context):
     response = get_exception_handler(exc, context)
 
     # Now add the HTTP status code to the response.
-    if response:
-        if response.data.get('detail'):
-            data = None
-            detail = response.data.get('detail')
-
-            del response.data['detail']
-
-            if isinstance(detail, ReturnDict):
-                data = [v[0] for k, v in detail.items()]
-                msgs = {}
-
-                # for k, v in detail.items():
-                #     msgs[k] = k + v[0]
-                #     msgs[k] = v[0]
-            else:
-                msgs = detail
-
-            if data:
-                msgs = str(data[0])
-
-            response.data['errors'] = {'code': response.status_code, 'msgs': msgs}
-    else:
-        print exc, 'exc'
+    # if response:
+    #     if response.data.get('detail'):
+    #         data = None
+    #         detail = response.data.get('detail')
+    #
+    #         del response.data['detail']
+    #
+    #         if isinstance(detail, ReturnDict):
+    #             data = [v[0] for k, v in detail.items()]
+    #             msgs = {}
+    #
+    #             # for k, v in detail.items():
+    #             #     msgs[k] = k + v[0]
+    #             #     msgs[k] = v[0]
+    #         else:
+    #             msgs = detail
+    #
+    #         if data:
+    #             msgs = str(data[0])
+    #
+    #         response.data['detail'] = msgs
+    # else:
+    #     print exc, 'exc'
 
     return response

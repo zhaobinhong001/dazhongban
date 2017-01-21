@@ -35,9 +35,14 @@ def get_exception_handler(exc, context):
             if exc.detail.get('card'):
                 data = {'detail': '卡号已存在'}
             else:
-                data = {'detail': exc.detail}
+                detail = exc.detail
+
+                if isinstance(detail, ReturnDict):
+                    data = [v[0] for k, v in detail.items()]
+
+                data = {'detail': data[0]}
         else:
-            data = exc.detail
+            data = {'detail': exc.detail}
 
         set_rollback()
         return Response(data, status=exc.status_code, headers=headers)
@@ -65,28 +70,28 @@ def custom_exception_handler(exc, context):
     response = get_exception_handler(exc, context)
 
     # Now add the HTTP status code to the response.
-    if response:
-        if response.data.get('detail'):
-            data = None
-            detail = response.data.get('detail')
-
-            del response.data['detail']
-
-            if isinstance(detail, ReturnDict):
-                data = [v[0] for k, v in detail.items()]
-                msgs = {}
-
-                # for k, v in detail.items():
-                #     msgs[k] = k + v[0]
-                #     msgs[k] = v[0]
-            else:
-                msgs = detail
-
-            if data:
-                msgs = str(data[0])
-
-            response.data['detail'] = msgs
-    else:
-        print exc, 'exc'
+    # if response:
+    #     if response.data.get('detail'):
+    #         data = None
+    #         detail = response.data.get('detail')
+    #
+    #         del response.data['detail']
+    #
+    #         if isinstance(detail, ReturnDict):
+    #             data = [v[0] for k, v in detail.items()]
+    #             msgs = {}
+    #
+    #             # for k, v in detail.items():
+    #             #     msgs[k] = k + v[0]
+    #             #     msgs[k] = v[0]
+    #         else:
+    #             msgs = detail
+    #
+    #         if data:
+    #             msgs = str(data[0])
+    #
+    #         response.data['detail'] = msgs
+    # else:
+    #     print exc, 'exc'
 
     return response

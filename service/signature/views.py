@@ -21,7 +21,7 @@ from service.signature.utils import verify_data, signature_data
 from .models import Signature, Identity, Validate, Counter
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
     CallbackSerializer, CertificateSerializer, CounterSerializer
-from .tasks import query_sign_task
+from .tasks import query_sign_task, query_sign
 from .utils import iddentity_verify, fields, process_verify
 
 
@@ -245,7 +245,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
 
         self.perform_create(serializer)
 
-        query_sign_task.delay(dn=data['dn'], owner=self.request.user)
+        query_sign(dn=data['dn'], owner=self.request.user)
         return Response(serializer.data)
 
     def perform_create(self, serializer):

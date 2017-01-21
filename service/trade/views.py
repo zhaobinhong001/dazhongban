@@ -108,7 +108,7 @@ class TransferViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class PurchasedViewSet(viewsets.ModelViewSet):
+class PurchasedViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = PurchasedSerializer
     queryset = Purchased.objects.all()

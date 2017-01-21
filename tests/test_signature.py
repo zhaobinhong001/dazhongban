@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth import get_user_model
 
+from service.restauth.models import VerifyCode
 from .test_base import BaseAPITestCase
 
 
@@ -24,6 +25,20 @@ class APITestSignature(BaseAPITestCase):
 
     def test_identity_validation(self):
         payload = {
+            "mobile": self.MOBILE
+        }
+
+        resp = self.post('/api/auth/registration/verify_mobile/', data=payload, status_code=200)
+        self.assertEqual(resp.json['detail'], u'验证码已经成功发送')
+
+        code = VerifyCode.objects.get(mobile=payload['mobile'])
+        payload["verify"] = code.code
+
+        resp = self.post('/api/auth/registration/', data=payload, status_code=201)
+        self.assertTrue(bool(resp.json.get('key')))
+        self.token = resp.json.get('key')
+
+        payload = {
             "certId": "230221198902203010",
             "name": "刘鹏",
             "phone": "13141039522",
@@ -43,4 +58,8 @@ class APITestSignature(BaseAPITestCase):
 
         resp = self.client.post('/api/sign/counter/', data={'secret': '123456', 'verify': '654321'})
         self.assertEquals(resp.status_code, 200, msg=resp)
+        print resp.content
+
+        resp = self.get('/api/me/profile/', status_code=200)
+        self.assertEquals(resp.json['level'], 'A')
         print resp.content

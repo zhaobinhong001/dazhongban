@@ -19,12 +19,16 @@ class ProfileSerializer(serializers.ModelSerializer):
     level = serializers.StringRelatedField(source='owner.level')
     credit = serializers.StringRelatedField(source='owner.credit')
     mobile = serializers.StringRelatedField(source='owner.mobile')
+    name = serializers.StringRelatedField(source='owner.identity.name')
+    idcard = serializers.StringRelatedField(source='owner.identity.certId')
+    bankcard = serializers.StringRelatedField(source='owner.identity.cardNo')
 
     class Meta:
         model = Profile
         read_only_fields = ("name", "phone", "qr", "level", 'bankcard', 'idcard', 'credit')
         fields = (
-            "name", "nick", "phone", "mobile", "gender", "birthday", "qr", 'level', 'idcard', 'bankcard', 'avatar', 'credit')
+            "name", "nick", "phone", "mobile", "gender", "birthday", "qr", 'level', 'idcard', 'bankcard', 'avatar',
+            'credit')
 
 
 class UserSerializer(serializers.ModelSerializer):

@@ -12,8 +12,8 @@ env.read_env(str(ROOT_DIR.path('.env')))
 
 def run():
     try:
-        admin = get_user_model()(username=env('DJANGO_ADMIN_USER', default='bankeys'))
-        admin.set_password(env('DJANGO_ADMIN_PASS', default='secret'))
+        admin = get_user_model()(username=env('DJANGO_ADMIN_USER', default='admin'))
+        admin.set_password(env('DJANGO_ADMIN_PASS', default='admin'))
         admin.is_superuser = True
         admin.is_staff = True
         admin.save()

@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import os
-
 try:
     from .base import *
 except ImportError as e:
     raise e
 
-MEDIA_URL = env('DJANGO_MEDIA_URL', default='/media/'),
-STATIC_URL = env('DJANGO_STATIC_URL', default='/static/'),
+MEDIA_URL = env('DJANGO_MEDIA_URL', default='/media/')
+STATIC_URL = env('DJANGO_STATIC_URL', default='/static/')
 
 ADMIN_MEDIA_PREFIX = '/media/'
 

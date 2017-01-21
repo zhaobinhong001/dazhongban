@@ -21,6 +21,7 @@ from service.signature.utils import verify_data, signature_data
 from .models import Signature, Identity, Validate, Counter
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
     CallbackSerializer, CertificateSerializer, CounterSerializer
+from .tasks import query_sign_task
 from .utils import iddentity_verify, fields, process_verify
 
 
@@ -237,16 +238,14 @@ class IdentityViewSet(viewsets.ModelViewSet):
             counter.verify = '654321'
             counter.save()
 
-        # del data['serial']
-        # del data['enddate']
-
         self.queryset.filter(owner=self.request.user).delete()
 
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
 
         self.perform_create(serializer)
-        # query_sign_task.delay(dn=data['dn'], owner=self.request.user)
+
+        query_sign_task.delay(dn=data['dn'], owner=self.request.user)
         return Response(serializer.data)
 
     def perform_create(self, serializer):

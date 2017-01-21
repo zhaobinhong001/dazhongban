@@ -8,8 +8,8 @@ try:
 except ImportError as e:
     raise e
 
-MEDIA_URL = env(), '/media/'
-STATIC_URL = '/static/'
+MEDIA_URL = env('DJANGO_MEDIA_URL', default='/media/'),
+STATIC_URL = env('DJANGO_STATIC_URL', default='/static/'),
 
 ADMIN_MEDIA_PREFIX = '/media/'
 

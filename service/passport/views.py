@@ -7,6 +7,9 @@ import requests
 from django.conf import settings
 from django.http import HttpResponse
 from rest_framework import mixins, viewsets
+from rest_framework.parsers import JSONParser
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
@@ -72,6 +75,9 @@ class SigninViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet)
             third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
             return HttpResponse(third.content)
 
+        # @todo 推送消息
+        # Notice.objects.all()
+
         # 服务签名
         third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
         return HttpResponse(third.content)
@@ -115,6 +121,8 @@ class SignupViewSet(viewsets.GenericViewSet):
             third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
             return HttpResponse(third.content)
 
+        # @todo 推送消息
+
         # 服务签名
         third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
         return HttpResponse(third.content)
@@ -153,8 +161,9 @@ class PaymentViewSet(viewsets.GenericViewSet):
         #     return HttpResponse(third.content)
 
         # 服务签名
-        content = json.dumps({'errors': 1, 'detail': '异常错误'})
+        content = json.dumps({'errors': 0, 'detail': '支付成功'})
         third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=content)
+
         return HttpResponse(third.content)
 
 
@@ -179,16 +188,15 @@ class ReceiveViewSet(viewsets.GenericViewSet):
         rest = json.loads(source)
 
         # 回调第三方然后返回给app
-        # third = requests.post(url=settings.PASSPORT + rest['type'], data=request.data)
-        # third = object
-        # content = third.content
+        third = requests.post(url=settings.PASSPORT + rest['type'], data=request.data)
+        content = third.content
 
-        # if (third.status_code != 200) and (third.status_code != 500):
-        #     third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
-        #     return HttpResponse(third.content)
+        if (third.status_code != 200) and (third.status_code != 500):
+            third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
+            return HttpResponse(third.content)
 
         # 服务签名
-        content = json.dumps({'errors': 1, 'detail': '异常错误'})
+        # content = json.dumps({'errors': 1, 'detail': '异常错误'})
         third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=content)
         return HttpResponse(third.content)
 
@@ -214,23 +222,17 @@ class RefundsViewSet(viewsets.GenericViewSet):
         rest = json.loads(source)
 
         # 回调第三方然后返回给app
-        # third = requests.post(url=settings.PASSPORT + rest['type'], data=request.data)
-        # third = object
-        # content = third.content
+        third = requests.post(url=settings.PASSPORT + rest['type'], data=request.data)
+        content = third.content
 
-        # if (third.status_code != 200) and (third.status_code != 500):
-        #     third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
-        #     return HttpResponse(third.content)
+        if (third.status_code != 200) and (third.status_code != 500):
+            third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
+            return HttpResponse(third.content)
 
         # 服务签名
-        content = json.dumps({'errors': 1, 'detail': '异常错误'})
+        # content = json.dumps({'errors': 1, 'detail': '异常错误'})
         third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=content)
         return HttpResponse(third.content)
-
-
-from rest_framework.parsers import JSONParser
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
 
 class PushView(APIView):
@@ -250,42 +252,35 @@ class PushViewSet(viewsets.GenericViewSet):
 
     def create(self, request, *args, **kwargs):
         # try:
-        extras = {
-            'type': 'receive',
-            'data': {
-                'req_id': '请求唯一的id, 发起方随机生成',
-                'appkey': '系统分配给商家的唯一标示',
-                'uri': '/api/passport/receive/',
-                'orders': {
-                    'goods': {
-                        'title': '',
-                        'amount': '',
-                        'quantity': '',
-                    },
-                    'users': {
-                        'name': '',
-                        'mobile': '',
-                        'address': '',
-                    },
-                    'orderid': '',
-                    'created': '',
-                    'fee': '',
-                    'discount': '',
-                    'paymend': '',
-                }
-            }
-        }
+        # extras = {
+        #     'type': 'receive',
+        #     'data': {
+        #         'req_id': '请求唯一的id, 发起方随机生成',
+        #         'appkey': '系统分配给商家的唯一标示',
+        #         'uri': '/api/passport/receive/',
+        #         'orders': {
+        #             'goods': {
+        #                 'title': '',
+        #                 'amount': '',
+        #                 'quantity': '',
+        #             },
+        #             'users': {
+        #                 'name': '',
+        #                 'mobile': '',
+        #                 'address': '',
+        #             },
+        #             'orderid': '',
+        #             'created': '',
+        #             'fee': '',
+        #             'discount': '',
+        #             'paymend': '',
+        #         }
+        #     }
+        # }
 
-        # extras = json.loads(str(request.data))
-        # print request.data
-        # push = jpush_extras(message='hello', alias=['15711412157'], extras=extras)
-        # content = json.dumps({'errors': 0, 'detail': '发送成功'})
-        # except Exception:
-        #     content = json.dumps({'errors': 1, 'detail': '异常错误'})
-        # data = request.data
+        extras = json.loads(str(request.data))
 
-        # print (request.data)
+        push = jpush_extras(message='hello', alias=['15711412157'], extras=extras)
+        data = request.data
 
-
-
-        return Response(request.data)
+        return Response(data)

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import jsonfield
 import short_url
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
@@ -19,7 +20,7 @@ from rest_framework.serializers import ValidationError
 
 from config.settings.apps import BANKID
 from service.kernel.tasks import send_verify_push
-import requests
+
 
 class AbstractActionType(TimeStampedModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL)
@@ -286,10 +287,11 @@ class Notice(TimeStampedModel):
     '''
     NOTICE_CHOICE = (('identity', '认证'), ('contract', '合约'), ('payment', '支付'), ('receive', '收货'), ('refunds', '退货'),)
 
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, verbose_name=_(u'推送给用户'))
-    type = models.CharField(verbose_name=_(u'消息类型'), max_length=100, choices=NOTICE_CHOICE)
     subject = models.CharField(verbose_name=_(u'消息主题'), max_length=255, default='')
     content = models.TextField(verbose_name=_(u'消息正文'), default='')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, verbose_name=_(u'推送给用户'))
+    extra = jsonfield.JSONField(verbose_name=u'附加内容', default={'data': None, 'type': None})
+    type = models.CharField(verbose_name=_(u'消息类型'), max_length=100, choices=NOTICE_CHOICE)
 
     def __unicode__(self):
         return '%s: %s' % (self.owner, self.subject)
@@ -299,8 +301,8 @@ class Notice(TimeStampedModel):
 
     class Meta:
         ordering = ('pk',)
-        verbose_name = _(u'用户消息')
-        verbose_name_plural = _(u'用户消息')
+        verbose_name = _(u'消息中心')
+        verbose_name_plural = _(u'消息中心')
 
 
 @receiver(signals.post_save, sender=Notice)

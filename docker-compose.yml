@@ -44,49 +44,49 @@ services:
     restart: always
     image: redis:alpine
 
-#  celeryworker:
-#    build:
-#      context: .
-#      dockerfile: ./docker/django/Dockerfile
-#    user: django
-#    env_file: .env
-#    depends_on:
-#     - postgres
-#     - redis
-#    links:
-#      - postgres
-#      - redis
-#    command: celery -A config.celery worker -l INFO
-#
-#  celerybeat:
-#    build:
-#      context: .
-#      dockerfile: ./docker/django/Dockerfile
-#    user: django
-#    env_file: .env
-#    depends_on:
-#      - postgres
-#      - redis
-#    links:
-#      - postgres
-#      - redis
-#    command: celery -A config.celery beat -l INFO
-#
-#  celeryflower:
-#    build:
-#      context: .
-#      dockerfile: ./docker/django/Dockerfile
-#    user: django
-#    ports:
-#      - "0.0.0.0:5555:5555"
-#    env_file: .env
-#    depends_on:
-#      - postgres
-#      - redis
-#    links:
-#      - postgres
-#      - redis
-#    command: celery -A config.celery flower -l INFO
+  celeryworker:
+    build:
+      context: .
+      dockerfile: ./docker/django/Dockerfile
+    user: django
+    env_file: .env
+    depends_on:
+     - postgres
+     - redis
+    links:
+      - postgres
+      - redis
+    command: celery -A config.celery worker -l INFO
+
+  celerybeat:
+    build:
+      context: .
+      dockerfile: ./docker/django/Dockerfile
+    user: django
+    env_file: .env
+    depends_on:
+      - postgres
+      - redis
+    links:
+      - postgres
+      - redis
+    command: celery -A config.celery beat -l INFO
+
+  celeryflower:
+    build:
+      context: .
+      dockerfile: ./docker/django/Dockerfile
+    user: django
+    ports:
+      - "0.0.0.0:5555:5555"
+    env_file: .env
+    depends_on:
+      - postgres
+      - redis
+    links:
+      - postgres
+      - redis
+    command: celery -A config.celery flower -l INFO
 
   verifysign:
     build:

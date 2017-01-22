@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from rest_framework import serializers
 
-from .models import Address, Profile, Contact, Bankcard, Contains
+from .models import Address, Profile, Contact, Bankcard, Contains, Notice
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -125,7 +125,6 @@ class AccountDetailsSerializer(serializers.ModelSerializer):
 
 
 class BankcardSerializer(serializers.ModelSerializer):
-
     # def validate(self, attrs):
     #     raise serializers.ValidationError("银行卡已存在")
 
@@ -139,6 +138,12 @@ class BankcardSerializer(serializers.ModelSerializer):
         model = Bankcard
         exclude = ('owner',)
         read_only_fields = ('cover',)
+
+
+class NoticeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notice
+        exclude = ('owner',)
 
 
 class SettingsSerializer(serializers.ModelSerializer):

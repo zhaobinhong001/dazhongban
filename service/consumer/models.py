@@ -291,7 +291,7 @@ class Notice(TimeStampedModel):
     subject = models.CharField(verbose_name=_(u'消息主题'), max_length=255, default='')
     content = models.TextField(verbose_name=_(u'消息正文'), default='')
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, verbose_name=_(u'推送给用户'))
-    extra = jsonfield.JSONField(verbose_name=u'附加内容', default={'data': None, 'type': None})
+    extra = jsonfield.JSONField(verbose_name=u'附加内容', default={'data': "", 'type': ""})
     type = models.CharField(verbose_name=_(u'消息类型'), max_length=100, choices=NOTICE_CHOICE)
 
     def __unicode__(self):

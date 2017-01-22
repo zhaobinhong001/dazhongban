@@ -18,12 +18,12 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.viewsets import GenericViewSet
 
-from service.consumer.models import Contact, Profile
+from service.consumer.models import Contact, Profile, Notice
 from service.consumer.models import CustomUser
 from .serializers import (
     AddressSerializer, ProfileSerializer, AvatarSerializer, ContactSerializer, BankcardSerializer,
     SettingsSerializer, AddFriendSerializer, NickSerializer, ContactDetailSerializer, ContainsSerializer,
-    ContactHideSerializer)
+    ContactHideSerializer, NoticeSerializer)
 from .utils import get_user_profile
 from .utils import get_user_settings
 
@@ -286,6 +286,19 @@ class BlacklistViewSet(viewsets.ModelViewSet):
             return Response({'detail': '成功'}, status=status.HTTP_200_OK)
         else:
             return Response({'detail': '不支持 GET 方法'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class NoticesViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = NoticeSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = Notice.objects.filter(owner=self.request.user)
+
+        if isinstance(queryset, QuerySet):
+            queryset = queryset.all()
+
+        return queryset
 
 
 class SettingsViewSet(RetrieveUpdateAPIView):

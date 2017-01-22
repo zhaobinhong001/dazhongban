@@ -139,6 +139,7 @@ def process_verify(uri, data):
             try:
                 res = Contract.objects.get(id=data.get('id'))
                 res.receiver = token.user
+                res.receiver_sign = sign
                 del data['id']
             except Contract.DoesNotExist:
                 return {'errors': 1, 'detail': '交易订单不存在'}
@@ -170,6 +171,12 @@ def process_verify(uri, data):
     sign.extra = json.dumps(extra)
     sign.save()
 
+    if hasattr(res, 'sender_sign'):
+        res.sender_sign.updage(extra=json.dumps(extra))
+
+    if hasattr(res, 'receiver_sign'):
+        res.receiver_sign.updage(extra=json.dumps(extra))
+
     return {'errors': 0, 'detail': extra}
 
 
@@ -188,6 +195,7 @@ def verify_data(request):
     # 解析数据
 
     sign = resp.json()
+
     if sign.get('respCode') != '0000':
         return False, {'errors': 1, 'detail': sign.get('respMsg')}
 

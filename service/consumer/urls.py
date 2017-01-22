@@ -5,11 +5,12 @@ from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 
 from .views import ProfileViewSet, AvatarViewSet, AddressViewSet, ContactViewSet, BankcardViewSet, BlacklistViewSet, \
-    SettingsViewSet, NickViewSet
+    SettingsViewSet, NickViewSet, NoticesViewSet
 
 router = DefaultRouter()
 router.register(r'address', AddressViewSet, 'me-address')
 router.register(r'contact', ContactViewSet, 'me-contact')
+router.register(r'notices', NoticesViewSet, 'me-notices')
 router.register(r'bankcard', BankcardViewSet, 'me-bankcard')
 router.register(r'blacklist', BlacklistViewSet, 'me-blacklist')
 

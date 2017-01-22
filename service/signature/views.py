@@ -204,9 +204,9 @@ class IdentityViewSet(viewsets.ModelViewSet):
         # if len(errors):
         #     return Response({'detail': errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        if hasattr(request.user, 'identity'):
-            if request.user.identity.certId != request.data['certId']:
-                raise ValidationError(u'登录的手机号与身份证信息不匹配')
+        # if hasattr(request.user, 'identity'):
+        #     if request.user.identity.certId != request.data['certId']:
+        #         raise ValidationError(u'登录的手机号与身份证信息不匹配')
 
         item = {}
         items = request.data

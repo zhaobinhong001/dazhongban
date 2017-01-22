@@ -120,10 +120,12 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
 
     def get_queryset(self):
 
-        queryset = self.queryset.filter(
-            Q(owner=self.request.user, status='confirm') | Q(owner=self.request.user, status='new') | Q(
-                friend=self.request.user, status='invite')).exclude(
-            black=True)
+        # queryset = self.queryset.filter(
+        #     Q(owner=self.request.user, status='confirm') | Q(owner=self.request.user, status='new') | Q(
+        #         friend=self.request.user, status='invite')).exclude(
+        #     black=True)
+
+        queryset = self.queryset.filter(owner=self.request.user).exclude(black=True)
 
         if isinstance(queryset, QuerySet):
             queryset = queryset.all()

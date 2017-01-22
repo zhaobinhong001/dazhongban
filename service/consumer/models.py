@@ -20,6 +20,7 @@ from rest_framework.serializers import ValidationError
 
 from config.settings.apps import BANKID
 from service.kernel.tasks import send_verify_push
+from service.kernel.utils.jpush_audience import jpush_alias
 
 
 class AbstractActionType(TimeStampedModel):
@@ -300,7 +301,7 @@ class Notice(TimeStampedModel):
         return self.__unicode__()
 
     class Meta:
-        ordering = ('pk',)
+        ordering = ('-pk',)
         verbose_name = _(u'消息中心')
         verbose_name_plural = _(u'消息中心')
 
@@ -308,4 +309,4 @@ class Notice(TimeStampedModel):
 @receiver(signals.post_save, sender=Notice)
 def post_notice_push(instance, created, **kwargs):
     if created:
-        return send_verify_push.delay(message=instance.subject, alias=instance.owner.mobile, extra=[])
+        return jpush_alias(message=str(instance.subject), alias=[instance.owner.mobile], extra=[])

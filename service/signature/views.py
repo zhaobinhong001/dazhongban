@@ -119,8 +119,8 @@ class HistoryViewSet(ReadOnlyModelViewSet):
     ordering_fields = ('created',)
     ordering = ('-created',)
 
-    serializer_class = SignatureSerializer
     permission_classes = (IsAuthenticated,)
+    serializer_class = SignatureSerializer
     queryset = Signature.objects.all()
 
     def get_queryset(self):

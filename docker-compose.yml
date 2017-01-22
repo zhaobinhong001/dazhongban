@@ -1,8 +1,8 @@
 version: '2'
 
-# volumes:
-#   postgres_data: {./tmp/}
-#   postgres_backup: {./tmp/}
+volumes:
+   postgres_data: {}
+   postgres_backup: {}
 
 services:
   postgres:
@@ -27,8 +27,6 @@ services:
       - bankcard
       - postgres
       - redis
-    ports:
-      - "5555:5555"
     env_file: env.docker
     command: /gunicorn.sh
 

@@ -321,7 +321,7 @@ class CounterViewSet(mixins.CreateModelMixin, GenericViewSet):
                 return Response({'detail': '授权码不正确'}, status=status.HTTP_400_BAD_REQUEST)
 
             if instance.verify != request.data.get('verify'):
-                return Response({'verify': '验证码不正确'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'detail': '验证码不正确'}, status=status.HTTP_400_BAD_REQUEST)
 
             return Response({'detail': '验证成功'}, status=status.HTTP_200_OK)
         except Counter.DoesNotExist:

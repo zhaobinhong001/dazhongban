@@ -20,10 +20,6 @@ RUN pip install /app/rongcloud.zip
 RUN addgroup -S django && adduser -S -G django django
 RUN chown -R django /app
 
-RUN python /app/manage.py migrate
-RUN python /app/manage.py runscript create_admin
-RUN python /app/manage.py collectstatic --noinput
-
 #RUN DJANGO_SETTINGS_MODULE=config.settings.prod python /app/manage.py migrate
 
 COPY ./docker/django/gunicorn.sh /gunicorn.sh

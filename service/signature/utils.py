@@ -171,11 +171,11 @@ def process_verify(uri, data):
     sign.extra = json.dumps(extra)
     sign.save()
 
-    if hasattr(res, 'sender_sign'):
-        res.sender_sign.updage(extra=json.dumps(extra))
-
-    if hasattr(res, 'receiver_sign'):
-        res.receiver_sign.updage(extra=json.dumps(extra))
+    # if hasattr(res, 'sender_sign'):
+    #     res.sender_sign.updage(extra=json.dumps(extra))
+    #
+    # if hasattr(res, 'receiver_sign'):
+    #     res.receiver_sign.updage(extra=json.dumps(extra))
 
     return {'errors': 0, 'detail': extra}
 

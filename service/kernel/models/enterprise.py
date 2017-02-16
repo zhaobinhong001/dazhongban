@@ -35,7 +35,6 @@ class EnterpriseUser(models.Model):
     yesterday_income = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=u'昨日收入总计')
     platform_income = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=u'平台收入总计')
     settled_date = models.DateTimeField(auto_now=True, verbose_name=u'入驻时间')
-
     appkey = models.CharField(verbose_name=u'APPKEY', max_length=100, blank=True, null=True)
     secret = models.CharField(verbose_name=u'SECRET', max_length=200, blank=True, null=True)
     callback = models.URLField(verbose_name=u'回调URL', blank=True, null=True)

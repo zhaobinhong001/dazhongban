@@ -20,7 +20,7 @@ from rest_framework.serializers import ValidationError
 
 from config.settings.apps import BANKID
 from service.kernel.tasks import send_verify_push
-from service.kernel.utils.jpush_audience import jpush_alias
+from service.kernel.utils.jpush_audience import jpush_alias, jpush_extras
 
 
 class AbstractActionType(TimeStampedModel):
@@ -309,4 +309,8 @@ class Notice(TimeStampedModel):
 @receiver(signals.post_save, sender=Notice)
 def post_notice_push(instance, created, **kwargs):
     if created:
-        return jpush_alias(message=str(instance.subject), alias=[instance.owner.mobile], extra=[])
+        # @todo 推送接口
+        # try:
+        return jpush_extras(message=str(instance.subject), alias=[instance.owner.mobile], extras=instance.extra)
+        # except Exception:
+        #     pass

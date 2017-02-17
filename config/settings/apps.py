@@ -41,7 +41,7 @@ VERIFY_GATEWAY = env('VERIFY_GATEWAY', default='http://10.7.7.22:9090')
 # 查询银行卡详情
 BANK_CARD = env('BANK_CARD', default='http://127.0.0.1:5000/bank')
 # 第三方接口
-PASSPORT = env('PASSPORT', default='http://10.7.7.47:3000')
+PASSPORT = env('PASSPORT', default='http://10.7.7.85:3000')
 
 CONSTANCE_REDIS_CONNECTION = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
 

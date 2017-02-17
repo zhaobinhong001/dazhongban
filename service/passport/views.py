@@ -3,6 +3,14 @@ from __future__ import unicode_literals
 
 import json
 
+import sys
+
+from rest_framework.permissions import IsAuthenticated
+
+from service.consumer.serializers import UserSerializer
+
+reload(sys)
+sys.setdefaultencoding("utf-8")
 import requests
 from django.conf import settings
 from django.http import HttpResponse
@@ -15,8 +23,10 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
+from service.consumer.models import Notice
 from service.kernel.models.enterprise import EnterpriseUser
 from service.kernel.utils.jpush_audience import jpush_extras
+from service.passport.models import WaterLog
 from service.signature.models import Signature
 from service.signature.serializers import SignatureSerializer
 
@@ -37,60 +47,126 @@ class StreamParser(object):
         return stream
 
 
-class SigninViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
+class BaseViewSet(object):
+    def verify(self, data=''):
+        resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=data)
+        errors = False
+
+        if (resp.status_code != 200) and (resp.status_code != 500):
+            errors = True
+
+        text = resp.json()
+
+        if text.get('respCode') != '0000':
+            errors = True
+
+        if errors:
+            sign = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=resp.content)
+            return sign.content, False
+
+        return text, True
+
+    def sign(self, data=''):
+        resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=data)
+
+        if resp.status_code != 200:
+            sign = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=resp.content)
+            return sign.content
+
+        return resp.content
+
+    def third(self, type='signin', data=None):
+        try:
+            third = requests.post(url=settings.PASSPORT + '/services/callback/%s' % type, data=data)
+            return third.content
+        except requests.ConnectTimeout:
+            return self.sign(json.dumps({'errors': 1, 'detail': u'连接超时'}))
+        except requests.ConnectionError:
+            return self.sign(json.dumps({'errors': 1, 'detail': u'连接错误'}))
+        except Exception:
+            pass
+
+    def source(self, data):
+        try:
+            rest = json.loads(data.get('source').decode('hex').decode('hex'))
+        except Exception:
+            rest = json.loads(data.get('source').decode('hex'))
+
+        return rest
+
+    def notice(self, **kwargs):
+        print 'notice staring...'
+        # 发送 push
+        # 保存记录入库
+        # try:
+        notice = Notice(**kwargs)
+        notice.save()
+        # notice.subject = subject
+        # notice.content = content
+        # notice.owner = owner
+        # notice.extra = extra
+        # notice.type = type
+        # except Exception:
+        #     pass
+        print 'notice done'
+
+    def owner(self, appkey, openid):
+        try:
+            log = WaterLog.objects.filter(appkey=appkey, openid=openid).get()
+            return log.owner
+        except WaterLog.DoesNotExist:
+            return False
+
+
+class SigninViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet, BaseViewSet):
     '''
     用户登录接口.
+
+    {
+        'type':'payment', // action 详见 APP 接口表
+        'data': {
+            'req_id': '请求唯一的id, 发起方随机生成'
+            'appkey': 'val',                  // 系统分配给商家的唯一标示
+            'uri': '/api/passport/payment/'  // APP 服务器的 uri 路径
+            'orderid': '',        // 订单号码
+        }
+    }
 
     '''
 
     serializer_class = SignatureSerializer
     model = Signature
+    # permission_classes = (IsAuthenticated,)
     parser_classes = (StreamParser,)
 
     def create(self, request, *args, **kwargs):
-
         # 验签数据
-        resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=request.data)
-
-        if (resp.status_code != 200) and (resp.status_code != 500):
-            third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=resp.content)
-            return HttpResponse(third.content)
+        text, status = self.verify(request.data)
+        if not status:
+            return HttpResponse(text)
 
         # 解析数据
-        sign = resp.json()
-
-        if sign.get('respCode') != '0000':
-            return HttpResponse(sign.get('respMsg'))
-
-        try:
-            rest = json.loads(sign.get('source').decode('hex').decode('hex'))
-        except Exception:
-            rest = json.loads(sign.get('source').decode('hex'))
-
+        rest = self.source(text)
         # 保存日志
 
-        # 回调第三方然后返回给app
-        data = json.dumps(rest)
-        data = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=data)
-        data = data.content.decode('hex')
-        try:
-            third = requests.post(url=settings.PASSPORT + '/services/callback/' + rest['type'], data=data)
-        except Exception:
-            return HttpResponse(third.content)
+        # --------------------------
+        # owner = self.owner()
+        # log = WaterLog(appkey=rest.get('data').get('appkey'), owner=owner)
+        # log.save()
+        # rest['data']['openid'] = 123456
+        # ----------------------------------
 
-        if (third.status_code != 200) and (third.status_code != 500):
-            third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
-            return HttpResponse(third.content)
-            #
-            # @todo 推送消息
-            # Notice.objects.all()
+
+        # 回调第三方然后返回给app
+        third = self.third(type=rest['type'], data=self.sign(data=json.dumps(rest)).decode('hex'))
+
+        # @todo 推送消息
 
         # 服务签名
-        third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
-        return HttpResponse(third.content)
+        return HttpResponse(self.sign(third))
 
 
-class SignupViewSet(viewsets.GenericViewSet):
+class SignupViewSet(viewsets.GenericViewSet, BaseViewSet):
     '''
     用户注册接口.
 
@@ -100,51 +176,32 @@ class SignupViewSet(viewsets.GenericViewSet):
     model = Signature
 
     def create(self, request, *args, **kwargs):
-        # 测试数据
-        # request = requests.get('http://10.7.7.22/media/verify_001.txt')
-        # request.data = request.content
-
         # 验签数据
-        resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=request.data)
-
-        if (resp.status_code != 200) and (resp.status_code != 500):
-            third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=resp.content)
-            return HttpResponse(third.content)
+        text, status = self.verify(request.data)
+        if not status:
+            return HttpResponse(text)
 
         # 解析数据
-        sign = resp.json()
-        if sign.get('respCode') != '0000':
-            return HttpResponse(sign.get('respMsg'))
-
-        try:
-            rest = json.loads(sign.get('source').decode('hex').decode('hex'))
-        except Exception:
-            rest = json.loads(sign.get('source').decode('hex'))
+        rest = self.source(text)
 
         # 保存日志
+        # --------------------------
+        # owner = self.owner()
+        # log = WaterLog(appkey=rest.get('data').get('appkey'), owner=owner)
+        # log.save()
+        # rest['data']['openid'] = 123456
+        # ----------------------------------
 
         # 回调第三方然后返回给app
-        data = json.dumps(rest)
-        data = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=data)
-        data = data.content.decode('hex')
-
-        try:
-            third = requests.post(url=settings.PASSPORT + '/services/callback/' + rest['type'], data=data)
-        except Exception:
-            return HttpResponse(third.content)
-
-        if (third.status_code != 200) and (third.status_code != 500):
-            third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
-            return HttpResponse(third.content)
+        third = self.third(type=rest['type'], data=self.sign(data=json.dumps(rest)).decode('hex'))
 
         # @todo 推送消息
 
         # 服务签名
-        third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
-        return HttpResponse(third.content)
+        return HttpResponse(self.sign(third))
 
 
-class PaymentViewSet(viewsets.GenericViewSet):
+class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
     '''
     支付行为接口.
 
@@ -153,57 +210,33 @@ class PaymentViewSet(viewsets.GenericViewSet):
     parser_classes = (StreamParser,)
 
     def create(self, request, *args, **kwargs):
-        # 测试数据
-        # request = requests.get('http://10.7.7.22/media/verify_001.txt')
-        # request.data = request.content
         # 验签数据
-        resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=request.data)
-
-        if (resp.status_code != 200) and (resp.status_code != 500):
-            third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=resp.content)
-            return HttpResponse(third.content)
+        text, status = self.verify(request.data)
+        if not status:
+            return HttpResponse(text)
 
         # 解析数据
-        sign = resp.json()
+        rest = self.source(text)
 
-        if sign.get('respCode') != '0000':
-            return HttpResponse(sign.get('respMsg'))
-
-        try:
-            rest = json.loads(sign.get('source').decode('hex').decode('hex'))
-        except Exception:
-            rest = json.loads(sign.get('source').decode('hex'))
-
-        data = json.dumps(rest)
-        data = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=data)
-        data = data.content.decode('hex')
         # 调用银行接口
-        try:
-            payment = requests.post(url=settings.PAYMENT_INTEFACE + '/services/payment/', data=data)
-        except Exception:
-            return HttpResponse(payment.content)
+        payment = requests.post(url=settings.PAYMENT_INTEFACE + '/services/payment/',
+                                data=self.sign(data=json.dumps(rest)).decode('hex'))
 
         # 回调第三方然后返回给app
-        try:
-            third = requests.post(url=settings.PASSPORT + '/services/callback/' + rest['type'],
-                                  data=payment.content)
-        except Exception:
-            return HttpResponse(third.content)
+        third = self.third(type=rest['type'], data=payment.content)
+        # @todo 推送消息
 
-        if (third.status_code != 200) and (third.status_code != 500):
-            third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
-            return HttpResponse(third.content)
+        owner = request.user
+        message = json.loads(third)
+        kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
+                  'type': 'payment'}
+        self.notice(**kwargs)
 
         # 服务签名
-        # content = json.dumps({'errors': 0, 'detail': '支付成功'})
-        # @todo 推送消息
-        # PushView()
-
-        third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
-        return HttpResponse(third.content)
+        return HttpResponse(self.sign(third))
 
 
-class ReceiveViewSet(viewsets.GenericViewSet):
+class ReceiveViewSet(viewsets.GenericViewSet, BaseViewSet):
     '''
     收货行为接口.
 
@@ -212,46 +245,31 @@ class ReceiveViewSet(viewsets.GenericViewSet):
 
     def create(self, request, *args, **kwargs):
         # 验签数据
-        resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=request.data)
-
-        if (resp.status_code != 200) and (resp.status_code != 500):
-            third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=resp.content)
-            return HttpResponse(third.content)
+        text, status = self.verify(request.data)
+        if not status:
+            return HttpResponse(text)
 
         # 解析数据
-        sign = resp.json()
-        if sign.get('respCode') != '0000':
-            return HttpResponse(sign.get('respMsg'))
-
-        try:
-            rest = json.loads(sign.get('source').decode('hex').decode('hex'))
-        except Exception:
-            rest = json.loads(sign.get('source').decode('hex'))
+        rest = self.source(text)
 
         # 保存日志
 
         # 回调第三方然后返回给app
-        data = json.dumps(rest)
-        data = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=data)
-        data = data.content.decode('hex')
+        third = self.third(type=rest['type'], data=self.sign(data=json.dumps(rest)).decode('hex'))
 
-        try:
-            third = requests.post(url=settings.PASSPORT + '/services/callback/' + rest['type'], data=data)
-        except Exception:
-            return HttpResponse(third.content)
+        # @todo 推送消息
 
-        if (third.status_code != 200) and (third.status_code != 500):
-            third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
-            return HttpResponse(third.content)
+        owner = request.user
+        message = json.loads(third)
+        kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
+                  'type': 'receive'}
+        self.notice(**kwargs)
 
-        # # @todo 推送消息
-        # PushView(third.content)
         # 服务签名
-        # third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
-        return HttpResponse(third.content)
+        return HttpResponse(self.sign(third))
 
 
-class RefundsViewSet(viewsets.GenericViewSet):
+class RefundsViewSet(viewsets.GenericViewSet, BaseViewSet):
     '''
     退货行为接口.
 
@@ -260,43 +278,27 @@ class RefundsViewSet(viewsets.GenericViewSet):
 
     def create(self, request, *args, **kwargs):
         # 验签数据
-        resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=request.data)
-
-        if (resp.status_code != 200) and (resp.status_code != 500):
-            third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=resp.content)
-            return HttpResponse(third.content)
+        text, status = self.verify(request.data)
+        if not status:
+            return HttpResponse(text)
 
         # 解析数据
-        sign = resp.json()
-        if sign.get('respCode') != '0000':
-            return HttpResponse(sign.get('respMsg'))
-
-        try:
-            rest = json.loads(sign.get('source').decode('hex').decode('hex'))
-        except Exception:
-            rest = json.loads(sign.get('source').decode('hex'))
+        rest = self.source(text)
 
         # 保存日志
 
         # 回调第三方然后返回给app
-        data = json.dumps(rest)
-        data = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=data)
-        data = data.content.decode('hex')
-
-        try:
-            third = requests.post(url=settings.PASSPORT + '/services/callback/' + rest['type'], data=data)
-        except Exception:
-            return HttpResponse(third.content)
-
-        if (third.status_code != 200) and (third.status_code != 500):
-            third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
-            return HttpResponse(third.content)
+        third = self.third(type=rest['type'], data=self.sign(data=json.dumps(rest)).decode('hex'))
 
         # @todo 推送消息
-        
+        owner = request.user
+        message = json.loads(third)
+        kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
+                  'type': 'refunds'}
+        self.notice(**kwargs)
+
         # 服务签名
-        third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=third.content)
-        return HttpResponse(third.content)
+        return HttpResponse(self.sign(third))
 
 
 class PushView(APIView):
@@ -314,40 +316,47 @@ class PushView(APIView):
         return Response(content)
 
 
-class PushViewSet(viewsets.GenericViewSet):
+class PushViewSet(viewsets.GenericViewSet, BaseViewSet):
     parser_classes = (StreamParser,)
 
     def create(self, request, *args, **kwargs):
         # try:
-        # extras = {
-        #     'type': 'receive',
-        #     'data': {
-        #         'req_id': '请求唯一的id, 发起方随机生成',
-        #         'appkey': '系统分配给商家的唯一标示',
-        #         'uri': '/api/passport/receive/',
-        #         'orders': {
-        #             'goods': {
-        #                 'title': '',
-        #                 'amount': '',
-        #                 'quantity': '',
-        #             },
-        #             'users': {
-        #                 'name': '',
-        #                 'mobile': '',
-        #                 'address': '',
-        #             },
-        #             'orderid': '',
-        #             'created': '',
-        #             'fee': '',
-        #             'discount': '',
-        #             'paymend': '',
-        #         }
-        #     }
-        # }
+        extras = {
+            'type': 'receive',
+            'data': {
+                'req_id': '请求唯一的id, 发起方随机生成',
+                'appkey': '系统分配给商家的唯一标示',
+                'uri': '/api/passport/receive/',
+                'orders': {
+                    'goods': {
+                        'title': '',
+                        'amount': '',
+                        'quantity': '',
+                    },
+                    'users': {
+                        'name': '',
+                        'mobile': '',
+                        'address': '',
+                    },
+                    'orderid': '',
+                    'created': '',
+                    'fee': '',
+                    'discount': '',
+                    'paymend': '',
+                }
+            }
+        }
 
-        extras = json.loads(str(request.data))
+        # extras = json.loads(str(request.data))
+        # self.owner().
 
-        push = jpush_extras(message='hello', alias=['15711412157'], extras=extras)
+        # push = jpush_extras(message='hello', alias=['15010786971'], extras=extras)
+
+        owner = request.user
+        kwargs = {'subject': extras['data']['req_id'], 'content': extras['data']['req_id'], 'owner': owner, 'extra': extras,
+                  'type': extras['type']}
+        self.notice(**kwargs)
+
         data = request.data
 
         return Response(data)

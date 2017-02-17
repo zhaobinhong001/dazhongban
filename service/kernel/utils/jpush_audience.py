@@ -73,7 +73,7 @@ def jpush_extras(message, alias, extras, *args, **kwargs):
     _jpush.set_logging("DEBUG") and settings.DEBUG
 
     push = _jpush.create_push()
-    push.options = {"time_to_live": 86400, "sendno": 12345, "apns_production": not settings.DEBUG}
+    push.options = {"time_to_live": 86400, "sendno": 12345, "apns_production": False}
 
     push.platform = jpush.all_
 

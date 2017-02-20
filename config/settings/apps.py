@@ -46,8 +46,15 @@ PASSPORT = env('PASSPORT', default='http://10.7.7.85:3000')
 CONSTANCE_REDIS_CONNECTION = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
 
 #银行卡接口
-PAYMENT_INTEFACE = env('PAYMENT_INTEFACE', default='http://127.0.0.1:8000')
+PAYMENT_INTEFACE = env('PAYMENT_INTEFACE', default='http://10.7.7.85:8000')
 
+NOTICE_TYPE_MSGS = {
+    'identity': '认证完成',
+    'contract': '合约完成',
+    'payment': '支付成功',
+    'receive': '收货成功',
+    'refunds': '退货成功'
+}
 
 BANKID = (
     # ('542', u'重庆三峡银行'),

@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 try:
-    from .base import *
+    from .base import INSTALLED_APPS, DEBUG
 except ImportError as e:
     raise e
 
@@ -40,3 +40,13 @@ SUIT_CONFIG = {
     # misc
     'LIST_PER_PAGE': 15,
 }
+
+if not DEBUG:
+    SUIT_CONFIG['MENU_EXCLUDE'] = ('auth.group',)
+    SUIT_CONFIG['MENU'] = (
+        'sites',
+        {'app': '认证', 'icon': 'icon-lock', 'models': ('user', 'group')},
+        {'label': '资源管理', 'icon': 'icon-cog', 'models': ('service.kernel',)},
+        {'label': '设置', 'icon': 'icon-cog', 'models': ('auth.user', 'auth.group')},
+        {'label': '支持', 'icon': 'icon-question-sign', 'url': '/admin/doc/'},
+    )

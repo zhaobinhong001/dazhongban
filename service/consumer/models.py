@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import jsonfield
 import short_url
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.contenttypes import fields as generic
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.db.models import signals
+from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from imagekit.models import ProcessedImageField
@@ -16,6 +19,8 @@ from pilkit.processors import ResizeToFill
 from rest_framework.serializers import ValidationError
 
 from config.settings.apps import BANKID
+from service.kernel.tasks import send_verify_push
+from service.kernel.utils.jpush_audience import jpush_alias, jpush_extras
 
 
 class AbstractActionType(TimeStampedModel):
@@ -93,18 +98,18 @@ class Profile(models.Model):
     female:女
     提交的数据要用英文.获取时候api也是英文, 要客户端自己做下转换.
     '''
-    GENDER_CHOICES = (('male', '男'), ('female', '女'))
+    GENDER_CHOICES = (('', '未知'), ('male', '男'), ('female', '女'))
 
     owner = models.OneToOneField(settings.AUTH_USER_MODEL, unique=True, db_index=True, related_name='profile')
     name = models.CharField(verbose_name=_(u'姓名'), blank=True, max_length=100, db_index=True)
-    nick = models.CharField(verbose_name=_(u'昵称'), blank=True, null=True, max_length=100, db_index=True)
+    nick = models.CharField(verbose_name=_(u'昵称'), blank=True, null=True, max_length=100, db_index=True, default='')
     phone = models.CharField(verbose_name=_(u'银行预留电话'), default='', blank=True, max_length=64)
     gender = models.CharField(verbose_name=_(u'性别'), max_length=10, choices=GENDER_CHOICES, default=u'male')
     idcard = models.CharField(verbose_name=_(u'身份证'), max_length=100, default='')
     bankcard = models.CharField(verbose_name=_(u'银行卡号'), max_length=100, default='')
     birthday = models.DateField(_(u'生日'), blank=True, null=True)
     avatar = ProcessedImageField(verbose_name=_(u'头像'), upload_to='avatar', processors=[ResizeToFill(320, 320)],
-        format='JPEG', null=True, default='assets/media/avatar/default.jpg')
+        format='JPEG', null=True, default='avatar/default.jpg')
 
     friend_verify = models.BooleanField(verbose_name=_(u'加好友时是否验证'), default=False)
     mobile_verify = models.BooleanField(verbose_name=_(u'是否允许手机号查找'), default=False)
@@ -204,7 +209,7 @@ class Bankcard(TimeStampedModel):
     cover = ProcessedImageField(verbose_name=_(u'银行logo'), upload_to='bank', processors=[ResizeToFill(320, 320)],
         format='JPEG', null=True, default='banks/default.jpg')
     bank = models.CharField(verbose_name=_(u'所属银行'), blank=True, max_length=50, default='', choices=BANKID, )
-    card = models.CharField(verbose_name=_(u'银行卡号'), blank=True, max_length=50, default='')
+    card = models.CharField(verbose_name=_(u'银行卡号'), blank=True, max_length=50, default='', unique=True)
     suffix = models.CharField(verbose_name=_(u'卡号后缀'), max_length=10, default='')
     type = models.CharField(verbose_name=_('卡片类型'), max_length=10, choices=TYPE_CHOICES, default='')
     flag = models.CharField(verbose_name=_('卡片用途'), max_length=10, choices=FLAG_CHOICES, default='')
@@ -214,6 +219,17 @@ class Bankcard(TimeStampedModel):
 
     def __str__(self):
         return self.__unicode__()
+
+    def save(self, *args, **kwargs):
+        # bcard = requests.get(url='%s/%s' % (settings.BANK_CARD, self.card))
+        # bcard = bcard.json()
+        # bcard = bcard.get('result')
+        #
+        # self.bank = bcard.get('bank')
+        # self.type = bcard.get('type')
+        self.suffix = self.card[-4:]
+
+        super(Bankcard, self).save()
 
     class Meta:
         verbose_name = _(u'用户银行卡')
@@ -264,3 +280,37 @@ class Settings(models.Model):
     class Meta:
         verbose_name = _(u'settings')
         verbose_name_plural = _(u'settings')
+
+
+class Notice(TimeStampedModel):
+    '''
+    用户消息
+    '''
+    NOTICE_CHOICE = (('identity', '认证'), ('contract', '合约'), ('payment', '支付'), ('receive', '收货'), ('refunds', '退货'),)
+
+    subject = models.CharField(verbose_name=_(u'消息主题'), max_length=255, default='')
+    content = models.TextField(verbose_name=_(u'消息正文'), default='')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, verbose_name=_(u'推送给用户'))
+    extra = jsonfield.JSONField(verbose_name=u'附加内容', default={'data': "", 'type': ""})
+    type = models.CharField(verbose_name=_(u'消息类型'), max_length=100, choices=NOTICE_CHOICE)
+
+    def __unicode__(self):
+        return '%s: %s' % (self.owner, self.subject)
+
+    def __str__(self):
+        return self.__unicode__()
+
+    class Meta:
+        ordering = ('-pk',)
+        verbose_name = _(u'消息中心')
+        verbose_name_plural = _(u'消息中心')
+
+
+@receiver(signals.post_save, sender=Notice)
+def post_notice_push(instance, created, **kwargs):
+    if created:
+        # @todo 推送接口
+        # try:
+        return jpush_extras(message=str(instance.subject), alias=[instance.owner.mobile], extras=instance.extra)
+        # except Exception:
+        #     pass

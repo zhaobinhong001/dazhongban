@@ -1,3 +1,4 @@
+win_unicode_console
 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 django
 django-suit
@@ -64,7 +65,11 @@ django_celery_results
 django_celery_beat
 qrcode
 
+<<<<<<< HEAD
 rongcloud.zip
+=======
+# rongcloud.zip
+>>>>>>> a2ab19053c4ae08232bdae1e407b9e9d05f7686c
 
 drf-url-filters
 django-url-filter
@@ -75,3 +80,4 @@ django-jsonfield
 django-constance
 honcho
 arrow
+raven

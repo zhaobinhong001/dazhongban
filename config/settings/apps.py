@@ -16,6 +16,7 @@ INSTALLED_APPS += (
     'service.signature',
     'service.restauth.registration',
     'service.dashboard',
+    'service.passport',
 
     'filters',
     'imagekit',
@@ -29,17 +30,31 @@ INSTALLED_APPS += (
 RONGCLOUD_APPKEY = env('RONGCLOUD_APPKEY', default='ik1qhw09ifflp')
 RONGCLOUD_SECRET = env('RONGCLOUD_SECRET', default='kfx3v7mffJeaJt')
 
-
 JPUSH_APPKEY = env('JPUSH_APPKEY', default='496daf24808978b12e4e0505')
 JPUSH_SECRET = env('JPUSH_SECRET', default='6e449bd8dd4dd2e5dff00c02')
 
 IDDENTITY_APPKEY = env('IDDENTITY_APPKEY', default='69tx91g3kpzlqkndszzofj38fr')
 IDDENTITY_GATEWAY = env('IDDENTITY_GATEWAY', default='https://10.7.7.71:3002/api/register')
 
-VERIFY_GATEWAY = env('VERIFY_GATEWAY', default='http://127.0.0.1:8080')
+# VERIFY_GATEWAY = env('VERIFY_GATEWAY', default='http://127.0.0.1:8080')
+VERIFY_GATEWAY = env('VERIFY_GATEWAY', default='http://10.7.7.22:9090')
+# 查询银行卡详情
 BANK_CARD = env('BANK_CARD', default='http://127.0.0.1:5000/bank')
+# 第三方接口
+PASSPORT = env('PASSPORT', default='http://10.7.7.85:3000')
 
 CONSTANCE_REDIS_CONNECTION = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+
+#银行卡接口
+PAYMENT_INTEFACE = env('PAYMENT_INTEFACE', default='http://10.7.7.85:8000')
+
+NOTICE_TYPE_MSGS = {
+    'identity': '认证完成',
+    'contract': '合约完成',
+    'payment': '支付成功',
+    'receive': '收货成功',
+    'refunds': '退货成功'
+}
 
 BANKID = (
     # ('542', u'重庆三峡银行'),

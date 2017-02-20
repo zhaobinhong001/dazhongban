@@ -39,7 +39,8 @@ class TokenViewSet(GenericViewSet):
         return Response({'key': data}, status=status.HTTP_200_OK)
 
 
-class GroupViewSet(NestedViewSetMixin, mixins.CreateModelMixin,
+class GroupViewSet(NestedViewSetMixin,
+    mixins.CreateModelMixin,
     mixins.UpdateModelMixin,
     mixins.DestroyModelMixin,
     mixins.ListModelMixin,

@@ -6,7 +6,7 @@ from django.conf import settings
 from rest_framework import serializers
 
 from service.kernel.contrib.utils.hashlib import md5
-from .models import Signature, Validate, Identity
+from .models import Signature, Validate, Identity, Counter
 
 
 class BankcardSerializer(serializers.Serializer):
@@ -20,6 +20,7 @@ class BankcardSerializer(serializers.Serializer):
         # 验证银行卡号
         resp = requests.post(url=settings.BANK_CARD, data=attrs)
         data = resp.json()
+
         if data['status'] == -1:
             raise serializers.ValidationError('银行卡不能为空.')
         elif data['status'] == -2:
@@ -36,7 +37,13 @@ class IdentitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Identity
         exclude = ('owner',)
-        read_only_fields = ('serial', 'enddate')
+        read_only_fields = ('serial', 'enddate',)
+
+
+class CounterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Counter
+        exclude = ('owner',)
 
 
 class SignatureSerializer(serializers.ModelSerializer):

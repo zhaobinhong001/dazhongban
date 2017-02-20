@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from rest_framework import serializers
 
-from .models import Address, Profile, Contact, Bankcard, Contains
+from .models import Address, Profile, Contact, Bankcard, Contains, Notice
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -16,15 +16,22 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    level = serializers.StringRelatedField(source='owner.level')
-    credit = serializers.StringRelatedField(source='owner.credit')
-    mobile = serializers.StringRelatedField(source='owner.mobile')
+    level = serializers.StringRelatedField(source='owner.level', default='')
+    credit = serializers.StringRelatedField(source='owner.credit', default='')
+    mobile = serializers.StringRelatedField(source='owner.mobile', default='')
+    name = serializers.StringRelatedField(source='owner.identity.name', default='')
+    idcard = serializers.StringRelatedField(source='owner.identity.certId', default='')
+    bankcard = serializers.StringRelatedField(source='owner.identity.cardNo', default='')
+    certType = serializers.StringRelatedField(source='owner.identity.certType', default='')
+
+    birthday = serializers.DateField(default='')
 
     class Meta:
         model = Profile
-        read_only_fields = ("name", "phone", "qr", "level", 'bankcard', 'idcard', 'credit')
+        read_only_fields = ("name", "phone", "qr", "level", 'bankcard', 'idcard', 'credit', 'certType')
         fields = (
-            "name", "nick", "phone", "mobile", "gender", "birthday", "qr", 'level', 'idcard', 'bankcard', 'avatar', 'credit')
+            "name", "nick", "phone", "mobile", "gender", "birthday", "qr", 'level', 'idcard', 'bankcard', 'avatar',
+            'credit', 'certType')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -118,10 +125,25 @@ class AccountDetailsSerializer(serializers.ModelSerializer):
 
 
 class BankcardSerializer(serializers.ModelSerializer):
+    # def validate(self, attrs):
+    #     raise serializers.ValidationError("银行卡已存在")
+
+    #     try:
+    #         Bankcard.objects.filter(card=attrs.get('card'))
+    #         raise serializers.ValidationError("银行卡已存在")
+    #     except Bankcard.DoesNotExist:
+    #         return attrs
+
     class Meta:
         model = Bankcard
         exclude = ('owner',)
         read_only_fields = ('cover',)
+
+
+class NoticeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notice
+        exclude = ('owner',)
 
 
 class SettingsSerializer(serializers.ModelSerializer):

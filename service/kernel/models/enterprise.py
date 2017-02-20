@@ -1,9 +1,12 @@
 # coding:utf-8
 from __future__ import unicode_literals
 
+import datetime
+
 from django.db import models
 
-# 企业用户
+from service.kernel.contrib.utils.hashlib import md5, sha1
+
 BANK_ACCOUNTYPE = (
     ('0', '对公银行账户'),
     ('1', '对私银行账户'),
@@ -32,12 +35,20 @@ class EnterpriseUser(models.Model):
     yesterday_income = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=u'昨日收入总计')
     platform_income = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=u'平台收入总计')
     settled_date = models.DateTimeField(auto_now=True, verbose_name=u'入驻时间')
+    appkey = models.CharField(verbose_name=u'APPKEY', max_length=100, blank=True, null=True)
+    secret = models.CharField(verbose_name=u'SECRET', max_length=200, blank=True, null=True)
+    callback = models.URLField(verbose_name=u'回调URL', blank=True, null=True)
 
     def __unicode__(self):
-        return '%s (%d) (%d)' % (self.enterprise_name, self.yesterday_income, self.platform_income)
+        return self.enterprise_name
 
     def __str__(self):
         return self.__unicode__()
+
+    def save(self, *args, **kwargs):
+        self.appkey = md5(self.bank_account).hexdigest()
+        self.secret = sha1(str(datetime.datetime.now())).hexdigest()
+        super(EnterpriseUser, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = (u'企业用户')

@@ -1,4 +1,4 @@
-# 部署说明
+# 开发环境说明
 
 ## 系统依赖
 1. 任意可以安装 docker 的 linux 发行版 (centos，debian等)，推荐 debian 8.6.x

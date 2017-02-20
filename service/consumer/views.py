@@ -4,7 +4,9 @@ from __future__ import unicode_literals
 import json
 
 import short_url
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.db.models import QuerySet
 from rest_framework import mixins
 from rest_framework import status
@@ -15,14 +17,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.viewsets import GenericViewSet
-from django.conf import settings
 
-from service.consumer.models import Contact, Profile
+from service.consumer.models import Contact, Profile, Notice
 from service.consumer.models import CustomUser
 from .serializers import (
     AddressSerializer, ProfileSerializer, AvatarSerializer, ContactSerializer, BankcardSerializer,
     SettingsSerializer, AddFriendSerializer, NickSerializer, ContactDetailSerializer, ContainsSerializer,
-    ContactHideSerializer)
+    ContactHideSerializer, NoticeSerializer)
 from .utils import get_user_profile
 from .utils import get_user_settings
 
@@ -108,6 +109,8 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
 
     `hide 和 black 接口 psot 参数 userid 为多个 id 用 "," 隔开`
 
+    status 三种状态: new 手机通讯录用户 invite 邀请用户 confirm 确认状态
+
 
     '''
     serializer_class = ContactSerializer
@@ -117,7 +120,12 @@ class ContactViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
 
     def get_queryset(self):
 
-        queryset = self.queryset.filter(owner=self.request.user).filter(black=False)
+        # queryset = self.queryset.filter(
+        #     Q(owner=self.request.user, status='confirm') | Q(owner=self.request.user, status='new') | Q(
+        #         friend=self.request.user, status='invite')).exclude(
+        #     black=True)
+
+        queryset = self.queryset.filter(owner=self.request.user).exclude(black=True)
 
         if isinstance(queryset, QuerySet):
             queryset = queryset.all()
@@ -280,6 +288,19 @@ class BlacklistViewSet(viewsets.ModelViewSet):
             return Response({'detail': '成功'}, status=status.HTTP_200_OK)
         else:
             return Response({'detail': '不支持 GET 方法'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class NoticesViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = NoticeSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        queryset = Notice.objects.filter(owner=self.request.user)
+
+        if isinstance(queryset, QuerySet):
+            queryset = queryset.all()
+
+        return queryset
 
 
 class SettingsViewSet(RetrieveUpdateAPIView):

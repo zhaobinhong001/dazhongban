@@ -3,13 +3,10 @@ from __future__ import unicode_literals
 
 import base64
 import json
-import re
 
 import requests
 from django.conf import settings
 from django.db.models import QuerySet
-from django.http import HttpResponse
-from django.utils.translation import ugettext_lazy as _
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -20,11 +17,28 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 from url_filter.integrations.drf import DjangoFilterBackend as drfDjangoFilterBackend
 
 from service.kernel.contrib.utils.hashlib import md5
-from service.signature.tasks import query_sign
-from service.signature.utils import iddentity_verify, fields, process_verify
-from .models import Signature, Identity, Validate
+from service.signature.utils import verify_data, signature_data
+from .models import Signature, Identity, Validate, Counter
 from .serializers import SignatureSerializer, IdentitySerializer, ValidateSerializer, BankcardSerializer, \
-    CallbackSerializer, CertificateSerializer
+    CallbackSerializer, CertificateSerializer, CounterSerializer
+from .tasks import query_sign
+from .utils import iddentity_verify, fields, process_verify
+
+
+class StreamParser(object):
+    """
+    All parsers should extend `BaseParser`, specifying a `media_type`
+    attribute, and overriding the `.parse()` method.
+    """
+    media_type = '*/*'
+
+    def parse(self, stream, media_type=None, parser_context=None):
+        """
+        Given a stream to read from, return the parsed representation.
+        Should return parsed data, or a `DataAndFiles` object consisting of the
+        parsed data and files.
+        """
+        return stream
 
 
 class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet):
@@ -56,6 +70,7 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
 
     '''
     serializer_class = SignatureSerializer
+    parser_classes = (StreamParser,)
     model = Signature
 
     def get_queryset(self):
@@ -63,28 +78,17 @@ class SignatureViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewS
 
     def create(self, request, *args, **kwargs):
         # 验签数据
-        resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=request.body)
+        uri, data = verify_data(request)
 
-        if (resp.status_code != 200) and (resp.status_code != 500):
-            body = resp.content
-        else:
-
-            # 解析数据
-            sign = resp.json()
-            rest = json.loads(sign.get('source').decode('hex'))
-
+        if uri:
             # 处理数据
-            uri = rest.get('uri')
-            data = rest.get('data')
-            data['serialNo'] = sign['serialNo']
-            data['endDate'] = sign['endDate']
-            data['startDate'] = sign['startDate']
-            body, _ = process_verify(uri, data)
+            body = process_verify(uri, data)
             body = json.dumps(body)
+        else:
+            body = json.dumps(data)
 
         # 服务签名
-        resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=body)
-        return HttpResponse(resp.content)
+        return signature_data(body)
 
     def perform_create(self, serializer):
         return serializer.save(owner=self.request.user)
@@ -115,15 +119,9 @@ class HistoryViewSet(ReadOnlyModelViewSet):
     ordering_fields = ('created',)
     ordering = ('-created',)
 
-    serializer_class = SignatureSerializer
     permission_classes = (IsAuthenticated,)
+    serializer_class = SignatureSerializer
     queryset = Signature.objects.all()
-
-    # lookup_field = 'owner_id'
-    # def retrieve(self, request, *args, **kwargs):
-    #     instance = self.get_object()
-    #     serializer = self.get_serializer(instance)
-    #     return Response(serializer.data)
 
     def get_queryset(self):
         queryset = self.queryset.filter(owner=self.request.user)
@@ -179,43 +177,39 @@ class IdentityViewSet(viewsets.ModelViewSet):
         return Response(data)
 
     def create(self, request, *args, **kwargs):
-        errors = {}
+        # errors = {}
 
-        if not request.data.get('certId'):
-            errors['certId'] = _('身份证不能为空')
+        # if not request.data.get('certId'):
+        #     errors['certId'] = _('身份证不能为空')
+        #
+        # if not request.data.get('name'):
+        #     errors['name'] = _('姓名不能为空')
+        #
+        # if not request.data.get('phone'):
+        #     errors['phone'] = _('电话不能为空')
+        #
+        # if not request.data.get('cardNo'):
+        #     errors['cardNo'] = _('银行卡不能为空')
+        #
+        # certId = re.compile(r'^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$')
+        #
+        # if not certId.match(request.data.get('certId')):
+        #     errors['certId'] = _('证件号码格式错误')
+        #
+        # mobile_re = re.compile(r'^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$')
+        #
+        # if not mobile_re.match(request.data.get('phone')):
+        #     errors['phone'] = _('电话格式不正确')
 
-        if not request.data.get('name'):
-            errors['name'] = _('姓名不能为空')
+        # if len(errors):
+        #     return Response({'detail': errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not request.data.get('phone'):
-            errors['phone'] = _('电话不能为空')
-
-        if not request.data.get('cardNo'):
-            errors['cardNo'] = _('银行卡不能为空')
-
-        certId = re.compile(r'^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$')
-
-        if not certId.match(request.data.get('certId')):
-            errors['certId'] = _('证件号码格式错误')
-
-        mobile_re = re.compile(r'^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$')
-
-        if not mobile_re.match(request.data.get('phone')):
-            errors['phone'] = _('电话格式不正确')
-
-        if len(errors):
-            return Response({'detail': errors}, status=status.HTTP_400_BAD_REQUEST)
+        # if hasattr(request.user, 'identity'):
+        #     if request.user.identity.certId != request.data['certId']:
+        #         raise ValidationError(u'登录的手机号与身份证信息不匹配')
 
         item = {}
         items = request.data
-
-        # for k in fields:
-        #     if k in ['backPhoto', 'frontPhoto']:
-        #         if hasattr(items[k], 'file'):
-        #             item[k] = base64.b64encode(items[k].file.getvalue())
-        #     else:
-        #         if items[k].strip():
-        #             item[k] = items.get(k).strip()
 
         for k, v in items.items():
             if k in fields:
@@ -223,8 +217,7 @@ class IdentityViewSet(viewsets.ModelViewSet):
                     if hasattr(v, 'file'):
                         item[k] = base64.b64encode(v.file.getvalue())
                 else:
-                    # if v.strip():
-                    item[k] = v
+                    item[k] = v.strip()
 
         if request.data.get('expired'):
             expired = request.data.get('expired')
@@ -236,28 +229,27 @@ class IdentityViewSet(viewsets.ModelViewSet):
         data, status_ = iddentity_verify(item)
 
         if not status_:
-            raise ValidationError(data)
+            raise ValidationError(data.get('message'))
 
         data['frontPhoto'] = request.data['frontPhoto']
         data['backPhoto'] = request.data['backPhoto']
         data['bankID'] = request.data['bankID']
         data['level'] = request.data['level']
 
-        # del data['serial']
-        # del data['enddate']
+        if data['level'] == 'A':
+            counter, _ = Counter.objects.get_or_create(owner_id=self.request.user.pk)
+            counter.secret = '1234567890'
+            counter.verify = '654321'
+            counter.save()
 
-        # 判断记录是否存在
-        # 存在为更新
-        # try:
         self.queryset.filter(owner=self.request.user).delete()
-        print data
 
-        # 不存在为创建
         serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid()
+
         self.perform_create(serializer)
 
-        query_sign.delay(dn=data['dn'])
+        query_sign(dn=data['dn'], owner=self.request.user)
         return Response(serializer.data)
 
     def perform_create(self, serializer):
@@ -301,7 +293,7 @@ class CallbackViewSet(mixins.CreateModelMixin, GenericViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class ValidateViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
+class ValidateViewSet(GenericViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = ValidateSerializer
     queryset = Validate.objects.all()
@@ -315,3 +307,22 @@ class ValidateViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericV
         serializer = self.get_serializer(instance)
 
         return Response(serializer.data)
+
+
+class CounterViewSet(mixins.CreateModelMixin, GenericViewSet):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = CounterSerializer
+    queryset = Counter.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            instance = Counter.objects.get(owner=self.request.user)
+            if instance.secret != request.data.get('secret'):
+                return Response({'detail': '授权码不正确'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if instance.verify != request.data.get('verify'):
+                return Response({'detail': '验证码不正确'}, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({'detail': '验证成功'}, status=status.HTTP_200_OK)
+        except Counter.DoesNotExist:
+            return Response({'detail': '用户不存在'}, status=status.HTTP_400_BAD_REQUEST)

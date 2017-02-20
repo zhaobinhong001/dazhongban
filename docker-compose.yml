@@ -1,8 +1,8 @@
 version: '2'
 
-# volumes:
-#   postgres_data: {./tmp/}
-#   postgres_backup: {./tmp/}
+volumes:
+   postgres_data: {}
+   postgres_backup: {}
 
 services:
   postgres:
@@ -10,7 +10,7 @@ services:
     build: ./docker/postgres
     volumes:
       - /srv/docker/postgres:/var/lib/postgresql:Z
-    env_file: .env
+    env_file: env.docker
 
   django:
     build:
@@ -26,9 +26,9 @@ services:
       - verifysign
       - bankcard
       - postgres
-      - redis      
+      - redis
+    env_file: env.docker
     command: /gunicorn.sh
-    env_file: .env
 
   nginx:
     restart: always
@@ -36,7 +36,7 @@ services:
     depends_on:
       - django
     ports:
-      - "0.0.0.0:80:80"
+      - "80:80"
 
   redis:
     restart: always
@@ -53,7 +53,7 @@ services:
      - redis
     links:
       - postgres
-      - redis        
+      - redis
     command: celery -A config.celery worker -l INFO
 
   celerybeat:
@@ -67,7 +67,7 @@ services:
       - redis
     links:
       - postgres
-      - redis        
+      - redis
     command: celery -A config.celery beat -l INFO
 
   celeryflower:
@@ -83,19 +83,19 @@ services:
       - redis
     links:
       - postgres
-      - redis      
-    command: celery -A config.celery flower -l INFO    
+      - redis
+    command: celery -A config.celery flower -l INFO
 
   verifysign:
     build:
       context: .
       dockerfile: ./docker/verify/Dockerfile
     ports:
-      - "0.0.0.0:8080:8080"
+      - "8080:8080"
 
   bankcard:
     build:
       context: .
       dockerfile: ./docker/bankcard/Dockerfile
     ports:
-      - "0.0.0.0:5000:5000"
+      - "5000:5000"

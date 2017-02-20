@@ -65,11 +65,8 @@ django_celery_results
 django_celery_beat
 qrcode
 
-<<<<<<< HEAD
-rongcloud.zip
-=======
+
 # rongcloud.zip
->>>>>>> a2ab19053c4ae08232bdae1e407b9e9d05f7686c
 
 drf-url-filters
 django-url-filter

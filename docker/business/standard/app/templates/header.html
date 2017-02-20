@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>Three</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.qrcode.min.js"></script>
+</head>
+<body>
+
+<header>
+    <h1>{{ title }}</h1>
+</header>
+
+<nav>
+    <span><a title="主页" href="/">home</a></span>
+    <span><a title="登录" href="/api/passport/signin/">登录</a></span>
+    <span><a title="注册" href="/api/passport/signup/">注册</a></span>
+    <span><a title="支付" href="/api/passport/payment/">支付</a></span>
+    <span><a title="收货" href="/api/passport/receive/">收货</a></span>
+    <span><a title="退货" href="/api/passport/refunds/">退货</a></span>
+{#    <span><a title="商品列表" href="/api/passport/list/">商品列表</a></span>#}
+    <span><a title="用户" href="/api/passport/users/">用户列表</a></span>
+    <span><a title="订单" href="/api/passport/oderslist/">订单列表</a></span>
+</nav>
+
+<article>
+    <br>

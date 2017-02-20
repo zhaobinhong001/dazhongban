@@ -1,0 +1,4 @@
+flask
+flask-migrate
+requests
+tornado

@@ -1,0 +1,30 @@
+{% include 'header.html' %}
+<div id="code"></div>
+<button id="butSub" class="butSub">发送收货请求</button>
+
+<script type="text/javascript">
+
+
+    $(function () {
+
+        $('.butSub').click(function () {
+
+            $.ajax({
+                type: 'POST',
+                url: '/push/',
+                data: {data: '{{ data | safe }}'},
+                success: function (result) {
+                    if (result) {
+                        $('#code').html('支付成功')
+                    }
+                }
+            });
+
+        })
+    });
+
+
+</script>
+
+
+{% include 'footer.html' %}

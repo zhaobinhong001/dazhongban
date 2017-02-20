@@ -5,3 +5,4 @@ before_script:
 tests:
   script:
     - /var/local/gitlab-runner/venv/bin/python manage.py test --traceback -v2
+

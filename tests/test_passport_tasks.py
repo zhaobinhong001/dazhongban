@@ -105,9 +105,15 @@ class APITestPassportTesk(BaseAPITestCase):
                 'openid': self.log.openid,
                 'appkey': 'appkey',
                 'uri': '/api/passport/payment/',
+                'receive': '名字',
                 'orderid': '121212',
+            },
+            'goods': {
+                'title': '1',
+                'amount': '123',
             }
         }
+
         data = json.dumps(data)
         data = requests.post('http://10.7.7.22:9090/Sign', data=data)
         data = data.content

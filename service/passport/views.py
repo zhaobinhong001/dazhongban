@@ -11,6 +11,7 @@ from service.consumer.serializers import UserSerializer
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
+from rest_framework.authtoken.models import Token
 import requests
 from django.conf import settings
 from django.http import HttpResponse
@@ -101,19 +102,17 @@ class BaseViewSet(object):
         # try:
         notice = Notice(**kwargs)
         notice.save()
-        # notice.subject = subject
-        # notice.content = content
-        # notice.owner = owner
-        # notice.extra = extra
-        # notice.type = type
-        # except Exception:
-        #     pass
+
         print 'notice done'
 
-    def owner(self, appkey, openid):
+    def owner(self, appkey=None, openid=None, token=None):
         try:
-            log = WaterLog.objects.filter(appkey=appkey, openid=openid).get()
-            return log.owner
+            if not token:
+                log = WaterLog.objects.filter(appkey=appkey, openid=openid).get()
+                return log.owner
+            else:
+                obj = Token.objects.get(token=token)
+                return obj.user
         except WaterLog.DoesNotExist:
             return False
 
@@ -142,20 +141,14 @@ class SigninViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet,
     def create(self, request, *args, **kwargs):
         # 验签数据
         text, status = self.verify(request.data)
+
         if not status:
             return HttpResponse(text)
 
         # 解析数据
         rest = self.source(text)
-        # 保存日志
 
-        # --------------------------
-        # owner = self.owner()
-        # log = WaterLog(appkey=rest.get('data').get('appkey'), owner=owner)
-        # log.save()
-        # rest['data']['openid'] = 123456
-        # ----------------------------------
-
+        # @todo 保存日志
 
         # 回调第三方然后返回给app
         third = self.third(type=rest['type'], data=self.sign(data=json.dumps(rest)).decode('hex'))
@@ -178,6 +171,7 @@ class SignupViewSet(viewsets.GenericViewSet, BaseViewSet):
     def create(self, request, *args, **kwargs):
         # 验签数据
         text, status = self.verify(request.data)
+
         if not status:
             return HttpResponse(text)
 
@@ -186,10 +180,11 @@ class SignupViewSet(viewsets.GenericViewSet, BaseViewSet):
 
         # 保存日志
         # --------------------------
-        # owner = self.owner()
-        # log = WaterLog(appkey=rest.get('data').get('appkey'), owner=owner)
-        # log.save()
-        # rest['data']['openid'] = 123456
+        owner = self.owner(token=rest.get('data').get('token'))
+        log, _ = WaterLog.objects.get_or_create(appkey=rest.get('data').get('appkey'), owner=owner)
+        log.save()
+
+        rest['data']['openid'] = log.openid
         # ----------------------------------
 
         # 回调第三方然后返回给app
@@ -224,12 +219,15 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
 
         # 回调第三方然后返回给app
         third = self.third(type=rest['type'], data=payment.content)
-        # @todo 推送消息
 
-        owner = request.user
+        # @todo 保存记录
+
+        # 推送消息
+        owner = self.owner(rest['data']['appkey'], rest['data']['openid'])
         message = json.loads(third)
         kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
                   'type': 'payment'}
+
         self.notice(**kwargs)
 
         # 服务签名
@@ -252,17 +250,18 @@ class ReceiveViewSet(viewsets.GenericViewSet, BaseViewSet):
         # 解析数据
         rest = self.source(text)
 
-        # 保存日志
+        # @todo 保存日志
 
         # 回调第三方然后返回给app
         third = self.third(type=rest['type'], data=self.sign(data=json.dumps(rest)).decode('hex'))
 
         # @todo 推送消息
 
-        owner = request.user
+        owner = self.owner(rest['data']['appkey'], rest['data']['openid'])
         message = json.loads(third)
         kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
                   'type': 'receive'}
+
         self.notice(**kwargs)
 
         # 服务签名
@@ -279,19 +278,20 @@ class RefundsViewSet(viewsets.GenericViewSet, BaseViewSet):
     def create(self, request, *args, **kwargs):
         # 验签数据
         text, status = self.verify(request.data)
+
         if not status:
             return HttpResponse(text)
 
         # 解析数据
         rest = self.source(text)
 
-        # 保存日志
+        # @todo 保存日志
 
         # 回调第三方然后返回给app
         third = self.third(type=rest['type'], data=self.sign(data=json.dumps(rest)).decode('hex'))
 
         # @todo 推送消息
-        owner = request.user
+        owner = self.owner(rest['data']['appkey'], rest['data']['openid'])
         message = json.loads(third)
         kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
                   'type': 'refunds'}
@@ -301,62 +301,18 @@ class RefundsViewSet(viewsets.GenericViewSet, BaseViewSet):
         return HttpResponse(self.sign(third))
 
 
-class PushView(APIView):
-    """
-    A view that can accept POST requests with JSON content.
-    """
-    parser_classes = (JSONParser,)
-
-    def post(self, request, format=None):
-        jpush_extras(message='hello', alias=['15711412157', '18511345772', '15010786971'],
-                     extras={'errors': 0, 'detail': {'errors': 0, 'detail': '支付成功'}})
-        # jpush_extras(message='hello', alias=['15711412157', '18511345772', '15010786971'],
-        #              extras={'errors': 0, 'detail': json.loads(request.data)})
-        content = json.dumps({'errors': 0, 'detail': '发送成功'})
-        return Response(content)
-
-
-class PushViewSet(viewsets.GenericViewSet, BaseViewSet):
-    parser_classes = (StreamParser,)
-
+class PushViewSet(viewsets.GenericViewSet):
     def create(self, request, *args, **kwargs):
-        # try:
-        extras = {
-            'type': 'receive',
-            'data': {
-                'req_id': '请求唯一的id, 发起方随机生成',
-                'appkey': '系统分配给商家的唯一标示',
-                'uri': '/api/passport/receive/',
-                'orders': {
-                    'goods': {
-                        'title': '',
-                        'amount': '',
-                        'quantity': '',
-                    },
-                    'users': {
-                        'name': '',
-                        'mobile': '',
-                        'address': '',
-                    },
-                    'orderid': '',
-                    'created': '',
-                    'fee': '',
-                    'discount': '',
-                    'paymend': '',
-                }
-            }
-        }
-
-        # extras = json.loads(str(request.data))
-        # self.owner().
-
-        # push = jpush_extras(message='hello', alias=['15010786971'], extras=extras)
-
-        owner = request.user
-        kwargs = {'subject': extras['data']['req_id'], 'content': extras['data']['req_id'], 'owner': owner, 'extra': extras,
+        extras = request.data
+        owner = self.owner(extras['data']['appkey'], extras['data']['openid'])
+        kwargs = {'subject': extras['data']['req_id'], 'content': extras['data']['req_id'], 'owner': owner,
+                  'extra': extras,
                   'type': extras['type']}
-        self.notice(**kwargs)
 
-        data = request.data
+        try:
+            self.notice(**kwargs)
+            content = {'errors': 0, 'detail': '推送成功'}
+        except Exception as e:
+            content = {'errors': 1, 'detail': '推送失败'}
 
-        return Response(data)
+        return Response(content)

@@ -301,7 +301,7 @@ class RefundsViewSet(viewsets.GenericViewSet, BaseViewSet):
         return HttpResponse(self.sign(third))
 
 
-class PushViewSet(viewsets.GenericViewSet):
+class PushViewSet(viewsets.GenericViewSet, BaseViewSet):
     def create(self, request, *args, **kwargs):
         extras = request.data
         owner = self.owner(extras['data']['appkey'], extras['data']['openid'])

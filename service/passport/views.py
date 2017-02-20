@@ -2,12 +2,7 @@
 from __future__ import unicode_literals
 
 import json
-
 import sys
-
-from rest_framework.permissions import IsAuthenticated
-
-from service.consumer.serializers import UserSerializer
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -16,17 +11,11 @@ import requests
 from django.conf import settings
 from django.http import HttpResponse
 from rest_framework import mixins, viewsets
-from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
-from rest_framework.request import Request
-from django.http.request import HttpRequest
-from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from service.consumer.models import Notice
-from service.kernel.models.enterprise import EnterpriseUser
-from service.kernel.utils.jpush_audience import jpush_extras
 from service.passport.models import WaterLog
 from service.signature.models import Signature
 from service.signature.serializers import SignatureSerializer
@@ -50,6 +39,8 @@ class StreamParser(object):
 
 class BaseViewSet(object):
     def verify(self, data=''):
+        # 服务验签
+
         resp = requests.post(settings.VERIFY_GATEWAY + '/Verify', data=data)
         errors = False
 
@@ -68,6 +59,8 @@ class BaseViewSet(object):
         return text, True
 
     def sign(self, data=''):
+        # 服务签名
+
         resp = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=data)
 
         if resp.status_code != 200:
@@ -77,6 +70,8 @@ class BaseViewSet(object):
         return resp.content
 
     def third(self, type='signin', data=None):
+        # 服务第三方
+
         try:
             third = requests.post(url=settings.PASSPORT + '/services/callback/%s' % type, data=data)
             return third.content
@@ -88,6 +83,7 @@ class BaseViewSet(object):
             pass
 
     def source(self, data):
+
         try:
             rest = json.loads(data.get('source').decode('hex').decode('hex'))
         except Exception:
@@ -96,22 +92,23 @@ class BaseViewSet(object):
         return rest
 
     def notice(self, **kwargs):
-        print 'notice staring...'
         # 发送 push
         # 保存记录入库
-        # try:
-        notice = Notice(**kwargs)
-        notice.save()
 
-        print 'notice done'
+        try:
+            notice = Notice(**kwargs)
+            notice.save()
+        except Exception as e:
+            raise e
 
     def owner(self, appkey=None, openid=None, token=None):
+
         try:
             if not token:
                 log = WaterLog.objects.filter(appkey=appkey, openid=openid).get()
                 return log.owner
             else:
-                obj = Token.objects.get(token=token)
+                obj = Token.objects.get(key=token)
                 return obj.user
         except WaterLog.DoesNotExist:
             return False
@@ -119,23 +116,11 @@ class BaseViewSet(object):
 
 class SigninViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet, BaseViewSet):
     '''
-    用户登录接口.
-
-    {
-        'type':'payment', // action 详见 APP 接口表
-        'data': {
-            'req_id': '请求唯一的id, 发起方随机生成'
-            'appkey': 'val',                  // 系统分配给商家的唯一标示
-            'uri': '/api/passport/payment/'  // APP 服务器的 uri 路径
-            'orderid': '',        // 订单号码
-        }
-    }
+    用户登陆接口.
 
     '''
-
     serializer_class = SignatureSerializer
     model = Signature
-    # permission_classes = (IsAuthenticated,)
     parser_classes = (StreamParser,)
 
     def create(self, request, *args, **kwargs):
@@ -302,12 +287,22 @@ class RefundsViewSet(viewsets.GenericViewSet, BaseViewSet):
 
 
 class PushViewSet(viewsets.GenericViewSet, BaseViewSet):
+    '''
+    推送接口.
+
+    '''
+
     def create(self, request, *args, **kwargs):
+
         extras = request.data
-        owner = self.owner(extras['data']['appkey'], extras['data']['openid'])
-        kwargs = {'subject': extras['data']['req_id'], 'content': extras['data']['req_id'], 'owner': owner,
-                  'extra': extras,
-                  'type': extras['type']}
+        owner = self.owner(extras.get('data').get('appkey'), extras.get('data').get('openid'))
+        kwargs = {
+            'subject': settings.NOTICE_TYPE_MSGS.get(extras['type']),
+            'content': settings.NOTICE_TYPE_MSGS.get(extras['type']),
+            'owner': owner,
+            'extra': extras,
+            'type': extras['type']
+        }
 
         try:
             self.notice(**kwargs)

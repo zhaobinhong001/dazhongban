@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-tests:
-  script:
-    - /var/local/gitlab-runner/venv/bin/python manage.py test -v2
-=======
 before_script:
   - cp env.server .env
 
@@ -10,4 +5,4 @@ before_script:
 tests:
   script:
     - /var/local/gitlab-runner/venv/bin/python manage.py test --traceback -v2
->>>>>>> a2ab19053c4ae08232bdae1e407b9e9d05f7686c
+

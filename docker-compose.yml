@@ -12,11 +12,12 @@ services:
       - /srv/docker/postgres:/var/lib/postgresql:Z
     env_file: env.docker
 
-  django:
+  bankeys:
     build:
       context: .
       dockerfile: ./docker/django/Dockerfile
     user: django
+
     depends_on:
       - verifysign
       - bankcard
@@ -27,6 +28,8 @@ services:
       - bankcard
       - postgres
       - redis
+#    volumes:
+#      - /srv/docker/bankeys/app:/app:Z
     env_file: env.docker
     command: /gunicorn.sh
 
@@ -34,7 +37,7 @@ services:
     restart: always
     build: ./docker/nginx
     depends_on:
-      - django
+      - bankeys
     ports:
       - "80:80"
 
@@ -47,7 +50,7 @@ services:
       context: .
       dockerfile: ./docker/django/Dockerfile
     user: django
-    env_file: .env
+    env_file: env.docker
     depends_on:
      - postgres
      - redis
@@ -61,7 +64,7 @@ services:
       context: .
       dockerfile: ./docker/django/Dockerfile
     user: django
-    env_file: .env
+    env_file: env.docker
     depends_on:
       - postgres
       - redis
@@ -77,7 +80,7 @@ services:
     user: django
     ports:
       - "0.0.0.0:5555:5555"
-    env_file: .env
+    env_file: env.docker
     depends_on:
       - postgres
       - redis
@@ -99,3 +102,18 @@ services:
       dockerfile: ./docker/bankcard/Dockerfile
     ports:
       - "5000:5000"
+
+  business:
+    build:
+      context: .
+      dockerfile: ./docker/business/Dockerfile
+    ports:
+      - "3000:3000"
+    env_file: env.docker
+
+  bankpays:
+    build:
+      context: .
+      dockerfile: ./docker/bankpays/Dockerfile
+    ports:
+      - "6000:6000"

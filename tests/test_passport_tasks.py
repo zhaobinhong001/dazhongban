@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import json
+from random import randint
 
 import requests
-
 from django.contrib.auth import get_user_model
 
 from service.passport.models import WaterLog
@@ -33,7 +33,7 @@ class APITestPassportTesk(BaseAPITestCase):
         data = {
             'type': 'signup',
             'data': {
-                'req_id': '3',
+                'req_id': randint(0, 100000000),
                 'token': self.token.key,
                 'appkey': 'appkey',
                 'uri': '/api/passport/signup/',
@@ -47,8 +47,8 @@ class APITestPassportTesk(BaseAPITestCase):
         data = data.content
 
         resp = self.post('/api/passport/signup/', data=data.decode('hex'),
-                         content_type='application/octet-stream',
-                         status_code=200)
+            content_type='application/octet-stream',
+            status_code=200)
 
         # 解析数据
         data = resp.content.decode('hex')
@@ -69,7 +69,7 @@ class APITestPassportTesk(BaseAPITestCase):
         data = {
             'type': 'signin',
             'data': {
-                'req_id': '2',
+                'req_id': randint(0, 100000000),
                 'openid': self.log.openid,
                 'appkey': 'appkey',
                 'uri': '/api/passport/signin/',
@@ -81,7 +81,7 @@ class APITestPassportTesk(BaseAPITestCase):
         data = data.content
 
         resp = self.post('/api/passport/signin/', data=data.decode('hex'), content_type='application/octet-stream',
-                         status_code=200)
+            status_code=200)
 
         # 解析数据
         data = resp.content.decode('hex')
@@ -101,7 +101,7 @@ class APITestPassportTesk(BaseAPITestCase):
         data = {
             'type': 'payment',
             'data': {
-                'req_id': '1',
+                'req_id': randint(0, 100000000),
                 'openid': self.log.openid,
                 'appkey': 'appkey',
                 'uri': '/api/passport/payment/',
@@ -119,7 +119,7 @@ class APITestPassportTesk(BaseAPITestCase):
         data = data.content
 
         resp = self.post('/api/passport/payment/', data=data.decode('hex'), content_type='application/octet-stream',
-                         status_code=200)
+            status_code=200)
         # 解析数据
         data = resp.content.decode('hex')
         resp = requests.post('http://10.7.7.22:9090/Verify', data=data)
@@ -138,7 +138,7 @@ class APITestPassportTesk(BaseAPITestCase):
         data = {
             'type': 'receive',
             'data': {
-                'req_id': '2',
+                'req_id': randint(0, 100000000),
                 'openid': self.log.openid,
                 'appkey': 'appkey',
                 'uri': '/api/passport/receive/',
@@ -150,7 +150,7 @@ class APITestPassportTesk(BaseAPITestCase):
         data = data.content
 
         resp = self.post('/api/passport/receive/', data=data.decode('hex'), content_type='application/octet-stream',
-                         status_code=200)
+            status_code=200)
 
         # 解析数据
         data = resp.content.decode('hex')
@@ -170,7 +170,7 @@ class APITestPassportTesk(BaseAPITestCase):
         data = {
             'type': 'refunds',
             'data': {
-                'req_id': '2',
+                'req_id': randint(0, 100000000),
                 'openid': self.log.openid,
                 'appkey': 'appkey',
                 'uri': '/api/passport/refunds/',
@@ -182,8 +182,8 @@ class APITestPassportTesk(BaseAPITestCase):
         data = data.content
 
         resp = self.post('/api/passport/refunds/', data=data.decode('hex'),
-                         content_type='application/octet-stream',
-                         status_code=200)
+            content_type='application/octet-stream',
+            status_code=200)
 
         # 解析数据
         data = resp.content.decode('hex')

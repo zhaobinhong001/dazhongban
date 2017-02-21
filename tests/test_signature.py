@@ -39,7 +39,7 @@ class APITestSignature(BaseAPITestCase):
         self.token = resp.json.get('key')
 
         payload = {
-            "certId": "230221198902203010s",
+            "certId": "230221198902203010",
             "name": "刘鹏",
             "phone": "13141039522",
             "cardNo": "6227000014150347510",

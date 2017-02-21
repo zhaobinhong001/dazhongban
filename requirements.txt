@@ -78,3 +78,4 @@ django-constance
 honcho
 arrow
 raven
+celery>4.0

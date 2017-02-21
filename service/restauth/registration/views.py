@@ -75,11 +75,11 @@ class VerifyMobileView(GenericAPIView):
 
         # 判断手机是否为空
         if not mobile:
-            raise ValidationError({'mobile': "手机号码不能为空."})
+            return Response({'detail': u'手机号码不能为空'}, status=status.HTTP_400_BAD_REQUEST)
 
         # 判断手机是否匹配规格
         if not re.match(r'^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$', mobile):
-            raise ValidationError({'mobile': "手机号码格式不匹配."})
+            return Response({'detail': u'手机号码格式不匹配'}, status=status.HTTP_400_BAD_REQUEST)
 
         # 生成验证码
         code = generate_verification_code(6)

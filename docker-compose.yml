@@ -117,3 +117,5 @@ services:
       dockerfile: ./docker/bankpays/Dockerfile
     ports:
       - "4000:4000"
+    env_file: env.docker
+    command: /gunicorn.sh

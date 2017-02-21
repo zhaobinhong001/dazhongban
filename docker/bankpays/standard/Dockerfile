@@ -8,4 +8,4 @@ RUN pip install -r /app/requirements.txt
 
 WORKDIR /app
 
-ENTRYPOINT ["python", "manage.py", "runserver"]
+ENTRYPOINT ["/entrypoint.sh"]

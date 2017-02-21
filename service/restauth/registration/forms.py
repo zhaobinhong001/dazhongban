@@ -43,10 +43,10 @@ class SignupForm(forms.Form):
         super(forms.Form, self).clean()
 
         if not self.cleaned_data.get("mobile", None):
-            raise ValidationError({'detail': _("手机号码不能为空.")})
+            raise ValidationError("手机号码不能为空.")
 
         if not self.cleaned_data.get("verify", None):
-            raise ValidationError({'detail': _("验证码不能为空.")})
+            raise ValidationError("验证码不能为空.")
 
         # 判断手机是否匹配规格
         if not re.match(r'^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$',
@@ -57,7 +57,7 @@ class SignupForm(forms.Form):
         verify_status = check_verify_code(self.cleaned_data["mobile"], self.cleaned_data["verify"])
 
         if not verify_status:
-            raise ValidationError({'detail': "验证码错误."})
+            raise ValidationError( "验证码错误.")
 
         # 判断手机是否注册过
         # if get_user_model()._default_manager.filter(mobile=self.cleaned_data['mobile']).exists():

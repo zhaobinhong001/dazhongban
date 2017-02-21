@@ -14,19 +14,19 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='contact',
-            name='default',
-        ),
+        # migrations.RemoveField(
+        #     model_name='contact',
+        #     name='default',
+        # ),
         migrations.AddField(
             model_name='contact',
             name='friend',
             field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='friend', to=settings.AUTH_USER_MODEL),
             preserve_default=False,
         ),
-        migrations.AlterField(
-            model_name='affairs',
-            name='owner',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
-        ),
+        # migrations.AlterField(
+        #     model_name='affairs',
+        #     name='owner',
+        #     field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+        # ),
     ]

@@ -140,6 +140,14 @@ class SigninViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet,
 
         # @todo 推送消息
 
+        # 推送消息
+        owner = self.owner(rest['data']['appkey'], rest['data']['openid'])
+        message = json.loads(third)
+        kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
+                  'type': 'signin'}
+
+        self.notice(**kwargs)
+
         # 服务签名
         return HttpResponse(self.sign(third))
 
@@ -176,6 +184,13 @@ class SignupViewSet(viewsets.GenericViewSet, BaseViewSet):
         third = self.third(type=rest['type'], data=self.sign(data=json.dumps(rest)).decode('hex'))
 
         # @todo 推送消息
+
+        # 推送消息
+        message = json.loads(third)
+        kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
+                  'type': 'signup'}
+
+        self.notice(**kwargs)
 
         # 服务签名
         return HttpResponse(self.sign(third))

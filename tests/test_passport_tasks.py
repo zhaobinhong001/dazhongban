@@ -6,6 +6,7 @@ import requests
 from django.contrib.auth import get_user_model
 
 from service.passport.models import WaterLog
+from service.signature.models import Signature
 from .test_base import BaseAPITestCase
 
 
@@ -40,15 +41,18 @@ class APITestPassportTesk(BaseAPITestCase):
                 'orderid': '121212',
             }
         }
-        # print data
-        # return data
+
         data = json.dumps(data)
         data = requests.post('http://10.7.7.22:9090/Sign', data=data)
         data = data.content
 
         resp = self.post('/api/passport/signup/', data=data.decode('hex'),
-            content_type='application/octet-stream',
-            status_code=200)
+                         content_type='application/octet-stream',
+                         status_code=200)
+
+        # ce = Signature.objects.all()
+        # for a in ce:
+        #     print a
 
         # 解析数据
         data = resp.content.decode('hex')
@@ -81,7 +85,7 @@ class APITestPassportTesk(BaseAPITestCase):
         data = data.content
 
         resp = self.post('/api/passport/signin/', data=data.decode('hex'), content_type='application/octet-stream',
-            status_code=200)
+                         status_code=200)
 
         # 解析数据
         data = resp.content.decode('hex')
@@ -119,7 +123,7 @@ class APITestPassportTesk(BaseAPITestCase):
         data = data.content
 
         resp = self.post('/api/passport/payment/', data=data.decode('hex'), content_type='application/octet-stream',
-            status_code=200)
+                         status_code=200)
         # 解析数据
         data = resp.content.decode('hex')
         resp = requests.post('http://10.7.7.22:9090/Verify', data=data)
@@ -150,7 +154,7 @@ class APITestPassportTesk(BaseAPITestCase):
         data = data.content
 
         resp = self.post('/api/passport/receive/', data=data.decode('hex'), content_type='application/octet-stream',
-            status_code=200)
+                         status_code=200)
 
         # 解析数据
         data = resp.content.decode('hex')
@@ -182,8 +186,8 @@ class APITestPassportTesk(BaseAPITestCase):
         data = data.content
 
         resp = self.post('/api/passport/refunds/', data=data.decode('hex'),
-            content_type='application/octet-stream',
-            status_code=200)
+                         content_type='application/octet-stream',
+                         status_code=200)
 
         # 解析数据
         data = resp.content.decode('hex')

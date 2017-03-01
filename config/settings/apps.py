@@ -45,7 +45,7 @@ PASSPORT = env('PASSPORT', default='http://10.7.7.85:3000')
 
 CONSTANCE_REDIS_CONNECTION = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
 
-#银行卡接口
+# 银行卡接口
 PAYMENT_INTEFACE = env('PAYMENT_INTEFACE', default='http://10.7.7.85:8000')
 
 NOTICE_TYPE_MSGS = {
@@ -371,9 +371,13 @@ CONSUMPTION_TYPE = (
 )
 
 CONTRACT_TYPE = (
+    ('signin', '第三方登陆'),
+    ('signup', '第三方注册'),
+    ('payment', '第三方支付'),
+    ('receive', '第三方收货'),
+    ('refunds', '第三方退货'),
     ('transfer', '转账'),
     ('receiver', '收款'),
-    ('thirty', '第三方支付'),
     ('receipt', '收据'),
     ('borrow', '借条'),
     ('owe', '欠条'),

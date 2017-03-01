@@ -6,6 +6,7 @@ import sys
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
+import arrow
 from rest_framework.authtoken.models import Token
 import requests
 from django.conf import settings
@@ -101,6 +102,21 @@ class BaseViewSet(object):
         except Exception as e:
             raise e
 
+    def signa(self, text=None, owner=None, rest=None):
+        kwargs = {
+            'owner': owner,
+            'type': rest['type'],
+            'extra': rest,
+            'signs': text,
+            'serial': text['serialNo'],
+            'expired': arrow.get(text['endDate']).format('YYYY-MM-DD')
+        }
+        try:
+            s = Signature(**kwargs)
+            s.save()
+        except Exception as e:
+            raise e
+
     def owner(self, appkey=None, openid=None, token=None):
 
         try:
@@ -126,7 +142,6 @@ class SigninViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet,
     def create(self, request, *args, **kwargs):
         # 验签数据
         text, status = self.verify(request.data)
-
         if not status:
             return HttpResponse(text)
 
@@ -147,6 +162,9 @@ class SigninViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet,
                   'type': 'signin'}
 
         self.notice(**kwargs)
+
+        # 写入日志
+        self.signa(text, owner, rest)
 
         # 服务签名
         return HttpResponse(self.sign(third))
@@ -192,6 +210,9 @@ class SignupViewSet(viewsets.GenericViewSet, BaseViewSet):
 
         self.notice(**kwargs)
 
+        # 写入日志
+        self.signa(text, owner, rest)
+
         # 服务签名
         return HttpResponse(self.sign(third))
 
@@ -231,6 +252,9 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
             self.notice(**kwargs)
         except Exception as e:
             third = e.message
+
+        # 写入日志
+        self.signa(text, owner, rest)
         # 服务签名
         return HttpResponse(self.sign(third))
 
@@ -266,6 +290,10 @@ class ReceiveViewSet(viewsets.GenericViewSet, BaseViewSet):
             self.notice(**kwargs)
         except Exception as e:
             third = e.message
+
+        # 写入日志
+        self.signa(text, owner, rest)
+
         # 服务签名
         return HttpResponse(self.sign(third))
 
@@ -302,6 +330,9 @@ class RefundsViewSet(viewsets.GenericViewSet, BaseViewSet):
         # 服务签名
         except Exception as e:
             third = e.message
+
+        # 写入日志
+        self.signa(text, owner, rest)
         return HttpResponse(self.sign(third))
 
 

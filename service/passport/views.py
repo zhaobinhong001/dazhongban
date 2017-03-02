@@ -106,7 +106,7 @@ class BaseViewSet(object):
         kwargs = {
             'owner': owner,
             'type': rest['type'],
-            'extra': rest,
+            'extra': json.dumps(rest),
             'signs': text,
             'serial': text['serialNo'],
             'expired': arrow.get(text['endDate']).format('YYYY-MM-DD')

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-import json
-
-import requests
+from random import randint
 
 from .test_base import BaseAPITestCase
 
@@ -83,8 +81,9 @@ class APITestPassport(BaseAPITestCase):
         data = {
             'type': 'receive',
             'data': {
-                'req_id': '请求唯一的id, 发起方随机生成',
-                'appkey': '系统分配给商家的唯一标示',
+                'req_id': randint(0, 122345),
+                'openid': '1315464646465',
+                'appkey': 'appkey',
                 'uri': '/api/passport/receive/',
                 'orders': {
                     'goods': {
@@ -106,12 +105,12 @@ class APITestPassport(BaseAPITestCase):
             }
         }
 
-        data = json.dumps(data)
+        # data = json.dumps(data)
         # data = requests.post('http://127.0.0.1:8080/Sign', data=data)
         # data = data.content.decode('hex')
 
-        # resp = self.post('/api/passport/push/', data=data, status_code=200)
-        resp = requests.post('http://127.0.0.1:8000/api/passport/push/', data=data, headers={'content-type': 'application/json'})
+        resp = self.post('/api/passport/push/', data=data, status_code=200)
+        # resp = requests.post('http://10.7.7.22/api/passport/push/', data=data, headers={'content-type': 'application/json'})
 
         # data = resp.content.decode('hex')
         # data = requests.post('http://10.7.7.22:9090/Verify', data=data)

@@ -111,11 +111,13 @@ class BaseViewSet(object):
             'serial': text['serialNo'],
             'expired': arrow.get(text['endDate']).format('YYYY-MM-DD')
         }
+
         try:
             s = Signature(**kwargs)
             s.save()
+            return 'ok'
         except Exception as e:
-            raise e
+            return e.message
 
     def owner(self, appkey=None, openid=None, token=None):
 
@@ -164,7 +166,8 @@ class SigninViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet,
         self.notice(**kwargs)
 
         # 写入日志
-        self.signa(text, owner, rest)
+        sg = self.signa(text, owner, rest)
+        third = sg if sg != 'ok' else third
 
         # 服务签名
         return HttpResponse(self.sign(third))
@@ -211,7 +214,8 @@ class SignupViewSet(viewsets.GenericViewSet, BaseViewSet):
         self.notice(**kwargs)
 
         # 写入日志
-        self.signa(text, owner, rest)
+        sg = self.signa(text, owner, rest)
+        third = sg if sg != 'ok' else third
 
         # 服务签名
         return HttpResponse(self.sign(third))
@@ -254,7 +258,8 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
             third = e.message
 
         # 写入日志
-        self.signa(text, owner, rest)
+        sg = self.signa(text, owner, rest)
+        third = sg if sg != 'ok' else third
         # 服务签名
         return HttpResponse(self.sign(third))
 
@@ -292,7 +297,8 @@ class ReceiveViewSet(viewsets.GenericViewSet, BaseViewSet):
             third = e.message
 
         # 写入日志
-        self.signa(text, owner, rest)
+        sg = self.signa(text, owner, rest)
+        third = sg if sg != 'ok' else third
 
         # 服务签名
         return HttpResponse(self.sign(third))
@@ -332,7 +338,8 @@ class RefundsViewSet(viewsets.GenericViewSet, BaseViewSet):
             third = e.message
 
         # 写入日志
-        self.signa(text, owner, rest)
+        sg = self.signa(text, owner, rest)
+        third = sg if sg != 'ok' else third
         return HttpResponse(self.sign(third))
 
 

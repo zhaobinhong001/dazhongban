@@ -23,10 +23,10 @@ class APITestVerify(BaseAPITestCase):
 
         self._generate_uid_and_token(user=owenr)
 
-    def test_verify_validation(self):
-        data = open('/Users/bopo/tmp/verify.txt').read()
-        resp = self.post('/api/sign/signature/', data=data, content_type='application/x-www-form-urlencoded', status_code=200)
-        resp = self.post('/api/sign/signature/', data=data, content_type='application/octet-stream', status_code=200)
-        resp = requests.post('http://10.7.7.22:9090/Verify', data=resp.content.decode('hex'))
-
-        print resp.content
+    # def test_verify_validation(self):
+    #     data = open('/Users/bopo/tmp/verify.txt').read()
+    #     resp = self.post('/api/sign/signature/', data=data, content_type='application/x-www-form-urlencoded', status_code=200)
+    #     resp = self.post('/api/sign/signature/', data=data, content_type='application/octet-stream', status_code=200)
+    #     resp = requests.post('http://10.7.7.22:9090/Verify', data=resp.content.decode('hex'))
+    #
+    #     print resp.content

@@ -140,6 +140,14 @@ class SigninViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet,
 
         # @todo 推送消息
 
+        # 推送消息
+        owner = self.owner(rest['data']['appkey'], rest['data']['openid'])
+        message = json.loads(third)
+        kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
+                  'type': 'signin'}
+
+        self.notice(**kwargs)
+
         # 服务签名
         return HttpResponse(self.sign(third))
 
@@ -177,6 +185,13 @@ class SignupViewSet(viewsets.GenericViewSet, BaseViewSet):
 
         # @todo 推送消息
 
+        # 推送消息
+        message = json.loads(third)
+        kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
+                  'type': 'signup'}
+
+        self.notice(**kwargs)
+
         # 服务签名
         return HttpResponse(self.sign(third))
 
@@ -197,24 +212,25 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
 
         # 解析数据
         rest = self.source(text)
+        try:
+            # 调用银行接口
+            payment = requests.post(url=settings.PAYMENT_INTEFACE + '/services/payment/',
+                                    data=self.sign(data=json.dumps(rest)).decode('hex'))
 
-        # 调用银行接口
-        payment = requests.post(url=settings.PAYMENT_INTEFACE + '/services/payment/',
-                                data=self.sign(data=json.dumps(rest)).decode('hex'))
+            # 回调第三方然后返回给app
+            third = self.third(type=rest['type'], data=payment.content)
 
-        # 回调第三方然后返回给app
-        third = self.third(type=rest['type'], data=payment.content)
+            # @todo 保存记录
 
-        # @todo 保存记录
+            # 推送消息
+            owner = self.owner(rest['data']['appkey'], rest['data']['openid'])
+            message = json.loads(third)
+            kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
+                      'type': 'payment'}
 
-        # 推送消息
-        owner = self.owner(rest['data']['appkey'], rest['data']['openid'])
-        message = json.loads(third)
-        kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
-                  'type': 'payment'}
-
-        self.notice(**kwargs)
-
+            self.notice(**kwargs)
+        except Exception as e:
+            third = e.message
         # 服务签名
         return HttpResponse(self.sign(third))
 
@@ -236,19 +252,20 @@ class ReceiveViewSet(viewsets.GenericViewSet, BaseViewSet):
         rest = self.source(text)
 
         # @todo 保存日志
+        try:
+            # 回调第三方然后返回给app
+            third = self.third(type=rest['type'], data=self.sign(data=json.dumps(rest)).decode('hex'))
 
-        # 回调第三方然后返回给app
-        third = self.third(type=rest['type'], data=self.sign(data=json.dumps(rest)).decode('hex'))
+            # @todo 推送消息
 
-        # @todo 推送消息
+            owner = self.owner(rest['data']['appkey'], rest['data']['openid'])
+            message = json.loads(third)
+            kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
+                      'type': 'receive'}
 
-        owner = self.owner(rest['data']['appkey'], rest['data']['openid'])
-        message = json.loads(third)
-        kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
-                  'type': 'receive'}
-
-        self.notice(**kwargs)
-
+            self.notice(**kwargs)
+        except Exception as e:
+            third = e.message
         # 服务签名
         return HttpResponse(self.sign(third))
 
@@ -271,18 +288,20 @@ class RefundsViewSet(viewsets.GenericViewSet, BaseViewSet):
         rest = self.source(text)
 
         # @todo 保存日志
+        try:
+            # 回调第三方然后返回给app
+            third = self.third(type=rest['type'], data=self.sign(data=json.dumps(rest)).decode('hex'))
 
-        # 回调第三方然后返回给app
-        third = self.third(type=rest['type'], data=self.sign(data=json.dumps(rest)).decode('hex'))
-
-        # @todo 推送消息
-        owner = self.owner(rest['data']['appkey'], rest['data']['openid'])
-        message = json.loads(third)
-        kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
-                  'type': 'refunds'}
-        self.notice(**kwargs)
+            # @todo 推送消息
+            owner = self.owner(rest['data']['appkey'], rest['data']['openid'])
+            message = json.loads(third)
+            kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
+                      'type': 'refunds'}
+            self.notice(**kwargs)
 
         # 服务签名
+        except Exception as e:
+            third = e.message
         return HttpResponse(self.sign(third))
 
 

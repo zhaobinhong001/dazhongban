@@ -5,8 +5,21 @@ COPY ./docker/bankpays/standard/pip.conf /root/.pip/pip.conf
 COPY ./docker/bankpays/standard/app/requirements.txt /requirements.txt
 COPY ./docker/bankpays/standard/app /app
 
+COPY ./docker/bankpays/gunicorn.sh /gunicorn.sh
+COPY ./docker/bankpays/entrypoint.sh /entrypoint.sh
+
+RUN echo 'http://mirrors.aliyun.com/alpine/v3.4/main/' > /etc/apk/repositories
+RUN echo 'http://mirrors.aliyun.com/alpine/v3.4/community/' >> /etc/apk/repositories
+RUN apk update && apk add bash
+
+RUN sed -i 's/\r//' /entrypoint.sh
+RUN sed -i 's/\r//' /gunicorn.sh
+
+RUN chmod +x /entrypoint.sh
+RUN chmod +x /gunicorn.sh
+
 RUN pip install -r /requirements.txt
 
 WORKDIR /app
 
-ENTRYPOINT ["python", "manage.py", "runserver"]
+ENTRYPOINT ["/entrypoint.sh"]

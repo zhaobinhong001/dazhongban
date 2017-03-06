@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 import json
 import sys
 
+from service.trade.models import Transfer
+
 reload(sys)
 sys.setdefaultencoding("utf-8")
 import arrow
@@ -249,7 +251,36 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
             kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
                       'type': 'payment'}
 
-            self.notice(**kwargs)
+            # self.notice(**kwargs)
+
+            kwargs = {
+                'owner': owner,
+                'type': rest['type'],
+                'extra': rest,
+                'signs': text,
+                'serial': text['serialNo'],
+                'expired': arrow.get(text['endDate']).format('YYYY-MM-DD')
+            }
+
+            signature = Signature(**kwargs)
+            signature.save()
+
+            # 保存消费记录
+            kwargs1 = {
+                'owner': owner,
+                'signaid': signature,
+                'type': rest['type'],
+                'title': rest['goods']['title'],
+                'amount': rest['goods']['amount'],
+                'bank_accountName': '建设银行',
+                'payment': '621000000000000',
+                'receipt': '621111111111111',
+                'account': '大排档',
+                'consumer': '小龙虾',
+            }
+            transfer = Transfer(**kwargs1)
+            transfer.save()
+
         except Exception as e:
             third = e.message
 

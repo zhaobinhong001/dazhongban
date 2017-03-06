@@ -25,7 +25,7 @@ class Contract(TimeStampedModel, StatusModel):
 
     sender_sign = models.ForeignKey(Signature, related_name='sender_sign', blank=True, null=True, default='')
     receiver_sign = models.ForeignKey(Signature, related_name='receiver_sign', blank=True, null=True,
-        default='')
+                                      default='')
 
     type = models.CharField(verbose_name=u'类型', max_length=100, default=0, choices=CONTRACT_TYPE)
     mobile = models.CharField(verbose_name=u'手机号', max_length=100, default='')
@@ -78,21 +78,22 @@ class Contract(TimeStampedModel, StatusModel):
 
 
 # 消费表
-class Transfer(TimeStampedModel, StatusModel):
-    STATUS = Choices(('normal', '无状态'), ('agree', '同意'), ('reject', '拒绝'))
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='sender')
-    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, default='', related_name='receiver')
+# class Transfer(TimeStampedModel, StatusModel):
+class Transfer(TimeStampedModel):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='transfer_owner')
+    signaid = models.ForeignKey(Signature, related_name='transfer_signaid')
 
-    type = models.CharField(verbose_name=u'消费类型', max_length=100, default=0, choices=CONSUMPTION_TYPE)
-    mobile = models.CharField(verbose_name=u'对方手机号', max_length=100, default='')
+    type = models.CharField(verbose_name=u'消费类型', max_length=100, default=0, choices=CONTRACT_TYPE)
+    title = models.CharField(verbose_name=u'商品名称', max_length=100, default='')
+    bank_accountName = models.CharField(verbose_name=u'银行开户名', max_length=100)
     amount = models.DecimalField(verbose_name=u'交易金额', max_digits=10, decimal_places=2)
-    summary = models.CharField(verbose_name=u'交易原因', max_length=300)
-
     payment = models.CharField(verbose_name=u'支付账户', max_length=100, default='')
     receipt = models.CharField(verbose_name=u'收款账户', max_length=100, default='')
+    account = models.CharField(verbose_name=u'转入户名', max_length=100, default='')
+    consumer = models.CharField(verbose_name=u'消费商家', max_length=100, default='')
 
     def __unicode__(self):
-        return self.summary
+        return self.title
 
     def __str__(self):
         return self.__unicode__()

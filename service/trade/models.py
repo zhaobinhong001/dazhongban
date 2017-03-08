@@ -80,8 +80,32 @@ class Contract(TimeStampedModel, StatusModel):
 # 消费表
 # class Transfer(TimeStampedModel, StatusModel):
 class Transfer(TimeStampedModel):
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='transfer_owner')
-    signaid = models.ForeignKey(Signature, related_name='transfer_signaid')
+    # owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='transfer_owner')
+    # signaid = models.ForeignKey(Signature, related_name='transfer_signaid')
+
+    # type = models.CharField(verbose_name=u'消费类型', max_length=100, default=0, choices=CONTRACT_TYPE)
+    # title = models.CharField(verbose_name=u'商品名称', max_length=100, default='')
+    # bank_accountName = models.CharField(verbose_name=u'银行开户名', max_length=100)
+    # amount = models.DecimalField(verbose_name=u'交易金额', max_digits=10, decimal_places=2)
+    # payment = models.CharField(verbose_name=u'支付账户', max_length=100, default='')
+    # receipt = models.CharField(verbose_name=u'收款账户', max_length=100, default='')
+    # account = models.CharField(verbose_name=u'转入户名', max_length=100, default='')
+    # consumer = models.CharField(verbose_name=u'消费商家', max_length=100, default='')
+
+    def __unicode__(self):
+        return self.title
+
+    def __str__(self):
+        return self.__unicode__()
+
+    class Meta:
+        verbose_name = _(u'消费记录')
+        verbose_name_plural = _(u'消费记录')
+
+
+class Purchased(TimeStampedModel):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='purchased')
+    signa = models.ForeignKey(Signature, related_name='purchased_signaid')
 
     type = models.CharField(verbose_name=u'消费类型', max_length=100, default=0, choices=CONTRACT_TYPE)
     title = models.CharField(verbose_name=u'商品名称', max_length=100, default='')
@@ -101,17 +125,3 @@ class Transfer(TimeStampedModel):
     class Meta:
         verbose_name = _(u'消费记录')
         verbose_name_plural = _(u'消费记录')
-
-
-class Purchased(TimeStampedModel):
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='purchased')
-
-    def __unicode__(self):
-        return self.signs
-
-    def __str__(self):
-        return self.__unicode__()
-
-    class Meta:
-        verbose_name = u'消费记录'
-        verbose_name_plural = u'消费记录'

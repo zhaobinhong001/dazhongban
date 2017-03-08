@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 
 from service.passport.models import WaterLog
 from service.signature.models import Signature
-from service.trade.models import Transfer
+from service.trade.models import Transfer, Purchased
 from .test_base import BaseAPITestCase
 
 
@@ -131,9 +131,15 @@ class APITestPassportTesk(BaseAPITestCase):
         resp = self.post('/api/passport/payment/', data=data.decode('hex'), content_type='application/octet-stream',
                          status_code=200)
 
-        ce = Transfer.objects.filter(id=1)
+        ce = Purchased.objects.filter(id=1)
         for a in ce:
-            print a
+            print a.type
+            print a.title
+            print a.amount
+
+        resp1 = self.get('/api/trade/purchase/')
+
+        print resp1
 
         # 解析数据
         data = resp.content.decode('hex')

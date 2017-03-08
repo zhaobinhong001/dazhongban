@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import json
 import sys
 
-from service.trade.models import Transfer
+from service.trade.models import Purchased
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -272,7 +272,7 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
             # 保存消费记录
             kwargs1 = {
                 'owner': owner,
-                'signaid': signature,
+                'signa': signature,
                 'type': rest['type'],
                 'title': rest['goods']['title'],
                 'amount': rest['goods']['amount'],
@@ -282,8 +282,8 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
                 'account': '大排档',
                 'consumer': '小龙虾',
             }
-            transfer = Transfer(**kwargs1)
-            transfer.save()
+            purchased = Purchased(**kwargs1)
+            purchased.save()
 
         except Exception as e:
             third = e.message

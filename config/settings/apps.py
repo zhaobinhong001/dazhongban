@@ -362,6 +362,8 @@ CONSTANCE_CONFIG = {
     'BORROW': ('', '借款模板'),
     'RECEIPT': ('', '收据模板'),
     'OWE': ('', '欠条模板'),
+    'SIGNIN': ('', '登陆模板'),
+    'SIGNUP': ('', '注册模板'),
 }
 
 CONSUMPTION_TYPE = (

@@ -56,6 +56,8 @@ class Contract(TimeStampedModel, StatusModel):
         content['receipt'] = config.RECEIPT
         content['borrow'] = config.BORROW
         content['owe'] = config.OWE
+        content['signin'] = config.SIGNIN
+        content['signup'] = config.SIGNUP
 
         content = content[self.type] % data if content.get(self.type) else None
         return content

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth import get_user_model
-from rest_framework.authtoken.models import Token
 
+from service.signature.models import Signature
+from service.trade.models import Contract
 from .test_base import BaseAPITestCase
 
 
@@ -36,21 +37,38 @@ class APITestUser(BaseAPITestCase):
 
     def test_contract_validation(self):
         data = {
-            "id": 1,
-            "created": "2017-02-24 02:00:15",
-            "modified": "2017-02-24 02:00:15",
             "status": "normal",
-            "status_changed": "2017-02-24 02:00:15",
-            "type": "transfer",
+            "type": "owe",
             "mobile": "15010786971",
             "amount": "11.00",
             "summary": "1",
-            "make_date": "null",
-            "orderid": "1487923215489254455118",
-            "payment": "null",
-            "receipt": "null",
-            "payment_bank": "null",
-            "receipt_bank": "null",
         }
 
         self.post('/api/trade/contract/', data=data, status_code=201)
+
+        a = Contract.objects.filter(id=1)
+        for a in a:
+            print a.status
+            print a.type
+
+        print 333333333333333333333333333333333333333333333333333333333
+
+        b = Signature.objects.all()
+        for b in b:
+            print b.type
+            print b.owner
+            print b.extra
+            print b.signs
+            print b.serial
+            print b.expired
+
+        self.get('/api/sign/history/', status_code=200)
+        print 333333333333333333333333333333333333333333333333333333333
+        c = Signature.objects.all()
+        for c in c:
+            print c.type
+            print c.owner
+            print c.extra
+            print c.signs
+            print c.serial
+            print c.expired

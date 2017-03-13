@@ -60,6 +60,17 @@ class APITestPassportTesk(BaseAPITestCase):
             print a.serial
             print a.expired
 
+        print 333333333333333333333333333333333333333333333333333333333
+
+        b = Signature.objects.all()
+        for b in b:
+            print b.type
+            print b.owner
+            print b.extra
+            print b.signs
+            print b.serial
+            print b.expired
+        print 333333333333333333333333333333333333333333333333333333333
         # 解析数据
         data = resp.content.decode('hex')
         resp = requests.post('http://10.7.7.22:9090/Verify', data=data)

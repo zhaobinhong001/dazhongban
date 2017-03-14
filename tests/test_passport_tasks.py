@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 
 from service.passport.models import WaterLog
 from service.signature.models import Signature
-from service.trade.models import Transfer, Purchased
+from service.trade.models import Transfer, Purchased, Contract
 from .test_base import BaseAPITestCase
 
 
@@ -39,7 +39,7 @@ class APITestPassportTesk(BaseAPITestCase):
                 'token': self.token.key,
                 'appkey': 'appkey',
                 'uri': '/api/passport/signup/',
-                'orderid': '121212',
+                'orderid': randint(0, 100000000),
             }
         }
 
@@ -51,16 +51,13 @@ class APITestPassportTesk(BaseAPITestCase):
                          content_type='application/octet-stream',
                          status_code=200)
 
-        ce = Signature.objects.filter(id=1)
-        for a in ce:
-            print a.owner
-            print a.type
-            print a.extra
-            print a.signs
-            print a.serial
-            print a.expired
+        print 333333333333333333
 
-        print 333333333333333333333333333333333333333333333333333333333
+        ce = Contract.objects.filter(id=1)
+        for a in ce:
+            print a.type
+
+        print 333333333333333333
 
         b = Signature.objects.all()
         for b in b:
@@ -70,7 +67,7 @@ class APITestPassportTesk(BaseAPITestCase):
             print b.signs
             print b.serial
             print b.expired
-        print 333333333333333333333333333333333333333333333333333333333
+        print 333333333333333333
         # 解析数据
         data = resp.content.decode('hex')
         resp = requests.post('http://10.7.7.22:9090/Verify', data=data)
@@ -91,10 +88,10 @@ class APITestPassportTesk(BaseAPITestCase):
             'type': 'signin',
             'data': {
                 'req_id': randint(0, 100000000),
-                'openid': self.log.openid,
+                'token': self.token.key,
                 'appkey': 'appkey',
                 'uri': '/api/passport/signin/',
-                'orderid': '121212',
+                'orderid': randint(0, 100000000),
             }
         }
         data = json.dumps(data)
@@ -127,11 +124,12 @@ class APITestPassportTesk(BaseAPITestCase):
                 'appkey': 'appkey',
                 'uri': '/api/passport/payment/',
                 'receive': '名字',
-                'orderid': '121212',
-            },
-            'goods': {
-                'title': '1',
-                'amount': '123',
+                'address': u'北京朝阳区',
+                'orderid': randint(0, 100000000),
+                'goods': {
+                    'title': '1',
+                    'amount': '123',
+                }
             }
         }
 
@@ -174,7 +172,7 @@ class APITestPassportTesk(BaseAPITestCase):
                 'openid': self.log.openid,
                 'appkey': 'appkey',
                 'uri': '/api/passport/receive/',
-                'orderid': '121212',
+                'orderid': '123456',
             }
         }
         data = json.dumps(data)
@@ -206,7 +204,7 @@ class APITestPassportTesk(BaseAPITestCase):
                 'openid': self.log.openid,
                 'appkey': 'appkey',
                 'uri': '/api/passport/refunds/',
-                'orderid': '121212',
+                'orderid': '123456',
             }
         }
         data = json.dumps(data)

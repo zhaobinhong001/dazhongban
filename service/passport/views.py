@@ -152,7 +152,14 @@ class SigninViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet,
         # 解析数据
         rest = self.source(text)
 
-        # @todo 保存日志
+        # 保存日志
+        # --------------------------
+        owner = self.owner(token=rest.get('data').get('token'))
+        log, _ = WaterLog.objects.get_or_create(appkey=rest.get('data').get('appkey'), owner=owner)
+        log.save()
+
+        rest['data']['openid'] = log.openid
+        # ----------------------------------
 
         # 回调第三方然后返回给app
         third = self.third(type=rest['type'], data=self.sign(data=json.dumps(rest)).decode('hex'))
@@ -160,7 +167,6 @@ class SigninViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet,
         # @todo 推送消息
 
         # 推送消息
-        owner = self.owner(rest['data']['appkey'], rest['data']['openid'])
         message = json.loads(third)
         kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
                   'type': 'signin'}
@@ -255,9 +261,9 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
             kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
                       'type': 'payment'}
 
-            # self.notice(**kwargs)
+            self.notice(**kwargs)
 
-            kwargs = {
+            record = {
                 'owner': owner,
                 'type': rest['type'],
                 'extra': rest,
@@ -266,7 +272,7 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
                 'expired': arrow.get(text['endDate']).format('YYYY-MM-DD')
             }
 
-            signature = Signature(**kwargs)
+            signature = Signature(**record)
             signature.save()
 
             # 保存消费记录
@@ -274,8 +280,8 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
                 'owner': owner,
                 'signa': signature,
                 'type': rest['type'],
-                'title': rest['goods']['title'],
-                'amount': rest['goods']['amount'],
+                'title': rest['data']['goods']['title'],
+                'amount': rest['data']['goods']['amount'],
                 'bank_accountName': '建设银行',
                 'payment': '621000000000000',
                 'receipt': '621111111111111',
@@ -289,8 +295,8 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
             third = e.message
 
         # 写入日志
-        sg = self.signa(text, owner, rest)
-        third = sg if sg != 'ok' else third
+        # sg = self.signa(text, owner, rest)
+        # third = sg if sg != 'ok' else third
         # 服务签名
         return HttpResponse(self.sign(third))
 

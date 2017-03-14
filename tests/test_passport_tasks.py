@@ -88,7 +88,7 @@ class APITestPassportTesk(BaseAPITestCase):
             'type': 'signin',
             'data': {
                 'req_id': randint(0, 100000000),
-                'openid': self.log.openid,
+                'token': self.token.key,
                 'appkey': 'appkey',
                 'uri': '/api/passport/signin/',
                 'orderid': randint(0, 100000000),

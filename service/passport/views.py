@@ -152,7 +152,10 @@ class SigninViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet,
         # 解析数据
         rest = self.source(text)
 
-        # @todo 保存日志
+        # 保存日志
+        # --------------------------
+        # ----------------------------------
+        owner = self.owner(token=rest.get('data').get('token'))
 
         # 回调第三方然后返回给app
         third = self.third(type=rest['type'], data=self.sign(data=json.dumps(rest)).decode('hex'))
@@ -160,7 +163,6 @@ class SigninViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet,
         # @todo 推送消息
 
         # 推送消息
-        owner = self.owner(rest['data']['appkey'], rest['data']['openid'])
         message = json.loads(third)
         kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
                   'type': 'signin'}

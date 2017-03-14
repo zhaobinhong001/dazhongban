@@ -154,8 +154,12 @@ class SigninViewSet(NestedViewSetMixin, mixins.CreateModelMixin, GenericViewSet,
 
         # 保存日志
         # --------------------------
-        # ----------------------------------
         owner = self.owner(token=rest.get('data').get('token'))
+        log, _ = WaterLog.objects.get_or_create(appkey=rest.get('data').get('appkey'), owner=owner)
+        log.save()
+
+        rest['data']['openid'] = log.openid
+        # ----------------------------------
 
         # 回调第三方然后返回给app
         third = self.third(type=rest['type'], data=self.sign(data=json.dumps(rest)).decode('hex'))

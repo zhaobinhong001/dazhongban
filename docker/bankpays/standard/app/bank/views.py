@@ -38,7 +38,7 @@ def BankViewSet(request, *args, **kwargs):
                                   'req_id': '1',
                                   'appkey': 'appkey',
                                   'uri': '/api/passport/payment/',
-                                  'orderid': '121212',
+                                  'orderid': '121213',
                               }})
 
         third = requests.post(settings.VERIFY_GATEWAY + '/Sign', data=content)

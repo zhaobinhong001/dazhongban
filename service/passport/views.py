@@ -255,9 +255,9 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
             kwargs = {'subject': message['detail'], 'content': message['detail'], 'owner': owner, 'extra': message,
                       'type': 'payment'}
 
-            # self.notice(**kwargs)
+            self.notice(**kwargs)
 
-            kwargs = {
+            record = {
                 'owner': owner,
                 'type': rest['type'],
                 'extra': rest,
@@ -266,7 +266,7 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
                 'expired': arrow.get(text['endDate']).format('YYYY-MM-DD')
             }
 
-            signature = Signature(**kwargs)
+            signature = Signature(**record)
             signature.save()
 
             # 保存消费记录
@@ -274,8 +274,8 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
                 'owner': owner,
                 'signa': signature,
                 'type': rest['type'],
-                'title': rest['goods']['title'],
-                'amount': rest['goods']['amount'],
+                'title': rest['data']['goods']['title'],
+                'amount': rest['data']['goods']['amount'],
                 'bank_accountName': '建设银行',
                 'payment': '621000000000000',
                 'receipt': '621111111111111',
@@ -289,8 +289,8 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
             third = e.message
 
         # 写入日志
-        sg = self.signa(text, owner, rest)
-        third = sg if sg != 'ok' else third
+        # sg = self.signa(text, owner, rest)
+        # third = sg if sg != 'ok' else third
         # 服务签名
         return HttpResponse(self.sign(third))
 

@@ -45,12 +45,6 @@ class APITestUser(BaseAPITestCase):
         }
 
         self.post('/api/trade/contract/', data=data, status_code=201)
-
-        a = Contract.objects.filter(id=1)
-        for a in a:
-            print a.status
-            print a.type
-
         print 333333333333333333333333333333333333333333333333333333333
 
         b = Signature.objects.all()

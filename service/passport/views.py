@@ -9,6 +9,8 @@ from service.trade.models import Purchased
 reload(sys)
 sys.setdefaultencoding("utf-8")
 import arrow
+import traceback
+import logging
 from rest_framework.authtoken.models import Token
 import requests
 from django.conf import settings
@@ -291,10 +293,13 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
             purchased = Purchased(**kwargs1)
             purchased.save()
 
-        except Exception as e:
-            third = e.message
+        # except Exception as e:
+        #     third = e.message
+        except:
+            s = traceback.format_exc()
+            logging.error(s)
 
-        # 写入日志
+            # 写入日志
         # sg = self.signa(text, owner, rest)
         # third = sg if sg != 'ok' else third
         # 服务签名

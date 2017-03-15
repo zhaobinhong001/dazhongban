@@ -127,8 +127,8 @@ class APITestPassportTesk(BaseAPITestCase):
                 'address': u'北京朝阳区',
                 'orderid': randint(0, 100000000),
                 'goods': {
-                    'title': '1',
-                    'amount': '123',
+                    'title': 1.00,
+                    'amount': 123.00,
                 }
             }
         }
@@ -145,6 +145,9 @@ class APITestPassportTesk(BaseAPITestCase):
             print a.type
             print a.title
             print a.amount
+            print a.owner_id
+            print a.signa_id
+            print 23333333333333
 
         resp1 = self.get('/api/trade/purchase/')
 

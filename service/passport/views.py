@@ -295,11 +295,11 @@ class PaymentViewSet(viewsets.GenericViewSet, BaseViewSet):
 
         # except Exception as e:
         #     third = e.message
-        except:
+        except Exception:
             s = traceback.format_exc()
-            logging.error(s)
+            third = s
 
-            # 写入日志
+        # 写入日志
         # sg = self.signa(text, owner, rest)
         # third = sg if sg != 'ok' else third
         # 服务签名

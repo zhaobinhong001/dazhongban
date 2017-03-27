@@ -211,6 +211,79 @@ class IdentityViewSet(viewsets.ModelViewSet):
         item = {}
         items = request.data
 
+        dn = {
+            '652923195612296885': {
+                'name': u'阎怡',
+                'certId': '652923195612296885',
+                'phone': '15307728368',
+                'dn': 'CN=051@阎怡@1652923195612296885@1,OU=Individual-1,OU=Local RA,O=CFCA TEST CA,C=CN',
+                'code': '3'
+            },
+            '520327199805290439': {
+                'name': u'支素',
+                'certId': '520327199805290439',
+                'phone': '15104223446',
+                'dn': 'CN=051@支素@1520327199805290439@1,OU=Individual-1,OU=Local RA,O=CFCA TEST CA,C=CN',
+                'code': '3'
+            },
+            '420103196612024004': {
+                'name': u'戈乐朗',
+                'certId': '420103196612024004',
+                'phone': '13205035904',
+                'dn': 'CN=051@戈乐朗@1420103196612024004@1,OU=Individual-1,OU=Local RA,O=CFCA TEST CA,C=CN',
+                'code': '3'
+            },
+            '341004198702117790': {
+                'name': u'终维',
+                'certId': '341004198702117790',
+                'phone': '15707007935',
+                'dn': 'CN=051@终维@1341004198702117790@1,OU=Individual-1,OU=Local RA,O=CFCA TEST CA,C=CN',
+                'code': '3'
+            },
+            '211021198309126508': {
+                'name': u'子玉',
+                'certId': '211021198309126508',
+                'phone': '13706821593',
+                'dn': 'CN=051@子玉@1211021198309126508@1,OU=Individual-1,OU=Local RA,O=CFCA TEST CA,C=CN',
+                'code': '3'
+            },
+            '51082219710722683X': {
+                'name': u'鞠莲露',
+                'certId': '51082219710722683X',
+                'phone': '13408170659',
+                'dn': 'CN=051@鞠莲露@151082219710722683X@1,OU=Individual-1,OU=Local RA,O=CFCA TEST CA,C=CN',
+                'code': '3'
+            },
+            '51170219900517672X': {
+                'name': u'华亮',
+                'certId': '51170219900517672X',
+                'phone': '13202221722',
+                'dn': 'CN=051@华亮@151170219900517672X@1,OU=Individual-1,OU=Local RA,O=CFCA TEST CA,C=CN',
+                'code': '3'
+            },
+            '410902198103033599': {
+                'name': u'舌思',
+                'certId': '410902198103033599',
+                'phone': '13406527335',
+                'dn': 'CN=051@舌思@1410902198103033599@1,OU=Individual-1,OU=Local RA,O=CFCA TEST CA,C=CN',
+                'code': '3'
+            },
+            '370100200501174603': {
+                'name': u'宫志',
+                'certId': '370100200501174603',
+                'phone': '15603926096',
+                'dn': 'CN=051@宫志@1370100200501174603@1,OU=Individual-1,OU=Local RA,O=CFCA TEST CA,C=CN',
+                'code': '3'
+            },
+            '130435197406221691': {
+                'name': u'丁才',
+                'certId': '130435197406221691',
+                'phone': '15304100016',
+                'dn': 'CN=051@丁才@1130435197406221691@1,OU=Individual-1,OU=Local RA,O=CFCA TEST CA,C=CN',
+                'code': '3'
+            },
+        }
+
         for k, v in items.items():
             if k in fields:
                 if k in ['backPhoto', 'frontPhoto']:
@@ -226,7 +299,18 @@ class IdentityViewSet(viewsets.ModelViewSet):
             expired = expired[1] + expired[0]
             item['exp_Date'] = expired
 
-        data, status_ = iddentity_verify(item)
+        if request.data.get('certId') not in ['652923195612296885', '520327199805290439', '420103196612024004',
+                                              '341004198702117790', '211021198309126508', '51082219710722683X',
+                                              '51170219900517672X', '410902198103033599', '370100200501174603',
+                                              '130435197406221691']:
+            data, status_ = iddentity_verify(item)
+
+        else:
+            item['name'] = dn[request.data.get('certId')]['name']
+            item['certId'] = dn[request.data.get('certId')]['certId']
+            item['phone'] = dn[request.data.get('certId')]['phone']
+            item['dn'] = dn[request.data.get('certId')]['dn']
+            data, status_ = iddentity_verify(item)
 
         if not status_:
             raise ValidationError(data.get('message'))

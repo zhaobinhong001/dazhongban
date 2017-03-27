@@ -310,7 +310,9 @@ class IdentityViewSet(viewsets.ModelViewSet):
             item['certId'] = dn[request.data.get('certId')]['certId']
             item['phone'] = dn[request.data.get('certId')]['phone']
             item['dn'] = dn[request.data.get('certId')]['dn']
-            data, status_ = iddentity_verify(item)
+
+            data = item
+            status_ = True
 
         if not status_:
             raise ValidationError(data.get('message'))

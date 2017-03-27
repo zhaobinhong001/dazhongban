@@ -9,6 +9,7 @@ from service.passport.models import WaterLog
 from service.signature.models import Signature
 from service.trade.models import Transfer, Purchased, Contract
 from .test_base import BaseAPITestCase
+from service.restauth.models import VerifyCode
 
 
 class APITestPassportTesk(BaseAPITestCase):
@@ -270,3 +271,36 @@ class APITestPassportTesk(BaseAPITestCase):
         # data = requests.post('http://10.7.7.22:9090/Verify', data=data)
 
         # print resp.content
+
+    def test_identity_validation(self):
+
+        payload = {
+            "mobile": self.MOBILE
+        }
+
+        resp = self.post('/api/auth/registration/verify_mobile/', data=payload, status_code=200)
+        self.assertEqual(resp.json['detail'], u'验证码已经成功发送')
+
+        code = VerifyCode.objects.get(mobile=payload['mobile'])
+
+        payload["verify"] = code.code
+        resp = self.post('/api/auth/registration/', data=payload, status_code=201)
+        self.assertTrue(bool(resp.json.get('key')))
+        self.token = resp.json.get('key')
+
+        payload = {
+            "certId": "130435197406221691",
+            "name": "刘鹏",
+            "phone": "13141039522",
+            "cardNo": "6227000014150347510",
+            "bankID": "CCB",
+            "level": "A",
+            "frontPhoto": open('assets/media/avatar/default.jpg', 'rb'),
+            "backPhoto": open('assets/media/avatar/default.jpg', 'rb'),
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION='Token %s' % self.token)
+        resp = self.client.post('/api/sign/identity/', data=payload, format='multipart')
+        self.assertEquals(resp.status_code, 200, msg=resp)
+
+        print resp.content

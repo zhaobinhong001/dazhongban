@@ -57,15 +57,15 @@ class Relancement(models.Model):
         width_field='url_width', help_text=u'图片尺寸最好为75x75', blank=True, null=True, )
     applicant = models.CharField(verbose_name=_(u'申请人'), max_length=50, default='')
     creation_time = models.DateField(verbose_name=_(u'申请时间'), auto_now_add=True)
-    approval = models.CharField(verbose_name=_(u'审批人'), max_length=50, default='')
+    # approval = models.CharField(verbose_name=_(u'审批人'), max_length=50, default='')
     operation = models.CharField(verbose_name=_(u'用户操作系统限制'), max_length=10, choices=OPERATION_CHOICES)
     gender = models.CharField(verbose_name=_(u'用户性别限制'), max_length=10, choices=GENDER_CHOICES)
     age = models.CharField(verbose_name=_(u'用户年龄限制'), max_length=10, choices=AGE_CHOICES)
     authentication = models.CharField(verbose_name=_(u'用户认证类型'), max_length=10, choices=AUTHENTICATION_CHOICES)
     certificates = models.CharField(verbose_name=_(u'用户证件类型'), max_length=10, choices=CERTIFICATES_CHOICES)
-    approval_status = models.CharField(verbose_name=_(u'审批状态'), max_length=10, choices=APPROVAL_CHOICES, default='1')
+    approval_status = models.CharField(verbose_name=_(u'公告状态'), max_length=10, choices=APPROVAL_CHOICES, default='1')
     applicant_time = models.DateTimeField(verbose_name=_(u'审批时间'), auto_now=True)
-    order = models.IntegerField(_(u'排序'), default='1')
+    # order = models.IntegerField(_(u'排序'), default='1')
 
     def __unicode__(self):
         return self.title
@@ -75,4 +75,4 @@ class Relancement(models.Model):
 
     class Meta:
         verbose_name = _(u'创建公告')
-        verbose_name_plural = _(u'公告管理')
+        verbose_name_plural = _(u'发布公告')
